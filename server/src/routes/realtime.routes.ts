@@ -95,7 +95,7 @@ function logMenuLoadFailure(error: Error, context: {
  *
  * GET /api/v1/realtime/menu-check/:restaurantId
  */
-router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
+router.get('/menu-check/:restaurantId', async (req: Request, res: Response): Promise<void> => {
   try {
     let restaurantId = req.params['restaurantId'];
 
@@ -114,12 +114,13 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
 
       if (error || !restaurant) {
         realtimeLogger.warn('Restaurant slug not found', { slug: restaurantId, error: error?.message });
-        return res.status(404).json({
+        res.status(404).json({
           status: 'unhealthy',
           error: 'Restaurant not found',
           details: `No restaurant found with slug: ${restaurantId}`,
           timestamp: new Date().toISOString()
         });
+        return;
       }
 
       restaurantId = restaurant.id;
@@ -128,11 +129,12 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
 
     // Ensure restaurantId is defined
     if (!restaurantId) {
-      return res.status(400).json({
+      res.status(400).json({
         status: 'unhealthy',
         error: 'Restaurant ID required',
         timestamp: new Date().toISOString()
       });
+      return;
     }
 
     // Attempt to load menu data (uses cache if available)
@@ -161,7 +163,7 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
 
     realtimeLogger.info('Menu health check passed', health);
 
-    return res.status(200).json(health);
+    res.status(200).json(health);
 
   } catch (error) {
     const err = error as Error;
@@ -176,7 +178,7 @@ router.get('/menu-check/:restaurantId', async (req: Request, res: Response) => {
       timestamp: new Date().toISOString()
     });
 
-    return res.status(503).json({
+    res.status(503).json({
       status: 'unhealthy',
       error: 'Failed to load menu data',
       details: err.message,
@@ -231,7 +233,7 @@ function truncateMenuContext(menuContext: string, maxLength: number = VOICE_CONF
  *
  * Rate limited via aiServiceLimiter to prevent cost attacks
  */
-router.post('/session', aiServiceLimiter, optionalAuth, async (req: AuthenticatedRequest, res: Response) => {
+router.post('/session', aiServiceLimiter, optionalAuth, async (req: AuthenticatedRequest, res: Response): Promise<void> => {
   try {
     const rawRestaurantId = (req.restaurantId || req.headers['x-restaurant-id'] || undefined) as string | undefined;
     const restaurantId = resolveRestaurantId(rawRestaurantId);
@@ -243,10 +245,11 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
         rawInput: rawRestaurantId,
         resolved: restaurantId
       });
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Invalid restaurant identifier',
         details: 'Restaurant ID must be provided as either UUID or valid slug'
       });
+      return;
     }
 
     realtimeLogger.info('Creating ephemeral token for real-time session', {
@@ -366,11 +369,12 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
           categoryCount: categories?.length || 0
         });
 
-        return res.status(503).json({
+        res.status(503).json({
           error: 'Menu temporarily unavailable',
           code: 'MENU_LOAD_FAILED',
           details: 'No menu items found for this restaurant. Voice ordering requires menu data.'
         });
+        return;
       }
     } catch (error: any) {
       // CRITICAL FIX: Fail fast instead of continuing with empty menu
@@ -389,20 +393,22 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
       });
 
       // Return 503 Service Unavailable instead of continuing with empty menu
-      return res.status(503).json({
+      res.status(503).json({
         error: 'Menu temporarily unavailable',
         code: 'MENU_LOAD_FAILED'
       });
+      return;
     }
 
     // Validate OpenAI API key before making request
     const apiKey = env.OPENAI_API_KEY;
     if (!apiKey) {
       realtimeLogger.error('OPENAI_API_KEY is not configured');
-      return res.status(500).json({
+      res.status(500).json({
         error: 'Voice ordering service is not configured',
         details: 'OPENAI_API_KEY environment variable is missing'
       });
+      return;
     }
 
     // Detect malformed API keys (e.g., containing literal newlines from Vercel CLI)
@@ -413,10 +419,11 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
         hasLiteralNewline: apiKey.includes('\\n'),
         hasCarriageReturn: apiKey.includes('\r')
       });
-      return res.status(500).json({
+      res.status(500).json({
         error: 'Voice ordering service is misconfigured',
         details: 'OPENAI_API_KEY contains invalid characters. This may be caused by Vercel CLI adding newlines. Fix: Use "echo -n" when setting environment variables.'
       });
+      return;
     }
 
     // Build instructions with menu context
@@ -497,11 +504,12 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
           timeoutMs: VOICE_CONFIG.OPENAI_API_TIMEOUT_MS,
           restaurantId
         });
-        return res.status(504).json({
+        res.status(504).json({
           error: 'Voice service temporarily unavailable',
           code: 'OPENAI_TIMEOUT',
           details: 'Request to OpenAI timed out. Please try again.'
         });
+        return;
       }
 
       // Re-throw other fetch errors
@@ -517,10 +525,11 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
         error: errorText
       });
 
-      return res.status(response.status).json({
+      res.status(response.status).json({
         error: 'Failed to create real-time session',
         code: 'SESSION_CREATE_ERROR'
       });
+      return;
     }
 
     const data = await response.json() as Record<string, any>;
@@ -543,8 +552,8 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
     // Don't cache ephemeral tokens
     res.set('Cache-Control', 'no-store, no-cache, must-revalidate');
     res.set('Pragma', 'no-cache');
-    
-    return res.json(sessionData);
+
+    res.json(sessionData);
   } catch (error) {
     const err = error as Error;
 
@@ -567,7 +576,7 @@ router.post('/session', aiServiceLimiter, optionalAuth, async (req: Authenticate
       }
     });
 
-    return res.status(500).json({
+    res.status(500).json({
       error: 'Failed to create real-time session',
       code: 'SESSION_CREATE_ERROR'
     });

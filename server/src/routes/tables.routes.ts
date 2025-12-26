@@ -10,7 +10,7 @@ import { TableStatus } from '../../../shared/types/table.types';
 const router = Router();
 
 // Get all tables for a restaurant
-export const getTables = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
+export const getTables = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     
@@ -32,14 +32,14 @@ export const getTables = async (req: AuthenticatedRequest, res: Response, next: 
       seats: table['seats']
     }));
     
-    return res.json(transformedData);
+    res.json(transformedData);
   } catch (error) {
     next(error);
   }
 };
 
 // Get single table
-export const getTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
+export const getTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
@@ -53,10 +53,11 @@ export const getTable = async (req: AuthenticatedRequest, res: Response, next: N
 
     if (error) throw error;
     if (!data) {
-      return res.status(404).json({ error: 'Table not found' });
+      res.status(404).json({ error: 'Table not found' });
+      return;
     }
-    
-    return res.json(data);
+
+    res.json(data);
   } catch (error) {
     next(error);
   }
@@ -74,7 +75,7 @@ interface CreateTableBody {
 }
 
 // Create new table
-export const createTable = async (req: AuthenticatedRequest & { body: CreateTableBody }, res: Response, next: NextFunction): Promise<Response | void> => {
+export const createTable = async (req: AuthenticatedRequest & { body: CreateTableBody }, res: Response, next: NextFunction): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     const { x, y, type, z_index, ...otherData } = req.body;
@@ -125,7 +126,7 @@ interface UpdateTableBody {
 }
 
 // Update table
-export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTableBody }, res: Response, next: NextFunction): Promise<Response | void> => {
+export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTableBody }, res: Response, next: NextFunction): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
@@ -161,9 +162,10 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
 
     if (error) throw error;
     if (!data) {
-      return res.status(404).json({ error: 'Table not found' });
+      res.status(404).json({ error: 'Table not found' });
+      return;
     }
-    
+
     // Transform database columns back to frontend properties
     const transformedData = {
       ...data,
@@ -173,14 +175,14 @@ export const updateTable = async (req: AuthenticatedRequest & { body: UpdateTabl
       capacity: (data as any).seats  // FIX: Transform seats to capacity for client
     };
 
-    return res.json(transformedData);
+    res.json(transformedData);
   } catch (error) {
     next(error);
   }
 };
 
 // Delete table (soft delete)
-export const deleteTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<Response | void> => {
+export const deleteTable = async (req: AuthenticatedRequest, res: Response, next: NextFunction): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
@@ -195,10 +197,11 @@ export const deleteTable = async (req: AuthenticatedRequest, res: Response, next
 
     if (error) throw error;
     if (!data) {
-      return res.status(404).json({ error: 'Table not found' });
+      res.status(404).json({ error: 'Table not found' });
+      return;
     }
-    
-    return res.json({ success: true, id });
+
+    res.json({ success: true, id });
   } catch (error) {
     next(error);
   }
@@ -210,7 +213,7 @@ interface UpdateTableStatusBody {
 }
 
 // Update table status
-export const updateTableStatus = async (req: AuthenticatedRequest & { body: UpdateTableStatusBody }, res: Response, next: NextFunction): Promise<Response | void> => {
+export const updateTableStatus = async (req: AuthenticatedRequest & { body: UpdateTableStatusBody }, res: Response, next: NextFunction): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     const { id } = req.params;
@@ -233,10 +236,11 @@ export const updateTableStatus = async (req: AuthenticatedRequest & { body: Upda
 
     if (error) throw error;
     if (!data) {
-      return res.status(404).json({ error: 'Table not found' });
+      res.status(404).json({ error: 'Table not found' });
+      return;
     }
-    
-    return res.json(data);
+
+    res.json(data);
   } catch (error) {
     next(error);
   }
@@ -255,7 +259,7 @@ interface BatchUpdateTablesBody {
 }
 
 // Batch update tables (for floor plan editor)
-export const batchUpdateTables = async (req: AuthenticatedRequest & { body: BatchUpdateTablesBody }, res: Response, next: NextFunction): Promise<Response | void> => {
+export const batchUpdateTables = async (req: AuthenticatedRequest & { body: BatchUpdateTablesBody }, res: Response, next: NextFunction): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     
@@ -272,14 +276,15 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
     const { tables } = req.body;
     
     if (!Array.isArray(tables)) {
-      console.error('Tables validation failed:', {
+      logger.error('Tables validation failed:', {
         tablesType: typeof tables,
         tablesValue: tables,
         bodyKeys: Object.keys(req.body),
         isArray: Array.isArray(tables),
         fullBody: JSON.stringify(req.body, null, 2)
-      })
-      return res.status(400).json({ error: 'Tables must be an array' });
+      });
+      res.status(400).json({ error: 'Tables must be an array' });
+      return;
     }
     
     logger.info('Tables array received:', {
@@ -330,12 +335,13 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
           tableCount: transformedTables.length
         });
 
-        return res.status(400).json({
+        res.status(400).json({
           error: 'Batch update failed',
           message: error.message,
           code: error.code,
           details: error.details
         });
+        return;
       }
 
       logger.info(`✅ Batch update completed in ${elapsed}ms (${transformedTables.length} tables)`, {
@@ -353,10 +359,11 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
         tableCount: transformedTables.length
       });
 
-      return res.status(400).json({
+      res.status(400).json({
         error: 'Batch update exception',
         message: error.message
       });
+      return;
     }
 
     // Transform database columns back to frontend properties
@@ -369,8 +376,8 @@ export const batchUpdateTables = async (req: AuthenticatedRequest & { body: Batc
     }));
     
     logger.info(`✅ Batch update response: ${data.length} tables transformed and returned`);
-    
-    return res.json(data);
+
+    res.json(data);
   } catch (error) {
     next(error);
   }

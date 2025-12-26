@@ -92,7 +92,7 @@ router.post('/', optionalAuth, validateBody(OrderPayload), async (req: Authentic
 });
 
 // POST /api/v1/orders/voice - Process voice order
-router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiScope.ORDERS_CREATE), async (req: AuthenticatedRequest, res, _next) => {
+router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiScope.ORDERS_CREATE), async (req: AuthenticatedRequest, res): Promise<void> => {
   try {
     const restaurantId = req.restaurantId!;
     const { transcription, audioUrl, metadata: _metadata } = req.body;
@@ -165,7 +165,7 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
     }
 
     if (!parsedOrder || parsedOrder.items.length === 0) {
-      return res.json({
+      res.json({
         success: false,
         message: "I didn't quite catch that. Could you repeat your order?",
         suggestions: [
@@ -175,6 +175,7 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
         ],
         confidence: 0.3,
       });
+      return;
     }
 
     // Calculate confidence based on parsed items
@@ -189,13 +190,13 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
       audioUrl
     );
 
-    routeLogger.info('Voice order created', { 
-      orderId: order.id, 
+    routeLogger.info('Voice order created', {
+      orderId: order.id,
       orderNumber: order.orderNumber,
-      confidence 
+      confidence
     });
 
-    return res.json({
+    res.json({
       success: true,
       order,
       confidence,
@@ -203,7 +204,7 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
     });
   } catch (error) {
     routeLogger.error('Voice order processing failed', { error });
-    return res.json({
+    res.json({
       success: false,
       message: "Sorry, I couldn't process that order. Please try again.",
       error: error instanceof Error ? error.message : 'Unknown error',

@@ -39,25 +39,27 @@ export function webhookAuth(
   req: WebhookRequest,
   res: Response,
   next: NextFunction
-): Response | void {
+): void {
   try {
     const signature = req.headers['x-webhook-signature'] as string;
     const secret = process.env['WEBHOOK_SECRET'];
 
     if (!signature) {
       logger.warn('Webhook request missing signature header');
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Missing signature',
         message: 'x-webhook-signature header is required'
       });
+      return;
     }
 
     if (!secret) {
       logger.error('WEBHOOK_SECRET not configured');
-      return res.status(500).json({
+      res.status(500).json({
         error: 'Server configuration error',
         message: 'Webhook authentication not properly configured'
       });
+      return;
     }
 
     // Use raw body if available, otherwise handle based on content type
@@ -81,10 +83,11 @@ export function webhookAuth(
         receivedSignature: signature.substring(0, 10) + '...',
         payloadLength: payload.length
       });
-      return res.status(401).json({
+      res.status(401).json({
         error: 'Invalid signature',
         message: 'Webhook signature verification failed'
       });
+      return;
     }
 
     logger.info('Webhook signature verified successfully');
@@ -158,22 +161,24 @@ export function webhookAuthWithTimestamp(
   req: WebhookRequest,
   res: Response,
   next: NextFunction
-): Response | void {
+): void {
   const timestamp = req.headers['x-webhook-timestamp'] as string;
 
   if (!timestamp) {
-    return res.status(401).json({
+    res.status(401).json({
       error: 'Missing timestamp',
       message: 'x-webhook-timestamp header is required'
     });
+    return;
   }
 
   if (!verifyWebhookTimestamp(timestamp)) {
     logger.warn('Webhook request failed timestamp verification');
-    return res.status(401).json({
+    res.status(401).json({
       error: 'Invalid timestamp',
       message: 'Webhook timestamp is invalid or too old'
     });
+    return;
   }
 
   // Continue with signature verification

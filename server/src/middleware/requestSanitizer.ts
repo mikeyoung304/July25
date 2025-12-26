@@ -191,49 +191,51 @@ function detectInjectionPatterns(data: string): string[] {
 /**
  * Main sanitization middleware
  */
-export const sanitizeRequest = (req: Request, res: Response, next: NextFunction) => {
+export const sanitizeRequest = (req: Request, res: Response, next: NextFunction): void => {
   try {
     // Skip sanitization for specific content types
     const contentType = req.headers['content-type'] || '';
     if (contentType.includes('multipart/form-data')) {
       // File uploads handled separately
-      return next();
+      next();
+      return;
     }
-    
+
     // Sanitize body
     if (req.body && typeof req.body === 'object') {
       const bodyString = JSON.stringify(req.body);
       const injectionPatterns = detectInjectionPatterns(bodyString);
-      
+
       if (injectionPatterns.length > 0) {
         logger.warn(`Potential injection detected: ${injectionPatterns.join(', ')}`, {
           ip: req.ip,
           url: req.url,
           method: req.method,
         });
-        
+
         // In production, you might want to block these
         if (process.env['NODE_ENV'] === 'production' && injectionPatterns.length > 1) {
-          return res.status(400).json({
+          res.status(400).json({
             error: 'Invalid request data detected',
             code: 'INVALID_INPUT'
           });
+          return;
         }
       }
-      
+
       req.body = sanitizeObject(req.body, 'body');
     }
-    
+
     // Sanitize query parameters
     if (req.query && Object.keys(req.query).length > 0) {
       req.query = sanitizeParams(req.query);
     }
-    
+
     // Sanitize URL parameters
     if (req.params && Object.keys(req.params).length > 0) {
       req.params = sanitizeParams(req.params);
     }
-    
+
     // Sanitize headers (only specific ones that might contain user input)
     const userInputHeaders = ['x-forwarded-for', 'referer', 'origin'];
     for (const header of userInputHeaders) {
@@ -241,7 +243,7 @@ export const sanitizeRequest = (req: Request, res: Response, next: NextFunction)
         req.headers[header] = validator.escape(req.headers[header] as string);
       }
     }
-    
+
     next();
   } catch (error) {
     logger.error('Error in request sanitization:', error);
@@ -253,39 +255,44 @@ export const sanitizeRequest = (req: Request, res: Response, next: NextFunction)
 /**
  * Strict sanitization for critical operations
  */
-export const strictSanitize = (req: Request, res: Response, next: NextFunction) => {
+export const strictSanitize = (req: Request, res: Response, next: NextFunction): void => {
   // Apply regular sanitization first
-  sanitizeRequest(req, res, (err?: any) => {
-    if (err) return next(err);
-    
+  sanitizeRequest(req, res, (err?: unknown) => {
+    if (err) {
+      next(err);
+      return;
+    }
+
     // Additional strict checks
     const allData = JSON.stringify({
       body: req.body,
       query: req.query,
       params: req.params,
     });
-    
+
     // Check length to prevent buffer overflow
     if (allData.length > 100000) { // 100KB limit
-      return res.status(413).json({
+      res.status(413).json({
         error: 'Request too large',
         code: 'PAYLOAD_TOO_LARGE'
       });
+      return;
     }
-    
+
     // Check for binary data in text fields
     if (/[\x00-\x08\x0B\x0C\x0E-\x1F]/.test(allData)) {
       logger.warn('Binary data in text fields detected', {
         ip: req.ip,
         url: req.url,
       });
-      
-      return res.status(400).json({
+
+      res.status(400).json({
         error: 'Invalid characters in request',
         code: 'INVALID_CHARACTERS'
       });
+      return;
     }
-    
+
     next();
   });
 };

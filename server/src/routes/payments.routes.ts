@@ -1,4 +1,4 @@
-import { Router } from 'express';
+import { Router, Request } from 'express';
 import { authenticate, optionalAuth, AuthenticatedRequest } from '../middleware/auth';
 import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
@@ -123,6 +123,25 @@ router.post('/create-payment-intent',
 
     // Get order for reference
     const order = await OrdersService.getOrder(restaurantId, order_id);
+
+    // DOUBLE-PAYMENT PREVENTION: Check if order is already paid
+    // This prevents charging customers twice if they retry after a successful payment
+    // that they didn't receive confirmation for (network issues, etc.)
+    const orderPaymentStatus = (order as any).payment_status;
+    const existingPaymentId = (order as any).payment_id;
+    if (orderPaymentStatus === 'paid' && existingPaymentId) {
+      routeLogger.warn('Order already paid - preventing double payment', {
+        order_id,
+        existingPaymentId,
+        restaurantId
+      });
+      return res.status(409).json({
+        success: false,
+        error: 'Order already paid',
+        existingPaymentId,
+        message: 'This order has already been paid. If you believe this is an error, please contact support.',
+      });
+    }
 
     // COMPLIANCE: Phase 1 - Log payment 'initiated' BEFORE charging customer
     await PaymentService.logPaymentAttempt({
@@ -683,7 +702,7 @@ router.post('/:paymentId/refund',
 
 // POST /api/v1/payments/webhook - Stripe webhook handler
 router.post('/webhook',
-  async (req, res, _next): Promise<any> => {
+  async (req: Request & { rawBody?: string }, res, _next): Promise<any> => {
   const sig = req.headers['stripe-signature'];
   const webhookSecret = process.env['STRIPE_WEBHOOK_SECRET'];
 
@@ -692,11 +711,18 @@ router.post('/webhook',
     return res.status(400).json({ error: 'Webhook not configured' });
   }
 
+  // Use raw body for signature verification (captured by verify callback in server.ts)
+  const rawBody = req.rawBody;
+  if (!rawBody) {
+    routeLogger.error('Webhook missing raw body - signature verification cannot proceed');
+    return res.status(400).json({ error: 'Raw body not available' });
+  }
+
   let event: Stripe.Event;
 
   try {
     event = stripe.webhooks.constructEvent(
-      req.body,
+      rawBody,
       sig,
       webhookSecret
     );

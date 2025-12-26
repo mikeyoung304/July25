@@ -49,16 +49,17 @@ router.get('/stats',
 router.post('/test',
   authenticate,
   requireRole(['owner']),
-  (req, res) => {
+  (req, res): void => {
     if (process.env['NODE_ENV'] === 'production') {
-      return res.status(403).json({
+      res.status(403).json({
         error: {
           code: 'FORBIDDEN',
           message: 'Security testing disabled in production',
         }
       });
+      return;
     }
-    
+
     // Log a test security event
     securityMonitor.logEvent({
       type: 'suspicious_activity',
@@ -69,12 +70,11 @@ router.post('/test',
         message: 'Security monitoring test event',
       },
     });
-    
+
     res.json({
       success: true,
       message: 'Test security event logged',
     });
-    return;
   }
 );
 
