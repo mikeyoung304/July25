@@ -8,7 +8,8 @@ import OrderStateMachine from './orderStateMachine';
 // Import shared validation schemas (Single Source of Truth)
 import {
   mapOrderTypeToDb,
-  sanitizePrice
+  sanitizePrice,
+  getErrorMessage
 } from '@rebuild/shared';
 // Removed mapOrder - returning raw snake_case data for frontend consistency
 // import { menuIdMapper } from './menu-id-mapper'; // Not currently used
@@ -440,7 +441,7 @@ export class OrdersService {
           orderId,
           from: currentOrder.status,
           to: newStatus,
-          error: hookError instanceof Error ? hookError.message : 'Unknown error'
+          error: getErrorMessage(hookError)
         });
       });
 
@@ -637,7 +638,7 @@ export class OrdersService {
           confidence_score: confidence,
           audio_url: audioUrl,
           success: false,
-          error_message: error instanceof Error ? error.message : 'Unknown error',
+          error_message: getErrorMessage(error),
         }]);
 
       throw error;

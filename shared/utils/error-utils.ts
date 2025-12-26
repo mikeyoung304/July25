@@ -25,3 +25,35 @@ export function getErrorMessage(error: unknown): string {
 export function getErrorStack(error: unknown): string | undefined {
   return error instanceof Error ? error.stack : undefined;
 }
+
+/**
+ * Create a safe API error response that doesn't leak internal details.
+ * Logs the full error server-side while returning only the generic message to clients.
+ *
+ * @param error - The caught error (unknown type)
+ * @param genericMessage - User-friendly message to return to clients
+ * @param logger - Optional logger function (default: console.error for fallback)
+ * @returns The generic message safe for API responses
+ *
+ * @example
+ * res.status(500).json({
+ *   error: safeApiError(error, 'Failed to load menu', logger.error)
+ * });
+ */
+export function safeApiError(
+  error: unknown,
+  genericMessage: string,
+  logger?: (message: string, context: Record<string, unknown>) => void
+): string {
+  const errorDetails = {
+    internalMessage: getErrorMessage(error),
+    stack: getErrorStack(error),
+    errorType: error?.constructor?.name
+  };
+
+  if (logger) {
+    logger(genericMessage, errorDetails);
+  }
+
+  return genericMessage;
+}

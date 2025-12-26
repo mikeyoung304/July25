@@ -12,7 +12,7 @@ export async function bufferToTmpFile(buffer: Buffer, extension: string): Promis
   const tmpDir = os.tmpdir();
   const tmpPath = path.join(tmpDir, `audio-${Date.now()}.${extension}`);
   
-  await fs.promises.writeFile(tmpPath, buffer);
+  await fs.promises.writeFile(tmpPath, new Uint8Array(buffer));
   return tmpPath;
 }
 

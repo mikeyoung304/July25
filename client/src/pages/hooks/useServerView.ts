@@ -5,6 +5,7 @@ import { tableService } from '@/services/tables/TableService'
 import { useToast } from '@/hooks/useToast'
 import { supabase } from '@/core/supabase'
 import type { Table } from '@/modules/floor-plan/types'
+import { getErrorMessage } from '@rebuild/shared'
 
 export function useServerView() {
   const { toast } = useToast()
@@ -116,7 +117,7 @@ export function useServerView() {
     } catch (error: unknown) {
       // TODO-147: Type-safe error property access
       logger.error('❌ ServerView: Failed to load floor plan:', {
-        error: error instanceof Error ? error.message : 'Unknown error',
+        error: getErrorMessage(error),
         status: (error && typeof error === 'object' && 'status' in error && typeof (error as { status?: unknown }).status === 'number')
           ? (error as { status: number }).status
           : undefined,

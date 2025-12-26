@@ -2,6 +2,7 @@
 import { EventEmitter } from '../../../services/utils/EventEmitter';
 import { logger } from '@/services/logger';
 import { VOICE_CONFIG } from '../constants';
+import { getErrorMessage } from '@rebuild/shared';
 
 /**
  * Connection states for WebRTC
@@ -109,7 +110,7 @@ export class WebRTCConnection extends EventEmitter implements IWebRTCConnection 
       ]);
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : String(error);
+      const errorMessage = getErrorMessage(error);
 
       // Emit specific timeout event for UI handling
       if (errorMessage.includes('timeout')) {

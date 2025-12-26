@@ -2,6 +2,7 @@ import { logger } from '../utils/logger';
 import { BadRequest } from '../middleware/errorHandler';
 // ✅ PHASE 2: Import OrderStatus from shared (Single Source of Truth)
 import type { Order, OrderStatus } from '@rebuild/shared';
+import { getErrorMessage } from '@rebuild/shared';
 
 /**
  * Order State Machine
@@ -172,7 +173,7 @@ export class OrderStateMachine {
         from: fromStatus,
         to: toStatus,
         orderId: order.id,
-        error: error instanceof Error ? error.message : 'Unknown error'
+        error: getErrorMessage(error)
       });
     }
   }
@@ -334,7 +335,7 @@ OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
     // Log but don't block - kitchen notifications are best-effort
     logger.error('Failed to process kitchen notification hook', {
       orderId: order.id,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: getErrorMessage(error)
     });
   }
 });
@@ -387,7 +388,7 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
         logger.error('SMS notification failed', {
           orderId: order.id,
           orderNumber: order.order_number,
-          error: smsError instanceof Error ? smsError.message : 'Unknown error'
+          error: getErrorMessage(smsError)
         });
       }
     }
@@ -413,7 +414,7 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
         logger.error('Email notification failed', {
           orderId: order.id,
           orderNumber: order.order_number,
-          error: emailError instanceof Error ? emailError.message : 'Unknown error'
+          error: getErrorMessage(emailError)
         });
       }
     }
@@ -421,7 +422,7 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
     // Log but don't block - customer notifications are best-effort
     logger.error('Failed to process customer notification hook', {
       orderId: order.id,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: getErrorMessage(error)
     });
   }
 });
@@ -490,7 +491,7 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
           orderId: order.id,
           orderNumber: order.order_number,
           paymentIntentId,
-          error: refundError instanceof Error ? refundError.message : 'Unknown error'
+          error: getErrorMessage(refundError)
         });
       }
     } else {
@@ -507,7 +508,7 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
     // Log but don't block - refund processing errors need manual attention
     logger.error('Failed to process refund hook', {
       orderId: order.id,
-      error: error instanceof Error ? error.message : 'Unknown error'
+      error: getErrorMessage(error)
     });
   }
 });

@@ -4,6 +4,7 @@ import rateLimit from 'express-rate-limit';
 import { logger } from '../utils/logger';
 import { supabase } from '../config/database';
 import { authenticate, AuthenticatedRequest } from '../middleware/auth';
+import { getErrorMessage } from '@rebuild/shared';
 
 const router = Router();
 
@@ -137,7 +138,7 @@ async function handleMetrics(req: Request, res: Response): Promise<void> {
     // Fire-and-forget - don't block response on external monitoring
     forwardMetricsToMonitoring(sanitizedMetrics).catch(error => {
       logger.error('Failed to forward metrics to monitoring', {
-        message: error instanceof Error ? error.message : 'Unknown error'
+        message: getErrorMessage(error)
       });
     });
     res.json({ success: true });
@@ -208,7 +209,7 @@ async function checkRedisHealth(): Promise<{ status: string; error?: string; lat
   } catch (err) {
     return {
       status: 'error',
-      error: err instanceof Error ? err.message : 'Unknown Redis error'
+      error: getErrorMessage(err)
     };
   }
 }
@@ -254,7 +255,7 @@ router.get('/health/detailed', async (_req, res) => {
     }
   } catch (err) {
     dbStatus = 'error';
-    dbError = err instanceof Error ? err.message : 'Unknown database error';
+    dbError = getErrorMessage(err);
   }
 
   // Redis health check

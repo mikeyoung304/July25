@@ -8,6 +8,7 @@ import { logger } from '@/services/logger';
 import { toast } from 'react-hot-toast';
 import { motion } from 'framer-motion';
 import { WORKSPACE_CONFIG } from '@/config/demoCredentials';
+import { getErrorMessage } from '@rebuild/shared';
 
 interface DemoRole {
   id: string;
@@ -106,7 +107,7 @@ export function DevAuthOverlay() {
     } catch (error) {
       logger.error('🎯 [DevAuth] ERROR in handleRoleSelect:', error);
       logger.error(`Workspace login failed for ${role.name}:`, error);
-      toast.error(`Login failed: ${error instanceof Error ? error.message : 'Unknown error'}`);
+      toast.error(`Login failed: ${getErrorMessage(error)}`);
     } finally {
       logger.debug('🎯 [DevAuth] Step 7: Cleaning up loading state');
       setIsLoading(false);

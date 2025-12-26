@@ -2,6 +2,7 @@ import React from 'react';
 import { AlertCircle, XCircle, RefreshCw } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { cn } from '@/utils';
+import { getErrorMessage } from '@rebuild/shared';
 
 export interface ErrorDisplayProps {
   error: Error | string | null;
@@ -50,7 +51,7 @@ export const ErrorDisplay: React.FC<ErrorDisplayProps> = ({
 }) => {
   if (!error) return null;
 
-  const errorMessage = error instanceof Error ? error.message : error;
+  const errorMessage = getErrorMessage(error);
   const config = sizeConfig[size];
   const Icon = variant === 'fullPage' ? XCircle : AlertCircle;
 

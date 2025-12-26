@@ -2,6 +2,7 @@
 import { EventEmitter } from '@/services/utils/EventEmitter';
 import { LRUCache } from 'lru-cache';
 import { logger } from '@/services/logger';
+import { getErrorMessage } from '@rebuild/shared';
 
 import { VOICE_CONFIG } from '../constants';
 
@@ -816,7 +817,7 @@ export class VoiceEventHandler extends EventEmitter implements IVoiceEventHandle
         }
       } catch (error) {
         logger.error('[VoiceEventHandler] Failed to send event', { error, eventType: event.type });
-        this.emit('error', new Error(`Failed to send ${event.type}: ${error instanceof Error ? error.message : 'Unknown error'}`));
+        this.emit('error', new Error(`Failed to send ${event.type}: ${getErrorMessage(error)}`));
       }
     } else {
       // Queue the message for later

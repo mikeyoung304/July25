@@ -8,6 +8,7 @@ import { logger } from '../utils/logger';
 import { ai } from '../ai';
 import { MenuService } from '../services/menu.service';
 import type { OrderStatus, OrderType } from '@rebuild/shared';
+import { safeApiError } from '@rebuild/shared';
 import { OrderPayload } from '../../../shared/contracts/order';
 import { validateBody } from '../middleware/validate';
 
@@ -203,11 +204,10 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
       message: `Perfect! Your ${parsedOrder.items[0]?.name || 'order'} will be ready in about ${(order.items?.[0] as any)?.prepTimeMinutes || 10} minutes.`,
     });
   } catch (error) {
-    routeLogger.error('Voice order processing failed', { error });
     res.json({
       success: false,
       message: "Sorry, I couldn't process that order. Please try again.",
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: safeApiError(error, 'Voice order processing failed', (msg, ctx) => routeLogger.error(msg, ctx)),
       suggestions: [
         "Make sure to mention specific menu items",
         "Try 'I want a Soul Bowl' or 'Greek Salad with chicken'"

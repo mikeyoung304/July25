@@ -21,10 +21,9 @@ export function verifyWebhookSignature(
     const expectedSignature = hmac.digest('hex');
 
     // Constant-time comparison to prevent timing attacks
-    return crypto.timingSafeEqual(
-      Buffer.from(signature),
-      Buffer.from(expectedSignature)
-    );
+    const sigBuffer = new Uint8Array(Buffer.from(signature));
+    const expectedBuffer = new Uint8Array(Buffer.from(expectedSignature));
+    return crypto.timingSafeEqual(sigBuffer, expectedBuffer);
   } catch (error) {
     logger.error('Webhook signature verification error:', error);
     return false;

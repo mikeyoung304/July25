@@ -3,6 +3,7 @@ import { WebSocket } from 'ws';
 import { ai } from '../ai';
 import { MenuService } from './menu.service';
 import { env } from '../config/env';
+import { getErrorMessage } from '@rebuild/shared';
 
 const aiLogger = logger.child({ service: 'AIService' });
 
@@ -98,7 +99,7 @@ export class AIService {
 
     try {
       // Combine audio chunks
-      const audioBuffer = Buffer.concat(state.audioBuffer);
+      const audioBuffer = Buffer.concat(state.audioBuffer as Uint8Array[]);
       aiLogger.info(`Stopping recording: ${state.audioBuffer.length} chunks, ${audioBuffer.length} total bytes`);
       
       if (audioBuffer.length === 0) {
@@ -123,7 +124,7 @@ export class AIService {
       aiLogger.error('OpenAI transcription error:', error);
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Transcription failed'
+        error: getErrorMessage(error)
       };
     }
   }
@@ -232,7 +233,7 @@ export class AIService {
       
       return {
         success: false,
-        error: error instanceof Error ? error.message : 'Transcription failed'
+        error: getErrorMessage(error)
       };
     }
   }

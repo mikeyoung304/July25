@@ -5,6 +5,7 @@ import { checkAIHealth } from '../ai';
 import NodeCache from 'node-cache';
 import Stripe from 'stripe';
 import { isSentryEnabled } from '../config/sentry';
+import { getErrorMessage } from '@rebuild/shared';
 
 const router = Router();
 
@@ -95,7 +96,7 @@ async function checkDatabase(): Promise<HealthStatus['services']['database']> {
     logger.error('Database health check failed:', error);
     return {
       status: 'error',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: getErrorMessage(error),
     };
   }
 }
@@ -132,7 +133,7 @@ async function checkPayments(): Promise<HealthStatus['services']['payments']> {
     return {
       status: 'error',
       provider: 'stripe',
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: getErrorMessage(error),
     };
   }
 }
@@ -153,7 +154,7 @@ async function checkAI(): Promise<HealthStatus['services']['ai']> {
       status: 'unhealthy',
       provider: 'stubs',
       details: { message: 'AI health check failed' },
-      error: error instanceof Error ? error.message : 'Unknown error',
+      error: getErrorMessage(error),
     };
   }
 }

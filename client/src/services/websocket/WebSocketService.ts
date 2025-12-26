@@ -10,6 +10,7 @@ import { getCurrentRestaurantId } from '@/services/http/httpClient'
 import { supabase } from '@/core/supabase'
 import { toSnakeCase } from '@/services/utils/caseTransform'
 import { getWsUrl } from '@/config'
+import { getErrorMessage } from '@rebuild/shared'
 
 export interface WebSocketConfig {
   url?: string
@@ -177,7 +178,7 @@ export class WebSocketService extends EventEmitter {
       this.ws.onclose = this.handleClose.bind(this)
 
     } catch (error) {
-      logger.error('Failed to connect to WebSocket', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
+      logger.error('Failed to connect to WebSocket', { component: 'WebSocket', error: getErrorMessage(error) })
       this.setConnectionState('error')
       this.scheduleReconnect()
     }
@@ -239,7 +240,7 @@ export class WebSocketService extends EventEmitter {
       const serializedMessage = JSON.stringify(toSnakeCase(message))
       this.ws!.send(serializedMessage)
     } catch (error) {
-      logger.error('Failed to send WebSocket message', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
+      logger.error('Failed to send WebSocket message', { component: 'WebSocket', error: getErrorMessage(error) })
     }
   }
 
@@ -394,7 +395,7 @@ export class WebSocketService extends EventEmitter {
       this.emit(`message:${message.type}`, message.payload)
       
     } catch (error) {
-      logger.error('Failed to parse WebSocket message', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
+      logger.error('Failed to parse WebSocket message', { component: 'WebSocket', error: getErrorMessage(error) })
     }
   }
 
@@ -471,7 +472,7 @@ export class WebSocketService extends EventEmitter {
           await this.connect()
         } catch (error) {
           // connect() failed, will be handled by error/close handlers which may schedule another reconnect
-          logger.error('Reconnection attempt failed', { component: 'WebSocket', error: error instanceof Error ? error.message : String(error) })
+          logger.error('Reconnection attempt failed', { component: 'WebSocket', error: getErrorMessage(error) })
         }
       }
     }, delay)
@@ -692,7 +693,7 @@ export class OptimisticWebSocketService extends WebSocketService {
       try {
         handler(update)
       } catch (error) {
-        logger.error('Error in rollback handler', { error: error instanceof Error ? error.message : String(error) })
+        logger.error('Error in rollback handler', { error: getErrorMessage(error) })
       }
     })
   }

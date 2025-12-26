@@ -12,6 +12,7 @@ import { Card } from '@/components/ui/card';
 import { ActionButton } from '@/components/ui/ActionButton';
 import { BrandHeader } from '@/components/layout/BrandHeader';
 import { ArrowLeft, ShoppingCart, CreditCard, Mail, Phone, User, Smartphone, DollarSign } from 'lucide-react';
+import { getErrorMessage } from '@rebuild/shared';
 
 interface KioskCheckoutPageProps {
   onBack: () => void;
@@ -195,7 +196,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       return order;
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to create order';
+      const errorMessage = getErrorMessage(error);
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
       return null;
     } finally {
@@ -219,7 +220,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
     try {
       await terminal.startCheckout(order.id, device.deviceId);
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Failed to start terminal payment';
+      const errorMessage = getErrorMessage(error);
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
     }
   };
@@ -270,7 +271,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
       }
 
     } catch (error) {
-      const errorMessage = error instanceof Error ? error.message : 'Payment processing failed';
+      const errorMessage = getErrorMessage(error);
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
 
       // Notify voice orchestrator if present

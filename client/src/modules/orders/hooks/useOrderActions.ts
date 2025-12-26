@@ -1,5 +1,5 @@
 import { useCallback } from 'react'
-import { Order } from '@rebuild/shared'
+import { Order, getErrorMessage } from '@rebuild/shared'
 import { orderService } from '@/services/orders/OrderService'
 import { useToast } from '@/hooks/useToast'
 
@@ -21,7 +21,7 @@ export const useOrderActions = (): UseOrderActionsReturn => {
       }
       return { success: false }
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to submit order'
+      const message = getErrorMessage(error)
       toast.error(message)
       return { success: false }
     }
@@ -36,7 +36,7 @@ export const useOrderActions = (): UseOrderActionsReturn => {
       }
       return false
     } catch (error) {
-      const message = error instanceof Error ? error.message : 'Failed to update order status'
+      const message = getErrorMessage(error)
       toast.error(message)
       return false
     }

@@ -11,6 +11,7 @@
  */
 
 import { z } from 'zod';
+import { getErrorMessage } from '../utils/error-utils';
 
 // Base validation utilities
 export class ValidationError extends Error {
@@ -308,7 +309,7 @@ export class TypeValidator {
       return {
         success: false,
         error: new ValidationError(
-          `Validation error${context ? ` for ${context}` : ''}: ${error instanceof Error ? error.message : 'Unknown error'}`,
+          `Validation error${context ? ` for ${context}` : ''}: ${getErrorMessage(error)}`,
           undefined,
           'VALIDATION_ERROR'
         )

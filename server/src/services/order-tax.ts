@@ -12,6 +12,7 @@
 
 import { supabase } from '../config/database';
 import { logger } from '../utils/logger';
+import { getErrorMessage } from '@rebuild/shared';
 
 const taxLogger = logger.child({ service: 'OrderTax' });
 
@@ -85,7 +86,7 @@ export async function getRestaurantTaxRate(restaurant_id: string): Promise<numbe
     });
 
     throw new Error(
-      `Failed to retrieve tax rate for restaurant ${restaurant_id}: ${error instanceof Error ? error.message : 'Unknown error'}`
+      `Failed to retrieve tax rate for restaurant ${restaurant_id}: ${getErrorMessage(error)}`
     );
   }
 }

@@ -3,6 +3,7 @@ import helmet from 'helmet';
 import crypto from 'crypto';
 import { logger } from '../utils/logger';
 import { serviceConfig } from '../config/services';
+import { getErrorMessage } from '@rebuild/shared';
 
 /**
  * Comprehensive security middleware for Restaurant OS
@@ -263,7 +264,7 @@ class SecurityMonitor {
     } catch (err) {
       // Silent failure - external logging should not crash the app
       logger.debug('Failed to send security event to DataDog', {
-        error: err instanceof Error ? err.message : 'Unknown error'
+        error: getErrorMessage(err)
       });
     }
   }
@@ -350,11 +351,11 @@ class SecurityMonitor {
     } catch (err) {
       // Silent failure - external logging should not crash the app
       logger.debug('Failed to send security event to Sentry', {
-        error: err instanceof Error ? err.message : 'Unknown error'
+        error: getErrorMessage(err)
       });
     }
   }
-  
+
   getEvents(filter?: Partial<SecurityEvent>): SecurityEvent[] {
     if (!filter) return [...this.events];
 

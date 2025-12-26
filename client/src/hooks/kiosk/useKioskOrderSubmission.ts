@@ -4,6 +4,7 @@ import { useNavigate } from 'react-router-dom';
 import type { UnifiedCartItem } from '@/contexts/UnifiedCartContext';
 import { useTaxRate } from '@/hooks/useTaxRate';
 import { logger } from '@/services/logger';
+import { getErrorMessage } from '@rebuild/shared';
 
 // Type alias for compatibility
 type KioskOrderItem = UnifiedCartItem;
@@ -87,7 +88,7 @@ export function useKioskOrderSubmission() {
 
     } catch (error) {
       logger.error('Order submission failed:', error);
-      const errorMessage = error instanceof Error ? error.message : 'Unknown error';
+      const errorMessage = getErrorMessage(error);
 
       return {
         success: false,

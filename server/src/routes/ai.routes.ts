@@ -10,6 +10,7 @@ import { menuUploadSchema, parseOrderSchema } from '../validation/ai.validation'
 import { trackAIMetrics } from '../middleware/metrics';
 import { MenuService } from '../services/menu.service';
 import { env } from '../config/env';
+import { getErrorMessage, safeApiError } from '@rebuild/shared';
 
 const router = Router();
 
@@ -38,7 +39,6 @@ router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'mana
       restaurantId
     });
   } catch (error) {
-    aiLogger.error('Menu sync error:', error);
     res.set('Cache-Control', 'no-store');
 
     if ((error as any)?.status === 503) {
@@ -50,8 +50,7 @@ router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'mana
     }
 
     res.status(500).json({
-      error: 'Failed to load menu for AI processing',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: safeApiError(error, 'Failed to load menu for AI processing', (msg, ctx) => aiLogger.error(msg, ctx))
     });
   }
 });
@@ -131,7 +130,6 @@ router.post('/transcribe', transcriptionLimiter, trackAIMetrics('transcribe'), a
 
     res.send(audioBuffer);
   } catch (error) {
-    aiLogger.error('Voice processing error:', error);
     res.set('Cache-Control', 'no-store');
 
     if ((error as any)?.status === 503) {
@@ -143,8 +141,7 @@ router.post('/transcribe', transcriptionLimiter, trackAIMetrics('transcribe'), a
     }
 
     res.status(500).json({
-      error: 'Failed to process voice message',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: safeApiError(error, 'Failed to process voice message', (msg, ctx) => aiLogger.error(msg, ctx))
     });
   }
 });
@@ -199,7 +196,6 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('t
       restaurantId
     });
   } catch (error) {
-    aiLogger.error('Voice processing with metadata error:', error);
     res.set('Cache-Control', 'no-store');
 
     if ((error as any)?.status === 503) {
@@ -211,8 +207,7 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('t
     }
 
     res.status(500).json({
-      error: 'Transcription failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: safeApiError(error, 'Transcription failed', (msg, ctx) => aiLogger.error(msg, ctx))
     });
   }
 });
@@ -240,7 +235,6 @@ router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), aut
       parsedBy: req.user?.id
     });
   } catch (error) {
-    aiLogger.error('OpenAI order parsing error:', error);
     res.set('Cache-Control', 'no-store');
 
     if ((error as any)?.status === 503) {
@@ -260,8 +254,7 @@ router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), aut
     }
 
     res.status(500).json({
-      error: 'Failed to parse order via OpenAI',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: safeApiError(error, 'Failed to parse order via OpenAI', (msg, ctx) => aiLogger.error(msg, ctx))
     });
   }
 });
@@ -436,7 +429,6 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
       restaurantId
     });
   } catch (error) {
-    aiLogger.error('Voice chat error:', error);
     res.set('Cache-Control', 'no-store');
 
     if ((error as any)?.status === 503) {
@@ -448,8 +440,7 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
     }
 
     res.status(500).json({
-      error: 'Voice chat failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: safeApiError(error, 'Voice chat failed', (msg, ctx) => aiLogger.error(msg, ctx))
     });
   }
 });
@@ -527,7 +518,6 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
       restaurantId
     });
   } catch (error) {
-    aiLogger.error('OpenAI chat error:', error);
     res.set('Cache-Control', 'no-store');
 
     if ((error as any)?.status === 503) {
@@ -539,8 +529,7 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
     }
 
     res.status(500).json({
-      error: 'Chat request failed',
-      message: error instanceof Error ? error.message : 'Unknown error'
+      error: safeApiError(error, 'Chat request failed', (msg, ctx) => aiLogger.error(msg, ctx))
     });
   }
 });
@@ -571,88 +560,92 @@ router.get('/health', trackAIMetrics('provider-health'), async (_req: Request, r
 });
 
 /**
- * TEST ENDPOINT: Simple TTS test
- * Send text, get audio back - no auth required for testing
+ * TEST ENDPOINTS: Only available in development
+ * These endpoints expose detailed error information for debugging
  */
-router.post('/test-tts', async (req: Request, res: Response): Promise<void> => {
-  try {
-    const { text = "Hello, this is a test of text to speech." } = req.body;
+if (env.NODE_ENV === 'development') {
+  /**
+   * TEST ENDPOINT: Simple TTS test
+   * Send text, get audio back - development only
+   */
+  router.post('/test-tts', async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { text = "Hello, this is a test of text to speech." } = req.body;
 
-    aiLogger.info('Test TTS requested', { text });
+      aiLogger.info('Test TTS requested', { text });
 
-    const ttsResult = await ai.tts.synthesize(text, {
-      voice: 'nova'
-    });
+      const ttsResult = await ai.tts.synthesize(text, {
+        voice: 'nova'
+      });
 
-    aiLogger.info('Test TTS completed', {
-      audioSize: ttsResult.audio.length,
-      mimeType: ttsResult.mimeType
-    });
+      aiLogger.info('Test TTS completed', {
+        audioSize: ttsResult.audio.length,
+        mimeType: ttsResult.mimeType
+      });
 
-    res.set({
-      'Content-Type': ttsResult.mimeType,
-      'Content-Length': ttsResult.audio.length.toString(),
-      'Cache-Control': 'no-store'
-    });
+      res.set({
+        'Content-Type': ttsResult.mimeType,
+        'Content-Length': ttsResult.audio.length.toString(),
+        'Cache-Control': 'no-store'
+      });
 
-    res.send(ttsResult.audio);
-  } catch (error) {
-    aiLogger.error('Test TTS failed:', error);
-    // ALWAYS show the actual error for debugging
-    res.status(500).json({
-      error: 'TTS test failed',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      details: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack?.split('\n').slice(0, 5) // First 5 lines of stack
-      } : String(error)
-    });
-  }
-});
-
-/**
- * TEST ENDPOINT: Simple transcription test
- * Upload audio, get text back - no auth required for testing
- */
-router.post('/test-transcribe', audioUpload.single('audio'), async (req: Request, res: Response): Promise<void> => {
-  try {
-    if (!req.file) {
-      res.status(400).json({ error: 'Audio file required' });
-      return;
+      res.send(ttsResult.audio);
+    } catch (error) {
+      aiLogger.error('Test TTS failed:', error);
+      res.status(500).json({
+        error: 'TTS test failed',
+        message: getErrorMessage(error),
+        details: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack?.split('\n').slice(0, 5)
+        } : String(error)
+      });
     }
+  });
 
-    aiLogger.info('Test transcribe requested', {
-      fileSize: req.file.size,
-      mimeType: req.file.mimetype
-    });
+  /**
+   * TEST ENDPOINT: Simple transcription test
+   * Upload audio, get text back - development only
+   */
+  router.post('/test-transcribe', audioUpload.single('audio'), async (req: Request, res: Response): Promise<void> => {
+    try {
+      if (!req.file) {
+        res.status(400).json({ error: 'Audio file required' });
+        return;
+      }
 
-    const result = await ai.transcriber.transcribe(req.file.buffer, {
-      model: req.file.mimetype
-    });
+      aiLogger.info('Test transcribe requested', {
+        fileSize: req.file.size,
+        mimeType: req.file.mimetype
+      });
 
-    aiLogger.info('Test transcribe completed', {
-      text: result.text
-    });
+      const result = await ai.transcriber.transcribe(req.file.buffer, {
+        model: req.file.mimetype
+      });
 
-    res.json({
-      success: true,
-      text: result.text,
-      duration: result.duration
-    });
-  } catch (error) {
-    aiLogger.error('Test transcribe failed:', error);
-    // ALWAYS show the actual error for debugging
-    res.status(500).json({
-      error: 'Transcription test failed',
-      message: error instanceof Error ? error.message : 'Unknown error',
-      details: error instanceof Error ? {
-        name: error.name,
-        message: error.message,
-        stack: error.stack?.split('\n').slice(0, 5) // First 5 lines of stack
-      } : String(error)
-    });
-  }
-});
+      aiLogger.info('Test transcribe completed', {
+        text: result.text
+      });
+
+      res.json({
+        success: true,
+        text: result.text,
+        duration: result.duration
+      });
+    } catch (error) {
+      aiLogger.error('Test transcribe failed:', error);
+      res.status(500).json({
+        error: 'Transcription test failed',
+        message: getErrorMessage(error),
+        details: error instanceof Error ? {
+          name: error.name,
+          message: error.message,
+          stack: error.stack?.split('\n').slice(0, 5)
+        } : String(error)
+      });
+    }
+  });
+}
 
 export { router as aiRoutes };
