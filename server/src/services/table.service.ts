@@ -64,12 +64,15 @@ export class TableService {
 
       // Check if all orders for this table are paid
       // Query orders with this table's label (table_number column maps to label)
+      // Limit to 50 most recent orders (realistically tables won't have more active orders)
       const { data: orders, error: ordersError } = await supabase
         .from('orders')
         .select('id, payment_status, status, table_number')
         .eq('restaurant_id', restaurantId)
         .eq('table_number', table.label)
-        .neq('status', 'cancelled'); // Ignore cancelled orders
+        .neq('status', 'cancelled') // Ignore cancelled orders
+        .order('created_at', { ascending: false })
+        .limit(50);
 
       if (ordersError) {
         tableLogger.error('Failed to fetch orders for table', {

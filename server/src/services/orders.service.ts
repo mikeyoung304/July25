@@ -20,6 +20,14 @@ import type {
   OrderMetadata,
 } from '@rebuild/shared';
 
+// Import extracted modules
+import { getRestaurantTaxRate } from './order-tax';
+import { validateSeatNumber } from './order-validation.service';
+
+// Re-export for backwards compatibility
+export { getRestaurantTaxRate, calculateTaxCents, calculateOrderTotals } from './order-tax';
+export { validateSeatNumber, validateOrderItems, validateTableExists } from './order-validation.service';
+
 const ordersLogger = logger.child({ service: 'OrdersService' });
 
 // Extend shared OrderItem for service-specific needs
@@ -76,82 +84,6 @@ export class OrdersService {
   }
 
   /**
-   * Get restaurant tax rate with robust fallback chain
-   * Per ADR-007: Tax rates are now configured per-restaurant
-   *
-   * CRITICAL FINANCIAL LOGIC:
-   * 1. Try DB lookup (restaurants.tax_rate)
-   * 2. If DB fails/null, try process.env.DEFAULT_TAX_RATE
-   * 3. If both fail, THROW ERROR (never silently default to magic number)
-   */
-  private static async getRestaurantTaxRate(restaurantId: string): Promise<number> {
-    try {
-      // Step 1: Attempt DB lookup
-      const { data, error } = await supabase
-        .from('restaurants')
-        .select('tax_rate')
-        .eq('id', restaurantId)
-        .single();
-
-      if (!error && data && data.tax_rate !== null && data.tax_rate !== undefined) {
-        const taxRate = Number(data.tax_rate);
-        ordersLogger.debug('Using restaurant-specific tax rate', { restaurantId, taxRate });
-        return taxRate;
-      }
-
-      // Step 2: DB failed or returned null - try environment variable
-      const envTaxRate = process.env['DEFAULT_TAX_RATE'];
-
-      if (envTaxRate) {
-        const parsedRate = Number(envTaxRate);
-        if (!isNaN(parsedRate) && parsedRate > 0 && parsedRate < 1) {
-          ordersLogger.warn('Restaurant tax rate not in DB, using DEFAULT_TAX_RATE from environment', {
-            restaurantId,
-            taxRate: parsedRate,
-            dbError: error?.message
-          });
-          return parsedRate;
-        } else {
-          ordersLogger.error('DEFAULT_TAX_RATE environment variable is invalid', {
-            envTaxRate,
-            parsedRate
-          });
-        }
-      }
-
-      // Step 3: Both DB and Env failed - CRITICAL ERROR
-      ordersLogger.error('CRITICAL: Cannot determine tax rate for restaurant', {
-        restaurantId,
-        dbError: error?.message,
-        dbData: data,
-        envTaxRate: envTaxRate || 'NOT_SET'
-      });
-
-      throw new Error(
-        `Tax rate configuration missing for restaurant ${restaurantId}. ` +
-        `Please configure tax_rate in restaurants table or set DEFAULT_TAX_RATE environment variable. ` +
-        `Financial calculations cannot proceed without a valid tax rate.`
-      );
-
-    } catch (error) {
-      // If error is already our custom error, re-throw it
-      if (error instanceof Error && error.message.includes('Tax rate configuration missing')) {
-        throw error;
-      }
-
-      // For unexpected errors, log and throw with context
-      ordersLogger.error('Unexpected exception in getRestaurantTaxRate', {
-        error,
-        restaurantId
-      });
-
-      throw new Error(
-        `Failed to retrieve tax rate for restaurant ${restaurantId}: ${error instanceof Error ? error.message : 'Unknown error'}`
-      );
-    }
-  }
-
-  /**
    * Create a new order
    */
   static async createOrder(
@@ -161,7 +93,7 @@ export class OrdersService {
     try {
       // Validate seat number if both tableNumber and seatNumber are provided
       if (orderData.tableNumber && orderData.seatNumber) {
-        await this.validateSeatNumber(restaurantId, orderData.tableNumber, orderData.seatNumber);
+        await validateSeatNumber(restaurantId, orderData.tableNumber, orderData.seatNumber);
       }
 
       // Convert external IDs to UUIDs for items
@@ -197,7 +129,7 @@ export class OrdersService {
       }, 0);
 
       // Get restaurant-specific tax rate (ADR-007: Per-Restaurant Configuration)
-      const taxRate = await this.getRestaurantTaxRate(restaurantId);
+      const taxRate = await getRestaurantTaxRate(restaurantId);
       const taxCents = Math.round(subtotalCents * taxRate);
       const tipCents = Math.round((orderData.tip || 0) * 100);
       const totalAmountCents = subtotalCents + taxCents + tipCents;
@@ -761,60 +693,4 @@ export class OrdersService {
       ordersLogger.warn('Failed to log status change', { error, orderId });
     }
   }
-
-  /**
-   * Validate seat number against table capacity
-   */
-  private static async validateSeatNumber(
-    restaurantId: string,
-    tableNumber: string,
-    seatNumber: number
-  ): Promise<void> {
-    try {
-      // Fetch table by label (table_number maps to label column)
-      const { data: table, error } = await supabase
-        .from('tables')
-        .select('seats')  // FIX: Database column is 'seats' not 'capacity'
-        .eq('restaurant_id', restaurantId)
-        .eq('label', tableNumber)
-        .eq('active', true)
-        .single();
-
-      if (error) {
-        if (error.code === 'PGRST116') {
-          // Table not found - don't fail validation, just log warning
-          ordersLogger.warn('Table not found for seat validation', {
-            restaurantId,
-            tableNumber,
-            seatNumber
-          });
-          return;
-        }
-        throw error;
-      }
-
-      // Validate seat number against capacity (seats column)
-      if (table && table.seats && seatNumber > table.seats) {
-        throw new Error(
-          `Seat number ${seatNumber} exceeds table capacity of ${table.seats} for table ${tableNumber}`
-        );
-      }
-
-      ordersLogger.debug('Seat number validated', {
-        restaurantId,
-        tableNumber,
-        seatNumber,
-        capacity: table?.seats  // FIX: Use seats field
-      });
-    } catch (error) {
-      ordersLogger.error('Seat validation failed', {
-        error,
-        restaurantId,
-        tableNumber,
-        seatNumber
-      });
-      throw error;
-    }
-  }
-
 }

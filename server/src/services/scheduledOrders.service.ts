@@ -34,6 +34,7 @@ export async function checkAndFireScheduledOrders(
 
   try {
     // Find scheduled orders whose auto_fire_time has passed
+    // Limit to 100 orders per batch to prevent memory issues
     const { data: ordersToFire, error } = await supabase
       .from('orders')
       .select('*')
@@ -41,6 +42,7 @@ export async function checkAndFireScheduledOrders(
       .eq('is_scheduled', true)
       .eq('manually_fired', false)
       .lte('auto_fire_time', now)
+      .limit(100)
 
     if (error) {
       logger.error('Failed to fetch scheduled orders:', error)

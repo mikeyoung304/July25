@@ -1,4 +1,4 @@
-# Grow App (Restaurant OS) — v6.0.17
+# Grow App (Restaurant OS) — v6.0.14
 
 
 **Last Updated:** 2025-11-25

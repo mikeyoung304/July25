@@ -8,7 +8,7 @@ This document serves as the single source of truth for all version information i
 
 | Component | Version | Notes |
 | --- | --- | --- |
-| **Application** | 6.0.16 | Main application version (Customer Order Flow Complete Fix) |
+| **Application** | 6.0.14 | Main application version (Enterprise Quality) |
 | **Client (React)** | 18.3.1 | Frontend framework |
 | **Server (Express)** | 4.21.2 | Backend framework |
 | **Node.js** | 20.x | Runtime requirement |

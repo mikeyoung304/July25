@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { memo, useMemo } from 'react';
 import { motion } from 'framer-motion';
 import { ApiMenuItem } from '@rebuild/shared';
 import { ActionButton } from '@/components/ui/ActionButton';
@@ -29,12 +29,12 @@ export interface MenuGridCardProps {
   showImage?: boolean;
 }
 
-export const MenuGridCard: React.FC<MenuGridCardProps> = ({
+export const MenuGridCard: React.FC<MenuGridCardProps> = memo(function MenuGridCard({
   item,
   onClick,
   showDescription = true,
   showImage = false
-}) => {
+}) {
   const handleClick = () => {
     if (onClick && item.is_available) {
       onClick(item);
@@ -114,7 +114,7 @@ export const MenuGridCard: React.FC<MenuGridCardProps> = ({
       </ActionButton>
     </motion.div>
   );
-};
+});
 
 export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
   items,
@@ -131,10 +131,14 @@ export const MenuItemGrid: React.FC<MenuItemGridProps> = ({
   showImage = false,
   emptyState
 }) => {
-  // Filter items by category if selected
-  const filteredItems = selectedCategory
-    ? items.filter((item) => item.category_id === selectedCategory)
-    : items;
+  // Memoize filtered items to prevent recalculation on every render
+  const filteredItems = useMemo(
+    () =>
+      selectedCategory
+        ? items.filter((item) => item.category_id === selectedCategory)
+        : items,
+    [items, selectedCategory]
+  );
 
   // Loading state
   if (loading) {

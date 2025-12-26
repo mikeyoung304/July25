@@ -15,6 +15,8 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 | [CL-DB-002](./CL-DB-002-constraint-drift-prevention.md) | Database | Constraint drift | ERROR 23514 |
 | [CL-WS-001](./CL-WS-001-handler-timing-race.md) | WebSocket | Handler timing | No transcription events |
 | [CL-MEM-001](./CL-MEM-001-interval-leaks.md) | Memory | Untracked intervals | Memory growth 1-20 MB/day |
+| [CL-TIMER-001](./CL-TIMER-001-stored-timeout-pattern.md) | Memory | setTimeout without storing ID | Memory growth 50-200 MB/day |
+| [CL-TOOL-EXIT-001](./CL-TOOL-EXIT-001-command-exit-codes.md) | Development | Misunderstood exit codes | Code duplication, wrong error handling |
 | [CL-API-001](./CL-API-001-model-deprecation.md) | API | Silent deprecation | Feature works but output missing |
 | [CL-TEST-001](./CL-TEST-001-mock-drift-prevention.md) | Testing | Test mock drift from interfaces | Tests pass but code fails at runtime |
 | [CL-TEST-002](./CL-TEST-002-npm-test-hang.md) | Testing | npm test hangs with memory options | npm test takes 20+ minutes |
@@ -29,6 +31,8 @@ Codified lessons from $1.3M+ in prevented issues. These are the 6 most impactful
 **Before database changes:** Read CL-DB-001, CL-DB-002
 **Before WebSocket/WebRTC code:** Read CL-WS-001
 **Before adding setInterval:** Read CL-MEM-001
+**Before adding setTimeout:** Read CL-TIMER-001
+**Before writing error handling for external tools:** Read CL-TOOL-EXIT-001
 **When API feature stops working:** Read CL-API-001
 **Before modifying shared/types or writing tests:** Read CL-TEST-001
 **When tests fail mysteriously:** Read CL-MAINT-001

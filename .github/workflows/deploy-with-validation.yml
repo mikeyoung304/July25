@@ -32,7 +32,7 @@ jobs:
         run: npm run lint
 
       - name: Run type check
-        run: npm run type-check
+        run: npm run typecheck
 
       - name: Run unit tests
         run: npm run test:ci || npm run test || echo "No test script found"
