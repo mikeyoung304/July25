@@ -25,7 +25,7 @@ import { aiRoutes } from './routes/ai.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
-import { csrfMiddleware, csrfErrorHandler } from './middleware/csrf';
+// CSRF middleware removed - not needed for REST API (see plan: security-vuln-and-next-priorities.md)
 import { applySecurity } from './middleware/security';
 import { sanitizeRequest } from './middleware/requestSanitizer';
 import { slugResolver } from './middleware/slugResolver';
@@ -164,11 +164,20 @@ app.use(cors({
 // Handle preflight requests
 app.options('*', cors());
 
-// Cookie parser for CSRF
+// Cookie parser for session management
 app.use(cookieParser());
 
 // Body parsing middleware
-app.use(express.json({ limit: '1mb' })); // Limit JSON payload size
+// Capture raw body for Stripe webhook signature verification
+app.use(express.json({
+  limit: '1mb',
+  verify: (req: express.Request & { rawBody?: string }, _res, buf) => {
+    // Only store raw body for Stripe webhook requests
+    if (req.originalUrl === '/api/v1/payments/webhook') {
+      req.rawBody = buf.toString('utf8');
+    }
+  }
+}));
 app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Request sanitization (after body parsing, before other middleware)
@@ -181,9 +190,6 @@ app.use(slugResolver);
 // Rationale: Database uses snake_case, frontend expects snake_case, transformation adds overhead
 // Frontend has defensive code that checks snake_case first, so this is safe to disable
 // app.use(responseTransformMiddleware);
-
-// CSRF protection (after cookie parser, before routes)
-app.use(csrfMiddleware());
 
 // Request logging
 app.use(requestLogger);
@@ -224,8 +230,6 @@ app.get('/api/health', (_req: express.Request, res: express.Response) => {
   res.redirect(301, '/api/v1/health');
 });
 
-// CSRF error handler (before general error handler)
-app.use(csrfErrorHandler);
 
 // Sentry error handler (must be after routes, before other error handlers)
 app.use(getSentryErrorHandler());
@@ -239,6 +243,12 @@ setupWebSocketHandlers(wss);
 // Start server
 async function startServer() {
   try {
+    // SECURITY: Demo mode must never be enabled in production
+    if (process.env['NODE_ENV'] === 'production' && process.env['DEMO_LOGIN_ENABLED'] === 'true') {
+      logger.error('FATAL: DEMO_LOGIN_ENABLED=true in production. Refusing to start.');
+      process.exit(1);
+    }
+
     // Validate environment and initialize database
     validateEnvironment();
     await initializeDatabase();
