@@ -8,7 +8,7 @@
  * New code should import from the specific modules directly.
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
+import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
 import NodeCache from 'node-cache';
 
@@ -83,13 +83,6 @@ import { lookupModifierPrices } from '../services/modifier-pricing.service';
 
 // Import menu embedding service for semantic search
 import { MenuEmbeddingService } from '../../services/menu-embedding.service';
-
-// Initialize Supabase client
-const supabase: SupabaseClient = createClient(
-  process.env['SUPABASE_URL']!,
-  process.env['SUPABASE_SERVICE_KEY']!,
-  { auth: { persistSession: false } }
-);
 
 // Cache for menu items (5 minutes TTL)
 const menuCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });

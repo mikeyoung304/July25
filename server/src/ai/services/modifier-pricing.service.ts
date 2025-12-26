@@ -5,18 +5,11 @@
  * Implements caching and validation for price adjustments.
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import NodeCache from 'node-cache';
+import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
 import type { CartModifier } from '../types/menu-tools.types';
 import { validateModifierName, validatePriceAdjustment } from '../validators/menu-input.validator';
-
-// Initialize Supabase client
-const supabase: SupabaseClient = createClient(
-  process.env['SUPABASE_URL']!,
-  process.env['SUPABASE_SERVICE_KEY']!,
-  { auth: { persistSession: false } }
-);
 
 // Cache for modifier pricing rules (5 minutes TTL)
 const modifierCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });

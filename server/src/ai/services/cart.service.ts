@@ -6,20 +6,13 @@
  * AI function calls.
  */
 
-import { createClient, SupabaseClient } from '@supabase/supabase-js';
 import NodeCache from 'node-cache';
 import { Mutex } from 'async-mutex';
+import { supabase } from '../../config/database';
 import { logger } from '../../utils/logger';
 import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 import { sanitizePrice, validateCartTotals, getErrorMessage } from '@rebuild/shared';
 import type { Cart, CartItem } from '../types/menu-tools.types';
-
-// Initialize Supabase client
-const supabase: SupabaseClient = createClient(
-  process.env['SUPABASE_URL']!,
-  process.env['SUPABASE_SERVICE_KEY']!,
-  { auth: { persistSession: false } }
-);
 
 // Cache for restaurant data including tax rates (5 minutes TTL)
 const restaurantCache = new NodeCache({ stdTTL: 300, checkperiod: 60 });
