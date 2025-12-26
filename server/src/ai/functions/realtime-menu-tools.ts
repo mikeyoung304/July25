@@ -1156,9 +1156,34 @@ export async function cleanupExpiredCarts(): Promise<void> {
   }
 }
 
-// Run cleanup every 5 minutes
-setInterval(() => {
-  cleanupExpiredCarts().catch(error => {
-    logger.error('[MenuTools] Cleanup interval error', { error });
-  });
-}, 5 * 60 * 1000);
+// Module-level interval reference for cleanup (prevents timer leak)
+let cleanupInterval: NodeJS.Timeout | null = null;
+
+/**
+ * Start the cart cleanup interval
+ * Call this when the server starts
+ */
+export function startCartCleanup(): void {
+  if (cleanupInterval) {
+    logger.warn('[MenuTools] Cleanup interval already running');
+    return;
+  }
+  cleanupInterval = setInterval(() => {
+    cleanupExpiredCarts().catch(error => {
+      logger.error('[MenuTools] Cleanup interval error', { error });
+    });
+  }, 5 * 60 * 1000);
+  logger.info('[MenuTools] Cart cleanup interval started');
+}
+
+/**
+ * Stop the cart cleanup interval
+ * Call this during graceful shutdown
+ */
+export function stopCartCleanup(): void {
+  if (cleanupInterval) {
+    clearInterval(cleanupInterval);
+    cleanupInterval = null;
+    logger.info('[MenuTools] Cart cleanup interval stopped');
+  }
+}

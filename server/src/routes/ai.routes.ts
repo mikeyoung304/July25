@@ -99,7 +99,15 @@ router.post('/transcribe', transcriptionLimiter, trackAIMetrics('transcribe'), a
       return;
     }
 
-    const restaurantId = req.headers['x-restaurant-id'] as string || env.DEFAULT_RESTAURANT_ID;
+    const restaurantId = req.headers['x-restaurant-id'] as string;
+    if (!restaurantId) {
+      res.set('Cache-Control', 'no-store');
+      res.status(400).json({
+        success: false,
+        error: 'x-restaurant-id header is required'
+      });
+      return;
+    }
 
     aiLogger.info('Voice processing requested', {
       restaurantId,
@@ -156,7 +164,15 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('t
     }
 
     // Use AI service for metadata response (if available)
-    const restaurantId = req.headers['x-restaurant-id'] as string || env.DEFAULT_RESTAURANT_ID;
+    const restaurantId = req.headers['x-restaurant-id'] as string;
+    if (!restaurantId) {
+      res.set('Cache-Control', 'no-store');
+      res.status(400).json({
+        success: false,
+        error: 'x-restaurant-id header is required'
+      });
+      return;
+    }
 
     aiLogger.info('Voice processing with metadata requested', {
       restaurantId,

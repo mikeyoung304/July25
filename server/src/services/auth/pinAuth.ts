@@ -14,7 +14,12 @@ import { BadRequest } from '../../middleware/errorHandler';
 const pinLogger = logger.child({ module: 'pin-auth' });
 
 // Configuration
-const PIN_PEPPER = process.env['PIN_PEPPER'] || 'default-pepper-change-in-production';
+// PIN_PEPPER is required in production - no fallback to prevent weak security
+const PIN_PEPPER_RAW = process.env['PIN_PEPPER'];
+if (!PIN_PEPPER_RAW && process.env['NODE_ENV'] === 'production') {
+  throw new Error('PIN_PEPPER environment variable is required in production');
+}
+const PIN_PEPPER = PIN_PEPPER_RAW || 'dev-only-pepper';
 const MAX_PIN_ATTEMPTS = 5;
 const LOCKOUT_DURATION_MINUTES = 15;
 const PIN_LENGTH_MIN = 4;

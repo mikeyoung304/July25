@@ -243,26 +243,16 @@ describe('AI Routes Security', () => {
     app.use(errorHandler);
   });
 
-  describe('Restaurant ID Validation - ENV Fallback', () => {
-    test('should fall back to DEFAULT_RESTAURANT_ID when header missing', async () => {
-      // Set up environment variable
-      const originalDefault = process.env.DEFAULT_RESTAURANT_ID;
-      process.env.DEFAULT_RESTAURANT_ID = validRestaurantId;
-
+  describe('Restaurant ID Validation - Required Header', () => {
+    test('should return 400 when x-restaurant-id header is missing', async () => {
       const response = await request(app)
         .post('/api/v1/ai/transcribe')
         .set('Authorization', `Bearer ${validToken}`);
       // No x-restaurant-id header
 
-      // Should use DEFAULT_RESTAURANT_ID from env, not the string 'default'
-      expect(response.status).not.toBe(400);
-
-      // Restore environment
-      if (originalDefault) {
-        process.env.DEFAULT_RESTAURANT_ID = originalDefault;
-      } else {
-        delete process.env.DEFAULT_RESTAURANT_ID;
-      }
+      // Should return 400 requiring the header (no fallback allowed)
+      expect(response.status).toBe(400);
+      expect(response.body.error).toBe('x-restaurant-id header is required');
     });
 
     test('should NOT use literal string "default" as restaurant ID', async () => {

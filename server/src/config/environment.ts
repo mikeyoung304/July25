@@ -43,9 +43,27 @@ export interface EnvironmentConfig {
   };
 }
 
+/**
+ * Validate required authentication secrets in production
+ * These secrets have no fallback - production must fail without them
+ */
+function validateRequiredSecrets(): void {
+  if (process.env['NODE_ENV'] !== 'production') return;
+
+  const required = ['KIOSK_JWT_SECRET', 'STATION_TOKEN_SECRET', 'PIN_PEPPER'];
+  const missing = required.filter(key => !process.env[key]);
+
+  if (missing.length > 0) {
+    throw new Error(`Missing required secrets in production: ${missing.join(', ')}`);
+  }
+}
+
 export function validateEnvironment(): void {
   try {
     validateEnv();
+
+    // Validate required auth secrets in production (no fallbacks allowed)
+    validateRequiredSecrets();
 
     // JWT_SECRET is critical for authentication - required in all environments
     if (!env.SUPABASE_JWT_SECRET) {

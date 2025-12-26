@@ -19,6 +19,7 @@ import { aiService } from './services/ai.service';
 import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocket';
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { stopRateLimiterCleanup, startRateLimiterCleanup } from './middleware/authRateLimiter';
+import { startCartCleanup, stopCartCleanup } from './ai/functions/realtime-menu-tools';
 import { OrdersService } from './services/orders.service';
 import { TableService } from './services/table.service';
 import { aiRoutes } from './routes/ai.routes';
@@ -257,6 +258,9 @@ async function startServer() {
     // Start rate limiter cleanup interval (explicitly called here, not at module load)
     startRateLimiterCleanup();
 
+    // Start cart cleanup interval (prevents timer leak by controlling lifecycle)
+    startCartCleanup();
+
     // Rate limiters now correctly detect Render production via RENDER env var
     // even when NODE_ENV=development (see rateLimiter.ts and authRateLimiter.ts)
     if (process.env['RENDER'] === 'true' && process.env['NODE_ENV'] === 'development') {
@@ -321,6 +325,14 @@ async function gracefulShutdown(signal: string) {
     logger.info('Auth rate limiter cleanup complete');
   } catch (error) {
     logger.error('Error stopping rate limiter cleanup:', error);
+  }
+
+  // Clean up cart cleanup interval
+  try {
+    stopCartCleanup();
+    logger.info('Cart cleanup interval stopped');
+  } catch (error) {
+    logger.error('Error stopping cart cleanup:', error);
   }
 
   // Close HTTP server
