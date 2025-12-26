@@ -50,7 +50,7 @@ router.post('/menu', aiServiceLimiter, authenticate, requireRole(['admin', 'mana
     }
 
     res.status(500).json({
-      error: safeApiError(error, 'Failed to load menu for AI processing', (msg, ctx) => aiLogger.error(msg, ctx))
+      error: safeApiError(error, 'Failed to load menu for AI processing', aiLogger)
     });
   }
 });
@@ -141,7 +141,7 @@ router.post('/transcribe', transcriptionLimiter, trackAIMetrics('transcribe'), a
     }
 
     res.status(500).json({
-      error: safeApiError(error, 'Failed to process voice message', (msg, ctx) => aiLogger.error(msg, ctx))
+      error: safeApiError(error, 'Failed to process voice message', aiLogger)
     });
   }
 });
@@ -207,7 +207,7 @@ router.post('/transcribe-with-metadata', transcriptionLimiter, trackAIMetrics('t
     }
 
     res.status(500).json({
-      error: safeApiError(error, 'Transcription failed', (msg, ctx) => aiLogger.error(msg, ctx))
+      error: safeApiError(error, 'Transcription failed', aiLogger)
     });
   }
 });
@@ -254,7 +254,7 @@ router.post('/parse-order', aiServiceLimiter, trackAIMetrics('parse-order'), aut
     }
 
     res.status(500).json({
-      error: safeApiError(error, 'Failed to parse order via OpenAI', (msg, ctx) => aiLogger.error(msg, ctx))
+      error: safeApiError(error, 'Failed to parse order via OpenAI', aiLogger)
     });
   }
 });
@@ -440,7 +440,7 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
     }
 
     res.status(500).json({
-      error: safeApiError(error, 'Voice chat failed', (msg, ctx) => aiLogger.error(msg, ctx))
+      error: safeApiError(error, 'Voice chat failed', aiLogger)
     });
   }
 });
@@ -529,7 +529,7 @@ Remember: Quick, natural, helpful. Like a real person who's good at their job.`;
     }
 
     res.status(500).json({
-      error: safeApiError(error, 'Chat request failed', (msg, ctx) => aiLogger.error(msg, ctx))
+      error: safeApiError(error, 'Chat request failed', aiLogger)
     });
   }
 });

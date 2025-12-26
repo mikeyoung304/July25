@@ -207,7 +207,7 @@ router.post('/voice', authenticate, validateRestaurantAccess, requireScopes(ApiS
     res.json({
       success: false,
       message: "Sorry, I couldn't process that order. Please try again.",
-      error: safeApiError(error, 'Voice order processing failed', (msg, ctx) => routeLogger.error(msg, ctx)),
+      error: safeApiError(error, 'Voice order processing failed', routeLogger),
       suggestions: [
         "Make sure to mention specific menu items",
         "Try 'I want a Soul Bowl' or 'Greek Salad with chicken'"
