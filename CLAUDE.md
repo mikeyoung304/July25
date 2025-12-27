@@ -168,6 +168,7 @@ logger.info('Message', { data });
 - Demo mode requires DEMO_LOGIN_ENABLED=true
 - Voice ordering requires OpenAI Realtime API
 - Payment processing uses Stripe (STRIPE_SECRET_KEY, VITE_STRIPE_PUBLISHABLE_KEY)
+- Menu embedding rate limiting uses in-memory Map (not distributed across instances, resets on restart). For horizontal scaling, implement Redis-backed rate limiting. See TODO-231.
 
 ## Order Status Flow
 All 8 states must be handled (see `shared/types/order.types.ts`):
@@ -185,6 +186,11 @@ Critical for production:
 - `STRIPE_SECRET_KEY` - Server-side payment processing (sk_test_... or sk_live_...)
 - `VITE_STRIPE_PUBLISHABLE_KEY` - Client-side Stripe Elements (pk_test_... or pk_live_...)
 - `STRIPE_WEBHOOK_SECRET` - Webhook signature verification (whsec_...)
+
+Optional (Semantic Search):
+- `ENABLE_SEMANTIC_SEARCH` - Enable vector similarity search (default: false)
+- `OPENAI_EMBEDDING_MODEL` - Embedding model (default: text-embedding-3-small)
+- `OPENAI_EMBEDDING_DIMENSIONS` - Vector dimensions (default: 1536)
 
 ## WebSocket Events
 Real-time updates for orders and kitchen display. Connection pooling implemented for performance.

@@ -64,8 +64,85 @@ export class MenuEmbeddingService {
   /**
    * Rate limiting state for bulk embedding generation (TODO #217)
    * Tracks last generation timestamp per restaurant to prevent cost attacks
+   *
+   * NOTE: This is in-memory and not distributed across multiple instances.
+   * For horizontal scaling, consider database or Redis-backed rate limiting.
+   * See TODO-231 for details.
    */
   private static generationHistory = new Map<string, number[]>();
+
+  /** Cleanup interval reference for proper shutdown */
+  private static cleanupInterval: NodeJS.Timeout | null = null;
+
+  /** Stale entry threshold: 1 hour (entries with all timestamps older than this are removed) */
+  private static readonly STALE_ENTRY_THRESHOLD_MS = 60 * 60 * 1000;
+
+  /**
+   * Start the rate limit cleanup interval
+   * IMPORTANT: Called during server initialization
+   */
+  static startRateLimitCleanup(): void {
+    if (this.cleanupInterval) {
+      embeddingLogger.warn('Menu embedding rate limit cleanup already started');
+      return;
+    }
+
+    // Cleanup stale entries every hour
+    this.cleanupInterval = setInterval(() => {
+      this.cleanupStaleEntries();
+    }, this.STALE_ENTRY_THRESHOLD_MS);
+
+    embeddingLogger.info('Menu embedding rate limit cleanup interval started');
+  }
+
+  /**
+   * Stop the rate limit cleanup interval
+   * CRITICAL: Must be called during server shutdown to prevent memory leaks
+   */
+  static stopRateLimitCleanup(): void {
+    if (this.cleanupInterval) {
+      clearInterval(this.cleanupInterval);
+      this.cleanupInterval = null;
+      embeddingLogger.info('Menu embedding rate limit cleanup interval stopped');
+    }
+
+    // Clear all tracked data
+    const entryCount = this.generationHistory.size;
+    this.generationHistory.clear();
+
+    if (entryCount > 0) {
+      embeddingLogger.info('Menu embedding rate limit data cleared', { entriesCleared: entryCount });
+    }
+  }
+
+  /**
+   * Clean up stale entries from the rate limit Map
+   * Removes entries where all timestamps are older than 1 hour
+   */
+  private static cleanupStaleEntries(): void {
+    const now = Date.now();
+    const oneHourAgo = now - this.STALE_ENTRY_THRESHOLD_MS;
+    let removedCount = 0;
+
+    for (const [restaurantId, timestamps] of this.generationHistory.entries()) {
+      // Filter to only recent timestamps
+      const recentTimestamps = timestamps.filter(ts => ts > oneHourAgo);
+
+      if (recentTimestamps.length === 0) {
+        // All timestamps are stale, remove the entry entirely
+        this.generationHistory.delete(restaurantId);
+        removedCount++;
+      } else if (recentTimestamps.length < timestamps.length) {
+        // Some timestamps are stale, update with only recent ones
+        this.generationHistory.set(restaurantId, recentTimestamps);
+      }
+    }
+
+    embeddingLogger.info('Menu embedding rate limit cleanup completed', {
+      entriesRemoved: removedCount,
+      entriesRemaining: this.generationHistory.size
+    });
+  }
 
   /**
    * Check if bulk embedding generation is rate limited for a restaurant
@@ -89,7 +166,18 @@ export class MenuEmbeddingService {
       // Find the oldest generation in the window to determine retry time
       const oldestInWindow = Math.min(...recentGenerations);
       const retryAfterMs = oldestInWindow + 60 * 60 * 1000 - now;
-      return { allowed: false, retryAfterMs: Math.max(0, retryAfterMs) };
+      const actualRetryAfterMs = Math.max(0, retryAfterMs);
+
+      // Log rate limit hit for monitoring (TODO #231)
+      embeddingLogger.warn('Embedding generation rate limit hit: hourly limit exceeded', {
+        restaurantId,
+        attemptsInWindow: recentGenerations.length,
+        maxAllowed: MAX_GENERATIONS_PER_HOUR,
+        retryAfterMs: actualRetryAfterMs,
+        retryAfterMinutes: Math.ceil(actualRetryAfterMs / 60000)
+      });
+
+      return { allowed: false, retryAfterMs: actualRetryAfterMs };
     }
 
     // Check cooldown since last generation
@@ -99,6 +187,16 @@ export class MenuEmbeddingService {
 
       if (timeSinceLastGeneration < GENERATION_COOLDOWN_MS) {
         const retryAfterMs = GENERATION_COOLDOWN_MS - timeSinceLastGeneration;
+
+        // Log rate limit hit for monitoring (TODO #231)
+        embeddingLogger.warn('Embedding generation rate limit hit: cooldown active', {
+          restaurantId,
+          timeSinceLastMs: timeSinceLastGeneration,
+          cooldownMs: GENERATION_COOLDOWN_MS,
+          retryAfterMs,
+          retryAfterMinutes: Math.ceil(retryAfterMs / 60000)
+        });
+
         return { allowed: false, retryAfterMs };
       }
     }
@@ -259,27 +357,61 @@ export class MenuEmbeddingService {
   }
 
   /**
-   * Generate embedding for a menu item using pre-fetched data (no re-fetching)
-   * Used by generateAllEmbeddings to avoid N+1 queries
+   * Generate embeddings for a batch of menu items in a single OpenAI API call (TODO #235)
+   * This is significantly more efficient than calling generateEmbeddingForItem individually.
+   * OpenAI's embeddings API supports up to 2048 inputs per request.
+   *
+   * @param items - Array of menu items to generate embeddings for
+   * @returns Array of results in the same order as input items (null for failures)
    */
-  private static async generateEmbeddingForItem(
-    item: MenuItemForEmbedding
-  ): Promise<{ id: string; embedding: number[] } | null> {
+  private static async generateEmbeddingsForBatch(
+    items: MenuItemForEmbedding[]
+  ): Promise<Array<{ id: string; embedding: number[] } | null>> {
+    if (items.length === 0) {
+      return [];
+    }
+
+    const client = getOpenAIClient();
+
+    if (!client) {
+      embeddingLogger.warn('OpenAI client not available - batch embedding generation skipped');
+      return items.map(() => null);
+    }
+
+    // Collect all texts for the batch API call
+    const texts = items.map(item => this.formatItemForEmbedding(item));
+
     try {
-      const embeddingText = this.formatItemForEmbedding(item);
-      const embedding = await this.generateEmbedding(embeddingText);
-
-      if (!embedding) {
-        return null;
-      }
-
-      return { id: item.id, embedding };
-    } catch (error) {
-      embeddingLogger.error('Failed to generate embedding for item', {
-        itemId: item.id,
-        error
+      // Single API call for all texts in the batch
+      const response = await client.embeddings.create({
+        model: config.openai.embeddingModel,
+        input: texts,
+        dimensions: config.openai.embeddingDimensions
       });
-      return null;
+
+      // Map response embeddings back to items by index
+      // OpenAI returns embeddings in the same order as input texts
+      // The response.data array length matches items array length, so items[index] is safe
+      return response.data.map((embeddingData, index) => {
+        const item = items[index];
+        if (!item) {
+          // This should never happen as OpenAI returns same number of embeddings as inputs
+          embeddingLogger.error('Embedding response index mismatch', { index, itemCount: items.length });
+          return null;
+        }
+        return {
+          id: item.id,
+          embedding: embeddingData.embedding
+        };
+      });
+    } catch (error) {
+      embeddingLogger.error('Batch embedding generation failed', {
+        error,
+        itemCount: items.length,
+        textLengths: texts.map(t => t.length)
+      });
+      // On failure, return null for all items in the batch
+      return items.map(() => null);
     }
   }
 
@@ -364,16 +496,14 @@ export class MenuEmbeddingService {
           dietary_flags: item.dietary_flags
         }));
 
-        // Generate embeddings for all items in batch (no re-fetching)
-        const embeddingResults = await Promise.allSettled(
-          itemsForEmbedding.map(item => this.generateEmbeddingForItem(item))
-        );
+        // Generate embeddings for all items in batch using single API call (TODO #235)
+        const embeddingResults = await this.generateEmbeddingsForBatch(itemsForEmbedding);
 
         // Collect successful embeddings for batch update
         const successfulEmbeddings: Array<{ id: string; embedding: number[] }> = [];
         embeddingResults.forEach(result => {
-          if (result.status === 'fulfilled' && result.value) {
-            successfulEmbeddings.push(result.value);
+          if (result !== null) {
+            successfulEmbeddings.push(result);
           } else {
             failed++;
           }

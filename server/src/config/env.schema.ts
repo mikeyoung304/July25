@@ -112,6 +112,15 @@ const baseEnvSchema = z.object({
 
   // Feature Flags (Optional)
   ENABLE_SEMANTIC_SEARCH: booleanSchema.default(false),
+
+  // Semantic Search Configuration (Optional)
+  // OpenAI embedding model - default: text-embedding-3-small
+  OPENAI_EMBEDDING_MODEL: z.string().optional(),
+  // Embedding dimensions - must match database vector column (default: 1536)
+  OPENAI_EMBEDDING_DIMENSIONS: z.coerce.number()
+    .positive('OPENAI_EMBEDDING_DIMENSIONS must be positive')
+    .int('OPENAI_EMBEDDING_DIMENSIONS must be an integer')
+    .optional(),
 });
 
 /**

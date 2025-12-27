@@ -20,6 +20,7 @@ import { setupWebSocketHandlers, cleanupWebSocketServer } from './utils/websocke
 import { apiLimiter, voiceOrderLimiter, healthCheckLimiter } from './middleware/rateLimiter';
 import { stopRateLimiterCleanup, startRateLimiterCleanup } from './middleware/authRateLimiter';
 import { startCartCleanup, stopCartCleanup } from './ai/functions/realtime-menu-tools';
+import { MenuEmbeddingService } from './services/menu-embedding.service';
 import { getErrorMessage } from '@rebuild/shared';
 import { OrdersService } from './services/orders.service';
 import { TableService } from './services/table.service';
@@ -259,6 +260,9 @@ async function startServer() {
     // Start rate limiter cleanup interval (explicitly called here, not at module load)
     startRateLimiterCleanup();
 
+    // Start menu embedding rate limit cleanup interval (TODO #231)
+    MenuEmbeddingService.startRateLimitCleanup();
+
     // Start cart cleanup interval (prevents timer leak by controlling lifecycle)
     startCartCleanup();
 
@@ -334,6 +338,14 @@ async function gracefulShutdown(signal: string) {
     logger.info('Cart cleanup interval stopped');
   } catch (error) {
     logger.error('Error stopping cart cleanup:', error);
+  }
+
+  // Clean up menu embedding rate limiter (TODO #231)
+  try {
+    MenuEmbeddingService.stopRateLimitCleanup();
+    logger.info('Menu embedding rate limit cleanup complete');
+  } catch (error) {
+    logger.error('Error stopping menu embedding rate limit cleanup:', error);
   }
 
   // Close HTTP server
