@@ -23,6 +23,7 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 
 | Solution | Description |
 |----------|-------------|
+| [Strict Auth Environment Drift](./auth-issues/strict-auth-environment-drift.md) | STRICT_AUTH env var drift causing auth loops ($20K incident) |
 | [WebSocket Station Auth Dual Pattern](./auth-issues/websocket-station-auth-dual-pattern.md) | Dual authentication pattern for WebSocket station connections |
 
 ### Build Errors
@@ -31,6 +32,7 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 |----------|-------------|
 | [Pre-Commit xargs False Positive](./build-errors/pre-commit-xargs-false-positive.md) | BSD xargs empty input causing false positive failures |
 | [TypeScript Mismatched Braces Vercel](./build-errors/typescript-mismatched-braces-vercel.md) | TypeScript compilation failures on Vercel deployment |
+| [Vercel Production Flag Cascade](./build-errors/vercel-production-flag-cascade.md) | Production flag cascade causing devDeps unavailable ($900 incident) |
 
 ### Code Quality
 
@@ -54,13 +56,24 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 
 | Solution | Description |
 |----------|-------------|
+| [Constraint Drift Enum Mismatch](./database-issues/constraint-drift-enum-mismatch.md) | TypeScript enum vs DB CHECK constraint drift ($5K incident) |
 | [Menu Service Wrong Column 86 Item](./database-issues/menu-service-wrong-column-86-item.md) | Menu service querying wrong column for 86'd items |
+| [Migration Bifurcation Schema Drift](./database-issues/migration-bifurcation-schema-drift.md) | Remote vs local migration divergence ($67K incident) |
+
+### Integration Issues
+
+| Solution | Description |
+|----------|-------------|
+| [OpenAI Silent Model Deprecation](./integration-issues/openai-silent-model-deprecation.md) | Silent API deprecation causing missing transcription ($1.2K incident) |
 
 ### Performance Issues
 
 | Solution | Description |
 |----------|-------------|
+| [Interval Memory Leaks](./performance-issues/interval-memory-leaks.md) | Untracked setInterval causing memory growth ($2K incident) |
+| [Optimistic WebSocket Timer Memory Leak](./performance-issues/optimistic-websocket-timer-memory-leak.md) | setTimeout without stored ID causing memory growth |
 | [Vitest Hanging Output Buffering](./performance-issues/vitest-hanging-output-buffering.md) | Vitest test runner hanging due to output buffering |
+| [WebRTC Handler Timing Race](./performance-issues/webrtc-handler-timing-race.md) | DataChannel handler race condition ($1K incident) |
 
 ### Prevention
 
@@ -83,6 +96,8 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 
 | Solution | Description |
 |----------|-------------|
+| [API Error Info Disclosure Remediation](./security-issues/api-error-info-disclosure-remediation.md) | Error response leaking internal details |
+| [Header Fallback Cross-Tenant Vulnerability](./security-issues/header-fallback-cross-tenant-vulnerability.md) | X-Restaurant-ID fallback allowing cross-tenant access |
 | [Multi-Tenant Isolation RLS Cache](./security-issues/multi-tenant-isolation-rls-cache.md) | Multi-tenant isolation via RLS and cache key patterns |
 | [P0-P1 Backlog WebSocket Auth UUID Validation](./security-issues/p0-p1-backlog-websocket-auth-uuid-validation.md) | WebSocket authentication and UUID validation fixes |
 | [Rate Limiter TOCTOU Race Condition](./security-issues/rate-limiter-toctou-race-condition.md) | Time-of-check to time-of-use race condition in rate limiter |
@@ -91,6 +106,7 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 
 | Solution | Description |
 |----------|-------------|
+| [Canvas Mock Global Setup](./test-failures/canvas-mock-global-setup.md) | Global canvas mock to eliminate jsdom warnings |
 | [CI Test Suite Failures Mock Drift](./test-failures/ci-test-suite-failures-mock-drift.md) | CI test failures due to mock interface drift |
 | [E2E Infrastructure Overhaul 2025-12](./test-failures/e2e-infrastructure-overhaul-2025-12.md) | Complete E2E test infrastructure overhaul |
 | [Env Pollution Test Isolation](./test-failures/env-pollution-test-isolation.md) | Test isolation failures from environment pollution |
@@ -116,20 +132,21 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | Category | Count | Description |
 |----------|-------|-------------|
 | Accessibility Issues | 1 | KDS and UI accessibility improvements |
-| Auth Issues | 1 | Authentication patterns and WebSocket auth |
-| Build Errors | 2 | Compilation and deployment issues |
+| Auth Issues | 2 | Authentication patterns, STRICT_AUTH drift |
+| Build Errors | 3 | Compilation, deployment, Vercel issues |
 | Code Quality | 1 | Logging and code standards |
-| Code Quality Issues | 1 | Multi-layer code hardening |
+| Code Quality Issues | 2 | Multi-layer code hardening, menu embedding |
 | Cross References | 1 | Session and resolution cross-references |
-| Database Issues | 1 | Schema and query issues |
-| Performance Issues | 1 | Test runner and memory issues |
+| Database Issues | 3 | Schema drift, migration bifurcation, constraints |
+| Integration Issues | 1 | OpenAI API deprecation |
+| Performance Issues | 4 | Memory leaks, timers, WebRTC, Vitest |
 | Prevention | 1 | Proactive prevention patterns |
-| Process Issues | 6 | Tooling, agents, and documentation |
-| Security Issues | 3 | Auth, RLS, and rate limiting |
-| Test Failures | 7 | Mock drift, isolation, E2E infrastructure |
+| Process Issues | 7 | Tooling, agents, documentation |
+| Security Issues | 5 | Auth, RLS, rate limiting, cross-tenant |
+| Test Failures | 8 | Mock drift, canvas mock, E2E |
 | Type Issues | 1 | Type system mismatches |
 | Type Safety Issues | 1 | Schema and type assertion issues |
-| **Total** | **28** | |
+| **Total** | **41** | |
 
 ## How to Add Solutions
 
@@ -178,6 +195,5 @@ How to avoid this in the future.
 
 ## Related
 
-- [Claude Lessons](./.claude/lessons/) — Lessons learned from incidents
-- [Prevention Strategies](./.claude/prevention/) — Proactive prevention patterns
-- [Post-Mortems](./docs/postmortems/) — Incident post-mortems
+- [CLAUDE.md](../../CLAUDE.md) — Project configuration and critical patterns
+- [Test Debugging](.github/TEST_DEBUGGING.md) — Test debugging reference
