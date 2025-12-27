@@ -93,6 +93,7 @@ private static async generateEmbeddingsForBatch(
 | Date | Action | Result |
 |------|--------|--------|
 | 2025-12-27 | Created from code review | Identified by Performance agent |
+| 2025-12-27 | Triage: APPROVED | Status: pending → ready |
 
 ## Resources
 

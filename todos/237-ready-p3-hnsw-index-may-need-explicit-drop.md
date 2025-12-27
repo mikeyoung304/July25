@@ -79,6 +79,7 @@ ON menu_items USING hnsw (embedding vector_cosine_ops);
 | Date | Action | Result |
 |------|--------|--------|
 | 2025-12-27 | Created from code review | Identified by Data Integrity agent |
+| 2025-12-27 | Triage: APPROVED | Status: pending → ready |
 
 ## Resources
 
