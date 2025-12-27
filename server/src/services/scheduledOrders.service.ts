@@ -169,12 +169,14 @@ export async function getScheduledOrders(
   restaurantId: string
 ): Promise<Order[]> {
   try {
+    // Limit to 100 scheduled orders to prevent unbounded results
     const { data: orders, error } = await supabase
       .from('orders')
       .select('*')
       .eq('restaurant_id', restaurantId)
       .eq('is_scheduled', true)
       .order('scheduled_pickup_time', { ascending: true })
+      .limit(100)
 
     if (error) {
       logger.error('Failed to fetch scheduled orders:', error)

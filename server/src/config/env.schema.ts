@@ -109,6 +109,9 @@ const baseEnvSchema = z.object({
     .regex(/^0(\.\d+)?$|^1(\.0+)?$/, 'Must be between 0 and 1')
     .transform(Number)
     .optional(),
+
+  // Feature Flags (Optional)
+  ENABLE_SEMANTIC_SEARCH: booleanSchema.default(false),
 });
 
 /**

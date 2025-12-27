@@ -15,6 +15,17 @@ import { ErrorType, ErrorSeverity } from './error-types';
 export class ErrorReporter {
   private config: ErrorReportingConfig;
 
+  /**
+   * Creates a new ErrorReporter instance with the specified configuration.
+   *
+   * @param config - Partial configuration object to customize reporter behavior
+   *
+   * @example
+   * const reporter = new ErrorReporter({
+   *   enableRemoteReporting: true,
+   *   reportingEndpoint: 'https://errors.example.com/report'
+   * });
+   */
   constructor(config: Partial<ErrorReportingConfig> = {}) {
     this.config = {
       enableConsoleLogging: true,
@@ -25,42 +36,66 @@ export class ErrorReporter {
   }
 
   /**
-   * Update reporter configuration
+   * Updates the reporter configuration by merging with existing settings.
+   *
+   * @param config - Partial configuration object with properties to update
+   *
+   * @example
+   * reporter.updateConfig({ enableRemoteReporting: true });
    */
   updateConfig(config: Partial<ErrorReportingConfig>): void {
     this.config = { ...this.config, ...config };
   }
 
   /**
-   * Get current configuration
+   * Returns a copy of the current reporter configuration.
+   *
+   * @returns A shallow copy of the current ErrorReportingConfig
    */
   getConfig(): ErrorReportingConfig {
     return { ...this.config };
   }
 
   /**
-   * Check if console logging is enabled
+   * Checks whether console logging is enabled in the current configuration.
+   *
+   * @returns True if console logging is enabled, false otherwise
    */
   isConsoleLoggingEnabled(): boolean {
     return this.config.enableConsoleLogging;
   }
 
   /**
-   * Check if remote reporting is enabled
+   * Checks whether remote error reporting is enabled in the current configuration.
+   *
+   * @returns True if remote reporting is enabled, false otherwise
    */
   isRemoteReportingEnabled(): boolean {
     return this.config.enableRemoteReporting;
   }
 
   /**
-   * Check if user notification is enabled
+   * Checks whether user notifications are enabled in the current configuration.
+   *
+   * @returns True if user notifications are enabled, false otherwise
    */
   isUserNotificationEnabled(): boolean {
     return this.config.enableUserNotification;
   }
 
   /**
-   * Log error to console
+   * Logs an enterprise error to the console using the appropriate log level.
+   * Uses the window.logger if available in browser environments.
+   *
+   * @param error - The EnterpriseError to log
+   *
+   * @example
+   * reporter.logError({
+   *   id: 'err-123',
+   *   type: ErrorType.NETWORK_ERROR,
+   *   severity: ErrorSeverity.HIGH,
+   *   message: 'Connection failed'
+   * });
    */
   logError(error: EnterpriseError): void {
     const logLevel = this.getLogLevel(error.severity);
@@ -86,7 +121,14 @@ export class ErrorReporter {
   }
 
   /**
-   * Get appropriate console log level based on severity
+   * Maps an error severity level to the appropriate console log level.
+   *
+   * @param severity - The ErrorSeverity to map
+   * @returns The console log level ('error', 'warn', 'info', or 'log')
+   *
+   * @example
+   * reporter.getLogLevel(ErrorSeverity.CRITICAL); // Returns 'error'
+   * reporter.getLogLevel(ErrorSeverity.LOW); // Returns 'info'
    */
   getLogLevel(severity: ErrorSeverity): 'error' | 'warn' | 'info' | 'log' {
     switch (severity) {
@@ -103,7 +145,15 @@ export class ErrorReporter {
   }
 
   /**
-   * Report error to remote service
+   * Reports an error to the configured remote reporting service.
+   * Sanitizes sensitive data before sending if a filter function is configured.
+   * Does nothing if no reporting endpoint is configured or fetch is unavailable.
+   *
+   * @param error - The EnterpriseError to report
+   * @returns A promise that resolves when the error has been reported
+   *
+   * @example
+   * await reporter.reportError(enterpriseError);
    */
   async reportError(error: EnterpriseError): Promise<void> {
     if (!this.config.reportingEndpoint) {
@@ -132,7 +182,13 @@ export class ErrorReporter {
   }
 
   /**
-   * Notify user about error
+   * Notifies the user about an error using the configured callback or default behavior.
+   * For critical errors without a custom callback, uses window.alert in browser environments.
+   *
+   * @param error - The EnterpriseError to notify the user about
+   *
+   * @example
+   * reporter.notifyUser(enterpriseError);
    */
   notifyUser(error: EnterpriseError): void {
     if (this.config.userNotificationCallback) {
@@ -150,7 +206,15 @@ export class ErrorReporter {
   }
 
   /**
-   * Get user-friendly error message based on error type
+   * Converts an enterprise error into a user-friendly message suitable for display.
+   * Maps technical error types to plain-language descriptions.
+   *
+   * @param error - The EnterpriseError to convert
+   * @returns A user-friendly error message string
+   *
+   * @example
+   * const message = reporter.getUserFriendlyMessage(networkError);
+   * // Returns 'Network connection issue. Please check your internet connection and try again.'
    */
   getUserFriendlyMessage(error: EnterpriseError): string {
     switch (error.type) {

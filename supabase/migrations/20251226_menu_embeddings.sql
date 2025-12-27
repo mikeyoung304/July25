@@ -18,12 +18,11 @@ ALTER TABLE menu_items
 ADD COLUMN IF NOT EXISTS embedding_updated_at TIMESTAMPTZ;
 
 -- Create index for vector similarity search
--- Using IVFFlat index for good balance of speed and accuracy
--- Lists = 100 is appropriate for up to 100k items per restaurant
+-- Using HNSW index which doesn't require training data (works well on empty tables)
+-- HNSW provides excellent query performance with good recall
 CREATE INDEX IF NOT EXISTS idx_menu_items_embedding
 ON menu_items
-USING ivfflat (embedding vector_cosine_ops)
-WITH (lists = 100);
+USING hnsw (embedding vector_cosine_ops);
 
 -- Create function to find similar menu items by embedding
 CREATE OR REPLACE FUNCTION find_similar_menu_items(

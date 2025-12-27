@@ -7,11 +7,8 @@
 export {
   webSocketService,
   WebSocketService,
-  OptimisticWebSocketService,
-  optimisticWebSocketService,
   type WebSocketMessage,
-  type ConnectionState,
-  type OptimisticUpdate
+  type ConnectionState
 } from './WebSocketService'
 export { orderUpdatesHandler, OrderUpdatesHandler, type OrderUpdatePayload } from './orderUpdates'
 

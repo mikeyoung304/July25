@@ -16,6 +16,8 @@ export interface EnvironmentConfig {
   };
   openai: {
     apiKey?: string;
+    embeddingModel: string;
+    embeddingDimensions: number;
   };
   logging: {
     level: string;
@@ -41,6 +43,9 @@ export interface EnvironmentConfig {
     secretKey: string;
     publishableKey: string;
     webhookSecret: string;
+  };
+  features: {
+    semanticSearch: boolean;
   };
 }
 
@@ -129,6 +134,8 @@ export function getConfig(): EnvironmentConfig {
     },
     openai: {
       ...(env.OPENAI_API_KEY ? { apiKey: env.OPENAI_API_KEY } : {}),
+      embeddingModel: process.env['OPENAI_EMBEDDING_MODEL'] || 'text-embedding-3-small',
+      embeddingDimensions: parseInt(process.env['OPENAI_EMBEDDING_DIMENSIONS'] || '1536', 10),
     },
     logging: {
       level: process.env['LOG_LEVEL'] || 'info',
@@ -154,6 +161,9 @@ export function getConfig(): EnvironmentConfig {
       secretKey: env.STRIPE_SECRET_KEY || '',
       publishableKey: env.STRIPE_PUBLISHABLE_KEY || '',
       webhookSecret: env.STRIPE_WEBHOOK_SECRET || '',
+    },
+    features: {
+      semanticSearch: env.ENABLE_SEMANTIC_SEARCH,
     },
   };
 }
