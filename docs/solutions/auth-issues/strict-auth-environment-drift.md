@@ -1,6 +1,20 @@
-# CL-AUTH-001: STRICT_AUTH Environment Drift
+---
+title: STRICT_AUTH Environment Drift - JWT Missing restaurant_id
+category: auth-issues
+severity: P0
+cost: $20K
+duration: 48 days
+symptoms:
+  - "Authentication Required" modal in infinite loop
+  - 401 on /api/v1/auth/me
+  - Works locally, fails in production
+root_cause: Supabase JWTs lack restaurant_id claim when using direct auth
+tags: [auth, jwt, multi-tenant, supabase, production]
+created_date: 2025-11-25
+resolution_commit: 9e97f720
+---
 
-**Severity:** P0 | **Cost:** $20K | **Duration:** 48 days | **Commits:** 9e97f720, acd6125c
+# STRICT_AUTH Environment Drift
 
 ## Problem
 
@@ -36,16 +50,9 @@ localStorage.setItem('auth_session', JSON.stringify({
 setCurrentRestaurantId(response.restaurantId);
 ```
 
-## Prevention Checklist
+## Prevention
 
-- [ ] Never use `supabase.auth.signInWithPassword()` for workspace login
-- [ ] Always test locally with `STRICT_AUTH=true`
-- [ ] JWT must include: `sub`, `email`, `role`, `scope[]`, `restaurant_id`
-- [ ] Sync both React state AND httpClient state after login
-- [ ] Hardcode slug-to-UUID resolution (no network call)
-
-## Detection
-
-- "Authentication Required" modal in infinite loop
-- 401 on `/api/v1/auth/me`
-- Works locally, fails in production
+- Never use `supabase.auth.signInWithPassword()` for workspace login
+- Always test locally with `STRICT_AUTH=true`
+- JWT must include: `sub`, `email`, `role`, `scope[]`, `restaurant_id`
+- Sync both React state AND httpClient state after login

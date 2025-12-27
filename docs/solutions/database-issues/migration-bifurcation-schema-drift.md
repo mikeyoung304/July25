@@ -1,6 +1,19 @@
-# CL-DB-001: Migration Bifurcation & Schema Drift
+---
+title: Migration Bifurcation & Schema Drift
+category: database-issues
+severity: P0
+cost: $67K
+duration: 97 days diverged
+symptoms:
+  - "ERROR 42703: column does not exist"
+  - "ERROR 42804: type mismatch"
+  - Works locally, 500 errors in production
+root_cause: Remote migrations and local migrations diverged for 3 months
+tags: [database, migrations, supabase, prisma, schema-drift]
+created_date: 2025-11-25
+---
 
-**Severity:** P0 | **Cost:** $67K | **Duration:** 97 days diverged | **Commits:** 20251021, 20251022
+# Migration Bifurcation & Schema Drift
 
 ## Problem
 
@@ -34,21 +47,12 @@ supabase db push --linked         # Deploy pending migrations
 20251119_add_column.sql          # WRONG (causes duplicate key error)
 ```
 
-## Prevention Checklist
+## Prevention
 
-- [ ] Remote database is TRUTH, git is documentation
-- [ ] Run `prisma db pull` after ANY Dashboard change
-- [ ] Use 14-digit timestamps (YYYYMMDDHHmmss) for migrations
-- [ ] RPC RETURNS TABLE types must EXACTLY match table column types
-- [ ] Deploy migrations BEFORE deploying code that uses new columns
-- [ ] Check `supabase migration list --linked` before production deploy
-
-## Detection
-
-- ERROR 42703: column does not exist
-- ERROR 42804: type mismatch (VARCHAR vs TEXT, TIMESTAMP vs TIMESTAMPTZ)
-- ERROR 23505: duplicate key (timestamp collision)
-- Works locally, 500 errors in production
+- Remote database is TRUTH, git is documentation
+- Run `prisma db pull` after ANY Dashboard change
+- Deploy migrations BEFORE deploying code that uses new columns
+- Check `supabase migration list --linked` before production deploy
 
 ## Key Insight
 

@@ -1,60 +1,6 @@
 # CLAUDE.md
 
-This file provides guidance to Claude Code (claude.ai/code) when working with code in this repository.
-
-## Commands
-
-### Development
-```bash
-npm run dev                 # Start both client (5173) and server (3001) with 3GB memory limit
-npm run dev:client         # Start client only
-npm run dev:server         # Start server only
-npm run dev:supabase       # Start with Supabase local DB
-```
-
-### Testing
-```bash
-npm test                   # Run all tests (client + server) with 3GB memory
-npm run test:client        # Client tests only
-npm run test:server        # Server tests only
-npm run test:watch         # Watch mode for client tests
-npm run test:e2e          # E2E tests with Playwright
-npm run test:quick        # Quick test run with minimal output
-npm run test:healthy      # Run only healthy (non-quarantined) tests
-```
-
-### Build & Deploy
-```bash
-npm run build             # Build server (Render deployment)
-npm run build:client      # Build client with 3GB memory
-npm run build:vercel      # Build for Vercel deployment
-npm run deploy            # Deploy via Vercel script
-```
-
-### Database
-```bash
-npm run db:push           # Push migrations to Supabase
-npm run db:status         # Check migration status
-npm run db:seed           # Seed database with test data
-npx prisma db pull        # Sync Prisma schema from remote DB
-./scripts/post-migration-sync.sh  # Sync after migration
-```
-
-### Code Quality
-```bash
-npm run typecheck         # Type check all workspaces
-npm run typecheck:quick   # Quick type check (pre-commit)
-npm run lint              # Lint configuration files
-npm run memory:check      # Check Node/Vite memory usage
-```
-
-### Documentation & Health
-```bash
-npm run health            # System health check
-npm run docs:drift        # Check for documentation drift
-npm run docs:validate     # Validate documentation
-python3 scripts/validate_links.py  # Check documentation links (90.4% health)
-```
+This file provides guidance to Claude Code when working with this repository.
 
 ## Architecture
 
@@ -67,10 +13,10 @@ rebuild-6.0/
 └── supabase/         # Database migrations (remote-first)
 ```
 
-### Critical Architectural Decisions
+## Critical Architectural Decisions
 
-#### 1. Snake Case Convention (ADR-001)
-**ALL layers use snake_case** - database, API, and client. No transformations between layers.
+### 1. Snake Case Convention (ADR-001)
+**ALL layers use snake_case** - database, API, and client. No transformations.
 ```typescript
 // ✅ CORRECT everywhere
 { customer_name: "John", total_amount: 29.99 }
@@ -79,46 +25,42 @@ rebuild-6.0/
 { customerName: "John", totalAmount: 29.99 }
 ```
 
-#### 2. Dual Authentication Pattern (ADR-006)
+### 2. Dual Authentication Pattern (ADR-006)
 The `httpClient` checks BOTH Supabase and localStorage for tokens:
 1. **Supabase Auth** (primary): Production users with email
 2. **localStorage JWT** (fallback): Demo users, PIN auth, station auth (KDS)
 
 This is intentional to support shared devices and demo mode.
 
-#### 3. Remote-First Database (ADR-010)
+### 3. Remote-First Database (ADR-010)
 The remote Supabase database is the single source of truth:
 - Migrations document history, not current state
 - Prisma schema is GENERATED from remote via `npx prisma db pull`
 - Never modify Prisma schema manually
 
-#### 4. Multi-Tenancy
-**EVERY database operation must include restaurant_id**. This is enforced at all layers:
+### 4. Multi-Tenancy
+**EVERY database operation must include restaurant_id.** Enforced at all layers:
 - Database: RLS policies
 - API: Middleware validation
 - Client: Context providers
 
-Test with multiple restaurant IDs:
-- `11111111-1111-1111-1111-111111111111`
-- `22222222-2222-2222-2222-222222222222`
+Test restaurant IDs: `11111111-1111-1111-1111-111111111111`, `22222222-2222-2222-2222-222222222222`
+
+## Enforced Patterns
 
 ### Memory Constraints
 ```javascript
-// Hard limits enforced by CI/CD
 Development/Tests: 4GB (NODE_OPTIONS='--max-old-space-size=4096 --expose-gc')
 Production: Target 1GB
 ```
 
-### API Client Rules
-Only use the single unified HTTP client:
+### API Client
 ```typescript
-// Client-side (uses @/ path alias)
 import { httpClient } from '@/services/http/httpClient';
 // Never create new API clients or use fetch directly
 ```
 
 ### Type System
-All types from shared workspace only:
 ```typescript
 import { Order, Table, User } from '@rebuild/shared/types';
 // Never define types locally in components
@@ -126,49 +68,14 @@ import { Order, Table, User } from '@rebuild/shared/types';
 
 ### Module System (Critical)
 The codebase uses **CommonJS** for Node.js compatibility:
-- **Shared module**: Compiles to CommonJS (no `"type": "module"`)
-- **Server**: Uses CommonJS (`require()` statements)
-- **Client**: Vite handles both ESM and CommonJS
-- **browser.ts exception**: Stays as TypeScript source (uses `import.meta`)
-
-**DO NOT** add `"type": "module"` to shared/package.json - it breaks Render deployments.
+- **DO NOT** add `"type": "module"` to shared/package.json - breaks Render deployments
 
 ### Logging
 ```typescript
-// Client-side
-import { logger } from '@/services/logger';
-
-// Server-side
-import { logger } from '../utils/logger';
-
-logger.info('Message', { data });
+import { logger } from '@/services/logger';  // client
+import { logger } from '../utils/logger';    // server
 // Never use console.log - enforced by pre-commit hook
 ```
-
-## Current Status (v6.0.14)
-
-- **Production Readiness**: 99%
-- **Unit Tests**: 1,672 passing (1,241 client + 431 server)
-- **E2E Tests**: 188 tests across 33 files (Playwright)
-- **Type Safety**: 0 source type errors
-- **Payment System**: Stripe (sandbox configured)
-- **Deployments**: Vercel (client) + Render (server)
-
-### Recent Improvements (Dec 2024)
-- Rate limiter TOCTOU race condition fixed
-- Structured logging migration (console → logger)
-- Flaky test tracker deduplication
-- Stripe sandbox integration with webhook
-- Security vulnerabilities reduced (15 → 6)
-- Comprehensive solution documentation (+1,626 lines)
-
-### Known Considerations
-- localStorage for auth tokens is intentional for shared devices
-- CSRF disabled for REST APIs (using JWT + RBAC instead)
-- Demo mode requires DEMO_LOGIN_ENABLED=true
-- Voice ordering requires OpenAI Realtime API
-- Payment processing uses Stripe (STRIPE_SECRET_KEY, VITE_STRIPE_PUBLISHABLE_KEY)
-- Menu embedding rate limiting uses in-memory Map (not distributed across instances, resets on restart). For horizontal scaling, implement Redis-backed rate limiting. See TODO-231.
 
 ## Order Status Flow
 All 8 states must be handled (see `shared/types/order.types.ts`):
@@ -179,43 +86,29 @@ new → pending → confirmed → preparing → ready → picked-up → complete
 ```
 
 ## Environment Variables
-Critical for production:
+Critical:
 - `KIOSK_JWT_SECRET` - Required, no fallback
 - `SUPABASE_SERVICE_KEY` - Server-side only
-- `OPENAI_API_KEY` - Server-side only (never expose to client)
-- `STRIPE_SECRET_KEY` - Server-side payment processing (sk_test_... or sk_live_...)
-- `VITE_STRIPE_PUBLISHABLE_KEY` - Client-side Stripe Elements (pk_test_... or pk_live_...)
-- `STRIPE_WEBHOOK_SECRET` - Webhook signature verification (whsec_...)
-
-Optional (Semantic Search):
-- `ENABLE_SEMANTIC_SEARCH` - Enable vector similarity search (default: false)
-- `OPENAI_EMBEDDING_MODEL` - Embedding model (default: text-embedding-3-small)
-- `OPENAI_EMBEDDING_DIMENSIONS` - Vector dimensions (default: 1536)
-
-## WebSocket Events
-Real-time updates for orders and kitchen display. Connection pooling implemented for performance.
-
-## Voice Ordering
-Client-side WebRTC with OpenAI Realtime API. Menu context cached 5 minutes. Ephemeral tokens (60s expiry) for security.
+- `OPENAI_API_KEY` - Server-side only
+- `STRIPE_SECRET_KEY`, `VITE_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
 
 ## Test Debugging
 
-For test failures and E2E debugging, see [.github/TEST_DEBUGGING.md](.github/TEST_DEBUGGING.md).
+See [.github/TEST_DEBUGGING.md](.github/TEST_DEBUGGING.md).
 
-**Quick reference:**
 - Demo creds: `{role}@restaurant.com` / `Demo123!`
-- Available roles: Manager, Server, Kitchen, Expo
-- E2E requires both servers: `npm run dev:e2e`
+- Roles: Manager, Server, Kitchen, Expo
+- E2E requires: `npm run dev:e2e`
 
-## Lessons Learned
+## Solution Documentation
 
-Codified lessons from major incidents. Check before working on:
-- **Auth code**: [CL-AUTH-001](.claude/lessons/CL-AUTH-001-strict-auth-drift.md) - STRICT_AUTH drift
-- **Vercel deploy**: [CL-BUILD-001](.claude/lessons/CL-BUILD-001-vercel-production-flag.md) - devDeps issue
-- **Shell scripts**: [CL-BUILD-003](.claude/lessons/CL-BUILD-003-xargs-empty-input.md) - BSD xargs false positive
-- **Database changes**: [CL-DB-001](.claude/lessons/CL-DB-001-migration-sync.md) - migration sync
-- **WebSocket/WebRTC**: [CL-WS-001](.claude/lessons/CL-WS-001-handler-timing-race.md) - timing race
-- **setInterval usage**: [CL-MEM-001](.claude/lessons/CL-MEM-001-interval-leaks.md) - memory leaks
-- **API integration**: [CL-API-001](.claude/lessons/CL-API-001-model-deprecation.md) - silent deprecation
+Past incidents and fixes are documented in `docs/solutions/` by category:
+- `auth-issues/` - Authentication patterns
+- `security-issues/` - Security vulnerabilities
+- `build-errors/` - Build and deployment fixes
+- `database-issues/` - Migration and schema drift
+- `performance-issues/` - Memory leaks, race conditions
+- `test-failures/` - Test infrastructure fixes
+- `integration-issues/` - External API issues
 
-Full index: [.claude/lessons/README.md](.claude/lessons/README.md)
+Search with: `grep -r "symptom" docs/solutions/`

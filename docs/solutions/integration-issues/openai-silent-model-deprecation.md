@@ -1,6 +1,20 @@
-# CL-API-001: Silent OpenAI Model Deprecation
+---
+title: Silent OpenAI Model Deprecation
+category: integration-issues
+severity: P0
+cost: $1.2K
+duration: 2 weeks broken
+symptoms:
+  - Audio transmits successfully
+  - Agent responds with voice
+  - NO transcription events received
+  - Session connects, configuration accepted, but transcription silent
+root_cause: OpenAI deprecated whisper-1 for Realtime API without error - API accepts but ignores
+tags: [openai, api, deprecation, voice]
+created_date: 2025-11-25
+---
 
-**Severity:** P0 | **Cost:** $1.2K | **Duration:** 8 hours debug, 2 weeks broken
+# Silent OpenAI Model Deprecation
 
 ## Problem
 
@@ -34,30 +48,19 @@ logger.info('OpenAI session config', {
 });
 ```
 
-## Prevention Checklist
-
-- [ ] Monitor OpenAI changelog weekly
-- [ ] Subscribe to provider newsletters/Discord
-- [ ] Log model versions at startup
-- [ ] Test critical flows with production keys weekly
-- [ ] Set up alerts for missing expected events
-
 ## Detection
 
 - Audio transmits successfully (68KB+, 1668 packets)
 - Agent responds with voice
 - NO `conversation.item.input_audio_transcription.delta` events
 - NO `conversation.item.input_audio_transcription.completed` events
-- Session connects, configuration accepted, but transcription silent
 
-## Debugging Approach
+## Prevention
 
-When voice ordering stops working:
-1. Verify audio transmission (check packet counts)
-2. Verify agent responds (check response.text.done events)
-3. Check for transcription events specifically
-4. If missing: Check OpenAI community forums for model changes
-5. Compare session config against OpenAI docs
+- Monitor OpenAI changelog weekly
+- Log model versions at startup
+- Test critical flows with production keys weekly
+- Set up alerts for missing expected events
 
 ## Key Insight
 

@@ -1,6 +1,20 @@
-# CL-WS-001: WebRTC Handler Timing Race Condition
+---
+title: WebRTC Handler Timing Race Condition
+category: performance-issues
+severity: P0
+cost: $1K
+duration: 11 days
+symptoms:
+  - Voice ordering failed 60% of time
+  - Audio transmits, agent responds, but transcript empty
+  - NO transcription events received
+root_cause: DataChannel opens in 50-100ms, but handler attached later - initial events lost
+tags: [webrtc, voice, timing, race-condition]
+created_date: 2025-11-25
+resolution_commit: 500b820c
+---
 
-**Severity:** P0 | **Cost:** $1K | **Duration:** 11 days | **Commits:** 500b820c
+# WebRTC Handler Timing Race Condition
 
 ## Problem
 
@@ -51,21 +65,11 @@ private handleTranscriptDelta(event: any): void {
     // Create entry if conversation.item.created was lost
     this.transcriptMap.set(event.item_id, { transcript: '', isFinal: false });
   }
-  // Now safe to append
 }
 ```
 
-## Prevention Checklist
+## Prevention
 
-- [ ] Attach event handlers BEFORE async operations complete
-- [ ] Attach `onmessage` BEFORE `createDataChannel()` returns
-- [ ] Add defensive fallbacks for missed initialization events
-- [ ] Log timestamps when handlers attached vs. channel opened
-- [ ] Test with simulated 100ms latency
-
-## Detection
-
-- NO transcription events received (delta, completed)
-- Audio transmits (68KB+), agent responds, but transcript empty
-- State machine timeout: "Waiting for transcript..."
-- Session connects successfully but feature doesn't work
+- Attach event handlers BEFORE async operations complete
+- Attach `onmessage` BEFORE `createDataChannel()` returns
+- Add defensive fallbacks for missed initialization events
