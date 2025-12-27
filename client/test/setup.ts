@@ -6,6 +6,10 @@
 import '@testing-library/jest-dom'
 import { cleanup } from '@testing-library/react'
 import { afterEach, afterAll, beforeAll, vi } from 'vitest'
+import { setupCanvasMock } from '../src/test/mocks/canvas'
+
+// Setup canvas mock globally (must be before any canvas usage)
+setupCanvasMock()
 
 // Global logger mock - auto-hoisted for all tests
 // This ensures consistent mocking regardless of import path resolution
@@ -200,8 +204,7 @@ if (!process.env.DEBUG_TESTS) {
       if (
         typeof args[0] === 'string' &&
         (args[0].includes('Warning: ReactDOM.render') ||
-         args[0].includes('Warning: useLayoutEffect') ||
-         args[0].includes('Not implemented: HTMLCanvasElement'))
+         args[0].includes('Warning: useLayoutEffect'))
       ) {
         return
       }
