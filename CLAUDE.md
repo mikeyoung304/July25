@@ -92,6 +92,11 @@ Critical:
 - `OPENAI_API_KEY` - Server-side only
 - `STRIPE_SECRET_KEY`, `VITE_STRIPE_PUBLISHABLE_KEY`, `STRIPE_WEBHOOK_SECRET`
 
+Optional (Semantic Search):
+- `ENABLE_SEMANTIC_SEARCH` - Enable vector similarity search (default: false)
+- `OPENAI_EMBEDDING_MODEL` - Embedding model (default: text-embedding-3-small)
+- `OPENAI_EMBEDDING_DIMENSIONS` - Vector dimensions (default: 1536)
+
 ## Test Debugging
 
 See [.github/TEST_DEBUGGING.md](.github/TEST_DEBUGGING.md).
@@ -99,6 +104,12 @@ See [.github/TEST_DEBUGGING.md](.github/TEST_DEBUGGING.md).
 - Demo creds: `{role}@restaurant.com` / `Demo123!`
 - Roles: Manager, Server, Kitchen, Expo
 - E2E requires: `npm run dev:e2e`
+
+## Plugins & Workflows
+
+See `~/.claude/PLUGIN_INDEX.md` for all available agents, commands, and skills.
+
+**Key commands:** `/workflows:plan`, `/workflows:work`, `/workflows:review`, `/workflows:compound`
 
 ## Solution Documentation
 
@@ -112,3 +123,13 @@ Past incidents and fixes are documented in `docs/solutions/` by category:
 - `integration-issues/` - External API issues
 
 Search with: `grep -r "symptom" docs/solutions/`
+
+## Known Considerations
+
+### In-Memory Rate Limiting (MenuEmbeddingService)
+The `MenuEmbeddingService` uses an in-memory Map for rate limiting embedding generation requests. This has the following implications:
+- **Resets on server restart**: Rate limit counters are cleared when the server restarts
+- **Not distributed**: Multiple server instances do not share rate limit state
+- **Acceptable for single-instance deployment**: Current Render deployment runs a single instance
+
+For horizontal scaling, consider migrating to Redis-backed rate limiting (see TODO-231).

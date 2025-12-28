@@ -43,9 +43,6 @@ vi.mock('../../src/config/database', () => ({
 }));
 
 describe('MenuEmbeddingService', () => {
-  // Store original Date.now for restoration
-  const originalDateNow = Date.now;
-
   beforeEach(() => {
     // Clear rate limit history before each test
     MenuEmbeddingService.clearRateLimitHistory();
@@ -58,8 +55,6 @@ describe('MenuEmbeddingService', () => {
     MenuEmbeddingService.stopRateLimitCleanup();
     // Restore timers
     vi.useRealTimers();
-    // Restore Date.now
-    Date.now = originalDateNow;
   });
 
   describe('checkRateLimit', () => {
@@ -76,54 +71,59 @@ describe('MenuEmbeddingService', () => {
       const now = Date.now();
       vi.setSystemTime(now);
 
-      // First call should be allowed
-      const firstResult = MenuEmbeddingService.checkRateLimit(testRestaurantId);
-      expect(firstResult.allowed).toBe(true);
+      // Record a generation
+      MenuEmbeddingService.recordGeneration(testRestaurantId);
 
-      // Simulate recording a generation (using internal state manipulation)
-      // We need to trigger the rate limit by calling checkRateLimit after a generation is recorded
-      // Since recordGeneration is private, we simulate by checking right after first call
-      // and manually advancing time
-
-      // Record a generation by exploiting the fact that checkRateLimit updates the map
-      // We'll need to access the internal state or simulate the generation
-
-      // Actually, let's test by checking right after a generation would have been recorded
-      // The service updates history on check, so we need to simulate a previous generation
-
-      // Let's test the cooldown by simulating a recent generation time
-      // We'll check, advance time slightly, and check again
-
-      // For this test, we'll access the internal map through a workaround
-      // Since we can't call recordGeneration directly, we'll test the effect indirectly
-
-      // First, let's verify the initial state allows generation
-      expect(firstResult.allowed).toBe(true);
+      // Immediately check - should be rate limited (cooldown active)
+      const immediateResult = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(immediateResult.allowed).toBe(false);
+      expect(immediateResult.retryAfterMs).toBeGreaterThan(0);
+      // Should be close to 12 minutes (720000ms)
+      expect(immediateResult.retryAfterMs).toBeLessThanOrEqual(12 * 60 * 1000);
 
       // Advance time by 5 minutes (less than 12-minute cooldown)
       vi.advanceTimersByTime(5 * 60 * 1000);
 
-      // Second check should still be allowed since no generation was recorded
-      const secondResult = MenuEmbeddingService.checkRateLimit(testRestaurantId);
-      expect(secondResult.allowed).toBe(true);
+      // Check again - should still be rate limited
+      const afterFiveMinutes = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(afterFiveMinutes.allowed).toBe(false);
+      expect(afterFiveMinutes.retryAfterMs).toBeGreaterThan(0);
+      // Should be approximately 7 minutes remaining (420000ms)
+      expect(afterFiveMinutes.retryAfterMs).toBeLessThanOrEqual(7 * 60 * 1000 + 1000);
+
+      // Advance time to pass the cooldown (7 more minutes)
+      vi.advanceTimersByTime(7 * 60 * 1000);
+
+      // Check again - should now be allowed
+      const afterCooldown = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(afterCooldown.allowed).toBe(true);
+      expect(afterCooldown.retryAfterMs).toBe(0);
     });
 
     it('enforces max 5 calls per hour', () => {
       const now = Date.now();
       vi.setSystemTime(now);
-      const testRestaurantId2 = '22222222-2222-2222-2222-222222222222';
 
-      // Simulate 5 generations by using a test helper approach
-      // We'll verify the logic by checking that the history map gets updated correctly
-
-      // First 5 calls should all be allowed (when no prior generations exist)
+      // Record 5 generations quickly (all within a few seconds)
+      // to ensure they all fall within the 1-hour window
       for (let i = 0; i < 5; i++) {
-        const result = MenuEmbeddingService.checkRateLimit(testRestaurantId2);
-        expect(result.allowed).toBe(true);
-
-        // Advance time by 13 minutes to clear cooldown for next check
-        vi.advanceTimersByTime(13 * 60 * 1000);
+        MenuEmbeddingService.recordGeneration(testRestaurantId);
       }
+
+      // All 5 generations happened at ~now, so hourly limit is hit
+      // The 6th check should be blocked by hourly limit
+      const result = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(result.allowed).toBe(false);
+      expect(result.retryAfterMs).toBeGreaterThan(0);
+
+      // Advance time by more than 1 hour so all generations expire
+      vi.advanceTimersByTime(61 * 60 * 1000);
+
+      // After 61 minutes, all 5 generations are > 1 hour old, so they're filtered out
+      // Should now be allowed
+      const afterExpiry = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(afterExpiry.allowed).toBe(true);
+      expect(afterExpiry.retryAfterMs).toBe(0);
     });
 
     it('isolates rate limits per restaurant', () => {
@@ -131,11 +131,17 @@ describe('MenuEmbeddingService', () => {
       const restaurant2 = '22222222-2222-2222-2222-222222222222';
       const restaurant3 = '33333333-3333-3333-3333-333333333333';
 
-      // Check rate limit for restaurant 1
-      const result1 = MenuEmbeddingService.checkRateLimit(restaurant1);
-      expect(result1.allowed).toBe(true);
+      const now = Date.now();
+      vi.setSystemTime(now);
 
-      // Check rate limit for restaurant 2 - should also be allowed (independent)
+      // Record generation for restaurant 1
+      MenuEmbeddingService.recordGeneration(restaurant1);
+
+      // Check rate limit for restaurant 1 - should be blocked (cooldown)
+      const result1 = MenuEmbeddingService.checkRateLimit(restaurant1);
+      expect(result1.allowed).toBe(false);
+
+      // Check rate limit for restaurant 2 - should be allowed (independent)
       const result2 = MenuEmbeddingService.checkRateLimit(restaurant2);
       expect(result2.allowed).toBe(true);
 
@@ -143,43 +149,71 @@ describe('MenuEmbeddingService', () => {
       const result3 = MenuEmbeddingService.checkRateLimit(restaurant3);
       expect(result3.allowed).toBe(true);
 
-      // All restaurants should have their own independent limits
-      expect(result1.allowed).toBe(true);
-      expect(result2.allowed).toBe(true);
-      expect(result3.allowed).toBe(true);
+      // Record generation for restaurant 2
+      MenuEmbeddingService.recordGeneration(restaurant2);
+
+      // Restaurant 2 now blocked, restaurant 3 still allowed
+      const result2After = MenuEmbeddingService.checkRateLimit(restaurant2);
+      expect(result2After.allowed).toBe(false);
+
+      const result3After = MenuEmbeddingService.checkRateLimit(restaurant3);
+      expect(result3After.allowed).toBe(true);
     });
 
     it('cleans up old timestamps on check', () => {
       const now = Date.now();
       vi.setSystemTime(now);
 
-      // First check to initialize
-      const result1 = MenuEmbeddingService.checkRateLimit(testRestaurantId);
-      expect(result1.allowed).toBe(true);
+      // Record 5 generations (hit the hourly limit)
+      for (let i = 0; i < 5; i++) {
+        MenuEmbeddingService.recordGeneration(testRestaurantId);
+        vi.advanceTimersByTime(1000); // Small gap between each
+      }
+
+      // Should be rate limited now
+      const limitedResult = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(limitedResult.allowed).toBe(false);
 
       // Advance time by more than 1 hour
       vi.advanceTimersByTime(61 * 60 * 1000);
 
-      // Check again - should be allowed since old timestamps are cleaned up
-      const result2 = MenuEmbeddingService.checkRateLimit(testRestaurantId);
-      expect(result2.allowed).toBe(true);
-      expect(result2.retryAfterMs).toBe(0);
+      // Check again - old timestamps should be cleaned up, should be allowed
+      const result = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(result.allowed).toBe(true);
+      expect(result.retryAfterMs).toBe(0);
     });
 
     it('returns correct retryAfterMs when limited', () => {
-      // This test verifies the retryAfterMs calculation
-      // When not limited, retryAfterMs should be 0
+      const now = Date.now();
+      vi.setSystemTime(now);
+
+      // Record a generation to trigger cooldown
+      MenuEmbeddingService.recordGeneration(testRestaurantId);
+
+      // Check rate limit - should return retryAfterMs for cooldown
       const result = MenuEmbeddingService.checkRateLimit(testRestaurantId);
 
-      expect(result.allowed).toBe(true);
-      expect(result.retryAfterMs).toBe(0);
+      expect(result.allowed).toBe(false);
       expect(typeof result.retryAfterMs).toBe('number');
-    });
+      expect(result.retryAfterMs).toBeGreaterThan(0);
+      // retryAfterMs should be approximately 12 minutes (720000ms)
+      expect(result.retryAfterMs).toBeLessThanOrEqual(12 * 60 * 1000);
+      expect(result.retryAfterMs).toBeGreaterThan(11 * 60 * 1000);
 
-    it('returns retryAfterMs as 0 when no limit is hit', () => {
-      const result = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      // Test retryAfterMs for hourly limit
+      MenuEmbeddingService.clearRateLimitHistory();
 
-      expect(result.retryAfterMs).toBe(0);
+      // Record 5 generations quickly (within cooldown to ensure hourly limit is hit)
+      for (let i = 0; i < 5; i++) {
+        MenuEmbeddingService.recordGeneration(testRestaurantId);
+      }
+
+      // Check should hit hourly limit
+      const hourlyResult = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(hourlyResult.allowed).toBe(false);
+      // retryAfterMs should be about 1 hour (oldest generation + 1 hour - now)
+      expect(hourlyResult.retryAfterMs).toBeGreaterThan(0);
+      expect(hourlyResult.retryAfterMs).toBeLessThanOrEqual(60 * 60 * 1000);
     });
 
     it('handles empty restaurant id gracefully', () => {
@@ -196,9 +230,13 @@ describe('MenuEmbeddingService', () => {
       const restaurant1 = '11111111-1111-1111-1111-111111111111';
       const restaurant2 = '22222222-2222-2222-2222-222222222222';
 
-      // Add some history by checking rate limits
-      MenuEmbeddingService.checkRateLimit(restaurant1);
-      MenuEmbeddingService.checkRateLimit(restaurant2);
+      // Record generations to create rate limits
+      MenuEmbeddingService.recordGeneration(restaurant1);
+      MenuEmbeddingService.recordGeneration(restaurant2);
+
+      // Verify both are rate limited
+      expect(MenuEmbeddingService.checkRateLimit(restaurant1).allowed).toBe(false);
+      expect(MenuEmbeddingService.checkRateLimit(restaurant2).allowed).toBe(false);
 
       // Clear history
       MenuEmbeddingService.clearRateLimitHistory();
@@ -277,8 +315,11 @@ describe('MenuEmbeddingService', () => {
       // Start cleanup
       MenuEmbeddingService.startRateLimitCleanup();
 
-      // Add some data by checking rate limit
-      MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      // Record a generation to create rate limit data
+      MenuEmbeddingService.recordGeneration(testRestaurantId);
+
+      // Verify rate limited
+      expect(MenuEmbeddingService.checkRateLimit(testRestaurantId).allowed).toBe(false);
 
       // Stop cleanup (should clear data)
       MenuEmbeddingService.stopRateLimitCleanup();
@@ -309,8 +350,11 @@ describe('MenuEmbeddingService', () => {
       // Start cleanup
       MenuEmbeddingService.startRateLimitCleanup();
 
-      // Add an entry
-      MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      // Record a generation
+      MenuEmbeddingService.recordGeneration(testRestaurantId);
+
+      // Verify rate limited
+      expect(MenuEmbeddingService.checkRateLimit(testRestaurantId).allowed).toBe(false);
 
       // Advance time by more than 1 hour (STALE_ENTRY_THRESHOLD_MS)
       vi.advanceTimersByTime(61 * 60 * 1000);
@@ -332,15 +376,23 @@ describe('MenuEmbeddingService', () => {
       // Start cleanup
       MenuEmbeddingService.startRateLimitCleanup();
 
-      // Add an entry
-      MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      // Record a generation
+      MenuEmbeddingService.recordGeneration(testRestaurantId);
 
-      // Advance time by less than 1 hour
+      // Advance time by less than 1 hour but past cooldown
       vi.advanceTimersByTime(30 * 60 * 1000);
 
-      // Check should still show the entry exists (allowed since no actual generation recorded)
+      // After 30 minutes, cooldown (12 min) is cleared but entry is not stale
+      // Check should be allowed (cooldown passed) but entry still exists for hourly tracking
       const result = MenuEmbeddingService.checkRateLimit(testRestaurantId);
       expect(result.allowed).toBe(true);
+
+      // Record another generation
+      MenuEmbeddingService.recordGeneration(testRestaurantId);
+
+      // Now should be rate limited again (cooldown from new generation)
+      const afterSecondGen = MenuEmbeddingService.checkRateLimit(testRestaurantId);
+      expect(afterSecondGen.allowed).toBe(false);
     });
 
     it('handles cleanup with multiple restaurants', () => {
@@ -352,9 +404,13 @@ describe('MenuEmbeddingService', () => {
       // Start cleanup
       MenuEmbeddingService.startRateLimitCleanup();
 
-      // Add entries for both restaurants
-      MenuEmbeddingService.checkRateLimit(restaurant1);
-      MenuEmbeddingService.checkRateLimit(restaurant2);
+      // Record generations for both restaurants
+      MenuEmbeddingService.recordGeneration(restaurant1);
+      MenuEmbeddingService.recordGeneration(restaurant2);
+
+      // Both should be rate limited
+      expect(MenuEmbeddingService.checkRateLimit(restaurant1).allowed).toBe(false);
+      expect(MenuEmbeddingService.checkRateLimit(restaurant2).allowed).toBe(false);
 
       // Advance time by more than 1 hour
       vi.advanceTimersByTime(61 * 60 * 1000);

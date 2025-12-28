@@ -77,6 +77,9 @@ export class MenuEmbeddingService {
   /** Stale entry threshold: 1 hour (entries with all timestamps older than this are removed) */
   private static readonly STALE_ENTRY_THRESHOLD_MS = 60 * 60 * 1000;
 
+  /** Cleanup runs every 10 minutes */
+  private static readonly CLEANUP_INTERVAL_MS = 10 * 60 * 1000;
+
   /**
    * Start the rate limit cleanup interval
    * IMPORTANT: Called during server initialization
@@ -87,10 +90,10 @@ export class MenuEmbeddingService {
       return;
     }
 
-    // Cleanup stale entries every hour
+    // Cleanup stale entries every 10 minutes
     this.cleanupInterval = setInterval(() => {
       this.cleanupStaleEntries();
-    }, this.STALE_ENTRY_THRESHOLD_MS);
+    }, this.CLEANUP_INTERVAL_MS);
 
     embeddingLogger.info('Menu embedding rate limit cleanup interval started');
   }
@@ -206,8 +209,9 @@ export class MenuEmbeddingService {
 
   /**
    * Record a bulk generation for rate limiting
+   * @internal Exposed for testing - use generateAllEmbeddings in production
    */
-  private static recordGeneration(restaurantId: string): void {
+  static recordGeneration(restaurantId: string): void {
     const history = this.generationHistory.get(restaurantId) || [];
     history.push(Date.now());
     this.generationHistory.set(restaurantId, history);
