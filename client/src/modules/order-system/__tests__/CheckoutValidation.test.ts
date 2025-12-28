@@ -61,27 +61,22 @@ describe('Checkout Validation', () => {
       expect(result).toBe('This field is required');
     });
 
-    it('rejects phone with less than 10 digits', () => {
-      const result = validators.phone('123');
-      expect(result).toBe('Please enter a valid 10-digit phone number');
+    it('rejects phone with less than 7 digits', () => {
+      const result = validators.phone('123456');
+      expect(result).toBe('Please enter a valid phone number (7-15 digits)');
     });
 
-    it('rejects phone with 9 digits', () => {
-      const result = validators.phone('123456789');
-      expect(result).toBe('Please enter a valid 10-digit phone number');
+    it('rejects phone with more than 15 digits', () => {
+      const result = validators.phone('1234567890123456');
+      expect(result).toBe('Please enter a valid phone number (7-15 digits)');
     });
 
-    it('rejects phone with 11 digits', () => {
-      const result = validators.phone('12345678901');
-      expect(result).toBe('Please enter a valid 10-digit phone number');
-    });
-
-    it('accepts valid phone with formatting', () => {
+    it('accepts valid US phone with formatting', () => {
       const result = validators.phone('(555) 123-4567');
       expect(result).toBeNull();
     });
 
-    it('accepts valid phone without formatting', () => {
+    it('accepts valid US phone without formatting', () => {
       const result = validators.phone('5551234567');
       expect(result).toBeNull();
     });
@@ -98,6 +93,26 @@ describe('Checkout Validation', () => {
 
     it('accepts valid phone with dashes', () => {
       const result = validators.phone('555-123-4567');
+      expect(result).toBeNull();
+    });
+
+    it('accepts valid international phone with country code', () => {
+      const result = validators.phone('+44 20 7123 4567');
+      expect(result).toBeNull();
+    });
+
+    it('accepts valid short international phone (7 digits)', () => {
+      const result = validators.phone('1234567');
+      expect(result).toBeNull();
+    });
+
+    it('accepts valid long international phone (15 digits)', () => {
+      const result = validators.phone('123456789012345');
+      expect(result).toBeNull();
+    });
+
+    it('accepts valid US phone with country code', () => {
+      const result = validators.phone('+1 555 123 4567');
       expect(result).toBeNull();
     });
   });
@@ -213,7 +228,7 @@ describe('Checkout Validation', () => {
         error = rule(value);
         if (error) break;
       }
-      expect(error).toBe('Please enter a valid 10-digit phone number');
+      expect(error).toBe('Please enter a valid phone number (7-15 digits)');
     });
 
     it('validates valid phone through full chain', () => {

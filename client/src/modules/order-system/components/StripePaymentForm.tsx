@@ -1,5 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { CreditCard, Lock } from 'lucide-react';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import {
   Elements,
   PaymentElement,
@@ -30,6 +31,9 @@ const isDemoMode = !stripePublishableKey ||
                    stripePublishableKey === 'demo' ||
                    import.meta.env.DEV ||
                    import.meta.env.VITE_ENVIRONMENT === 'development';
+
+// Check if using Stripe test mode (test keys start with pk_test_)
+const isStripeTestMode = stripePublishableKey?.startsWith('pk_test_') ?? false;
 
 /**
  * Inner payment form component (must be inside Elements provider)
@@ -90,13 +94,22 @@ const PaymentFormInner: React.FC<{
         </div>
       )}
 
-      <div className="mb-4">
+      <div className="mb-4 w-full max-w-full overflow-hidden">
         <PaymentElement options={{ layout: 'tabs' }} />
       </div>
+
+      {isStripeTestMode && (
+        <p className="demo-hint text-sm text-gray-500 mb-4">
+          Test mode: Use card 4242 4242 4242 4242, any future date, any 3-digit CVC
+        </p>
+      )}
 
       <button
         type="submit"
         disabled={!stripe || !elements || isSubmitting}
+        aria-label={isSubmitting ? 'Processing payment...' : `Pay $${amount.toFixed(2)}`}
+        aria-busy={isSubmitting}
+        aria-disabled={!stripe || !elements || isSubmitting}
         className="w-full py-3 px-4 bg-gradient-to-r from-macon-teal to-macon-teal-dark text-white font-medium rounded-lg hover:from-macon-teal-dark hover:to-macon-teal focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-macon-teal disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 transform hover:scale-[1.02] disabled:transform-none"
       >
         {isSubmitting ? (
@@ -138,7 +151,9 @@ const DemoPaymentForm: React.FC<{
     // Simulate payment processing delay
     setTimeout(() => {
       // Return a demo token that the backend will recognize
-      onPaymentNonce(`demo-nonce-${Date.now()}`);
+      // Include random suffix to prevent race conditions if multiple payments occur in same millisecond
+      const randomSuffix = Math.random().toString(36).substring(2, 11);
+      onPaymentNonce(`demo-nonce-${Date.now()}-${randomSuffix}`);
       setProcessing(false);
     }, 1500);
   }, [onPaymentNonce]);
@@ -147,12 +162,7 @@ const DemoPaymentForm: React.FC<{
 
   return (
     <div className="space-y-4">
-      <div className="bg-green-50 p-4 rounded-lg mb-4">
-        <p className="text-sm text-green-800 flex items-center">
-          <Lock className="w-4 h-4 mr-2" />
-          Demo Mode - Payment will be simulated for testing
-        </p>
-      </div>
+      <DemoModeBanner className="mb-4" />
 
       <div className="border border-gray-300 rounded-lg p-4 bg-gray-50">
         <div className="text-sm text-gray-600 mb-2">Test Card (Demo)</div>
@@ -161,12 +171,18 @@ const DemoPaymentForm: React.FC<{
           <span>12/25</span>
           <span>123</span>
         </div>
+        <p className="demo-hint text-xs text-gray-400 mt-2">
+          Any future expiry date and any 3-digit CVC will work
+        </p>
       </div>
 
       <button
         type="button"
         onClick={handleDemoPayment}
         disabled={isSubmitting}
+        aria-label={isSubmitting ? 'Processing payment...' : `Pay $${amount.toFixed(2)} (Demo)`}
+        aria-busy={isSubmitting}
+        aria-disabled={isSubmitting}
         className="w-full py-3 px-4 bg-green-600 text-white font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
       >
         {isSubmitting ? (
@@ -184,7 +200,7 @@ const DemoPaymentForm: React.FC<{
 
       <div className="flex items-center justify-center text-sm text-gray-500">
         <Lock className="w-4 h-4 mr-1" />
-        Demo mode - No real charges
+        Secure demo payment
       </div>
     </div>
   );

@@ -171,3 +171,86 @@ export const menuUpdateLimiter = rateLimit({
     });
   }
 });
+
+// Payment rate limiter (Todo #002)
+// Security-critical: Prevents payment fraud, card testing, and abuse
+export const paymentLimiter = rateLimit({
+  windowMs: 15 * 60 * 1000, // 15 minutes
+  max: isDevelopment ? 50 : 10, // 10 payment attempts per 15 minutes in production
+  keyGenerator: (req: Request) => {
+    // Use IP-based rate limiting for payments to prevent abuse from same IP
+    const ip = getClientIp(req);
+    return `payment:${ip}`;
+  },
+  message: 'Too many payment attempts, please try again later.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    const authReq = req as AuthenticatedRequest;
+    logger.warn('[RATE_LIMIT] Payment limit exceeded - potential fraud attempt', {
+      ip: getClientIp(req),
+      userId: authReq.user?.id,
+      restaurantId: authReq.restaurantId,
+      userAgent: req.headers['user-agent'],
+      orderId: req.body?.order_id,
+      endpoint: req.path
+    });
+    res.status(429).json({
+      error: 'Too many payment attempts',
+      message: 'Please wait before trying again. If you believe this is an error, contact support.',
+      retryAfter: 900 // 15 minutes
+    });
+  }
+});
+
+// Payment confirmation rate limiter (slightly more lenient than create)
+// Confirmations may retry on network issues, so allow more attempts
+export const paymentConfirmLimiter = rateLimit({
+  windowMs: 5 * 60 * 1000, // 5 minutes
+  max: isDevelopment ? 100 : 20, // 20 confirmations per 5 minutes
+  keyGenerator: (req: Request) => {
+    const ip = getClientIp(req);
+    return `payment-confirm:${ip}`;
+  },
+  message: 'Too many payment confirmation attempts.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    const authReq = req as AuthenticatedRequest;
+    logger.warn('[RATE_LIMIT] Payment confirmation limit exceeded', {
+      ip: getClientIp(req),
+      userId: authReq.user?.id,
+      restaurantId: authReq.restaurantId,
+      paymentIntentId: req.body?.payment_intent_id
+    });
+    res.status(429).json({
+      error: 'Too many confirmation attempts',
+      message: 'Please wait before trying again.',
+      retryAfter: 300 // 5 minutes
+    });
+  }
+});
+
+// Refund rate limiter (stricter - refunds are high-risk operations)
+export const refundLimiter = rateLimit({
+  windowMs: 60 * 60 * 1000, // 1 hour
+  max: isDevelopment ? 50 : 10, // 10 refunds per hour in production
+  keyGenerator: getUserRateLimitKey,
+  message: 'Too many refund attempts.',
+  standardHeaders: true,
+  legacyHeaders: false,
+  handler: (req, res) => {
+    const authReq = req as AuthenticatedRequest;
+    logger.warn('[RATE_LIMIT] Refund limit exceeded - potential abuse', {
+      ip: getClientIp(req),
+      userId: authReq.user?.id,
+      restaurantId: authReq.restaurantId,
+      paymentId: req.params?.['paymentId']
+    });
+    res.status(429).json({
+      error: 'Too many refund attempts',
+      message: 'Refund limit exceeded. Please contact management.',
+      retryAfter: 3600 // 1 hour
+    });
+  }
+});

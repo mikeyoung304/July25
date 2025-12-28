@@ -3,6 +3,7 @@ import { BadRequest } from '../middleware/errorHandler';
 // ✅ PHASE 2: Import OrderStatus from shared (Single Source of Truth)
 import type { Order, OrderStatus } from '@rebuild/shared';
 import { getErrorMessage } from '@rebuild/shared';
+import { EmailService } from './email.service';
 
 /**
  * Order State Machine
@@ -334,6 +335,50 @@ OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
   } catch (error) {
     // Log but don't block - kitchen notifications are best-effort
     logger.error('Failed to process kitchen notification hook', {
+      orderId: order.id,
+      error: getErrorMessage(error)
+    });
+  }
+});
+
+/**
+ * Hook: Send order confirmation email when order is confirmed (TODO-007)
+ * Sends email via EmailService (non-blocking, won't fail order)
+ * Requires env vars: POSTMARK_SERVER_TOKEN, POSTMARK_FROM_EMAIL
+ */
+OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
+  try {
+    // Extract email data from order
+    const emailData = EmailService.extractEmailDataFromOrder(order);
+
+    if (!emailData) {
+      logger.debug('Order confirmation email skipped: No customer email', {
+        orderId: order.id,
+        orderNumber: order.order_number
+      });
+      return;
+    }
+
+    // Send confirmation email (non-blocking)
+    const result = await EmailService.sendOrderConfirmation(emailData);
+
+    if (result.success) {
+      logger.info('Order confirmation email sent', {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        messageId: result.messageId
+      });
+    } else {
+      // Log warning but don't fail - email errors should never block orders
+      logger.warn('Order confirmation email failed (non-blocking)', {
+        orderId: order.id,
+        orderNumber: order.order_number,
+        error: result.error
+      });
+    }
+  } catch (error) {
+    // Catch-all: Log but don't block order confirmation
+    logger.error('Unexpected error in order confirmation email hook', {
       orderId: order.id,
       error: getErrorMessage(error)
     });

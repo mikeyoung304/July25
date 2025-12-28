@@ -10,12 +10,21 @@ import { useHttpClient } from '@/services/http';
 import { useFormValidation } from '@/utils/validation';
 import { checkoutValidationRules } from '@/config/checkoutValidation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
+import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import { logger } from '@/services/logger';
+
+// Configurable estimated preparation time (can be overridden via environment variable)
+const ESTIMATED_PREP_TIME = import.meta.env.VITE_ESTIMATED_PREP_TIME || '15-20 minutes';
+
+// Maximum retry attempts for payment failures
+const MAX_RETRY_ATTEMPTS = 3;
 
 const CheckoutPageContent: React.FC = () => {
   const navigate = useNavigate();
   const { cart, updateCartItem, removeFromCart, updateTip, clearCart, restaurantId } = useUnifiedCart();
   const [isProcessing, setIsProcessing] = useState(false);
+  const [paymentError, setPaymentError] = useState<string | null>(null);
+  const [retryCount, setRetryCount] = useState(0);
   const { post: createOrder } = useHttpClient();
   const { post: processPayment } = useHttpClient();
 
@@ -45,13 +54,23 @@ const CheckoutPageContent: React.FC = () => {
     }
   }, []); // Run once on mount
 
+  // Handle retry - clears error and resets processing state while preserving form data
+  const handleRetry = () => {
+    setPaymentError(null);
+    form.clearErrors();
+    setIsProcessing(false);
+    // Form data is automatically preserved since we're only clearing errors
+    logger.info('Payment retry initiated', { attemptNumber: retryCount + 1 });
+  };
+
   const handleDemoPayment = async () => {
     // Validate form
     if (!form.validateForm()) {
       return;
     }
-    
+
     setIsProcessing(true);
+    setPaymentError(null);
     form.clearErrors();
 
     try {
@@ -111,7 +130,7 @@ const CheckoutPageContent: React.FC = () => {
         state: {
           orderId: order.id,
           order_number: order.order_number,
-          estimatedTime: '15-20 minutes',
+          estimatedTime: ESTIMATED_PREP_TIME,
           items: cart.items,
           total: cart.total,
           paymentId: payment.id || payment.paymentId,
@@ -120,11 +139,14 @@ const CheckoutPageContent: React.FC = () => {
 
     } catch (error) {
       logger.error('Demo payment error:', error);
+      const newRetryCount = retryCount + 1;
+      setRetryCount(newRetryCount);
       const errorMessage = error instanceof Error
         ? error.message
         : typeof error === 'string'
           ? error
           : JSON.stringify(error) || 'Demo payment failed. Please try again.';
+      setPaymentError(errorMessage);
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
     } finally {
       setIsProcessing(false);
@@ -136,8 +158,9 @@ const CheckoutPageContent: React.FC = () => {
     if (!form.validateForm()) {
       return;
     }
-    
+
     setIsProcessing(true);
+    setPaymentError(null);
     form.clearErrors();
 
     try {
@@ -198,7 +221,7 @@ const CheckoutPageContent: React.FC = () => {
         state: {
           orderId: order.id,
           order_number: order.order_number,
-          estimatedTime: '15-20 minutes',
+          estimatedTime: ESTIMATED_PREP_TIME,
           items: cart.items,
           total: cart.total,
           paymentId: payment.id || payment.paymentId,
@@ -207,11 +230,14 @@ const CheckoutPageContent: React.FC = () => {
 
     } catch (error) {
       logger.error('Payment processing error:', error);
+      const newRetryCount = retryCount + 1;
+      setRetryCount(newRetryCount);
       const errorMessage = error instanceof Error
         ? error.message
         : typeof error === 'string'
           ? error
           : JSON.stringify(error) || 'An error occurred. Please try again.';
+      setPaymentError(errorMessage);
       form.setFieldError('general' as keyof typeof form.values, errorMessage);
     } finally {
       setIsProcessing(false);
@@ -300,7 +326,7 @@ const CheckoutPageContent: React.FC = () => {
                     value={form.values.customerPhone}
                     onChange={form.handleChange('customerPhone')}
                     onBlur={form.handleBlur('customerPhone')}
-                    placeholder="(555) 123-4567"
+                    placeholder="+1 555 123 4567"
                     className={`block w-full px-3 py-2 border rounded-lg ${
                       form.errors.customerPhone ? 'border-red-300' : 'border-gray-300'
                     }`}
@@ -342,19 +368,41 @@ const CheckoutPageContent: React.FC = () => {
               
               {/* Demo Mode Banner */}
               {isDemoMode && (
-                <div className="mb-4 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                  <p className="text-sm text-blue-800 font-medium">
-                    🎮 Demo Mode – No cards will be charged
-                  </p>
-                </div>
+                <DemoModeBanner className="mb-4" />
               )}
               
-              {form.errors.general && (
+              {/* Payment Error with Retry Option */}
+              {paymentError && (
+                <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+                  <p className="text-red-700 text-sm mb-3">{paymentError}</p>
+                  {retryCount < MAX_RETRY_ATTEMPTS ? (
+                    <div className="flex items-center justify-between">
+                      <span className="text-xs text-red-600">
+                        Attempt {retryCount} of {MAX_RETRY_ATTEMPTS}
+                      </span>
+                      <button
+                        onClick={handleRetry}
+                        className="px-4 py-2 bg-red-600 hover:bg-red-700 text-white text-sm font-medium rounded-lg transition-colors"
+                        type="button"
+                      >
+                        Try Again
+                      </button>
+                    </div>
+                  ) : (
+                    <div className="text-xs text-red-600">
+                      Maximum retry attempts reached. Please refresh the page or contact support.
+                    </div>
+                  )}
+                </div>
+              )}
+
+              {/* Legacy error display for non-payment errors */}
+              {form.errors.general && !paymentError && (
                 <div className="mb-4 p-3 bg-red-50 border border-red-200 rounded-lg text-red-700 text-sm">
                   {form.errors.general}
                 </div>
               )}
-              
+
               {isDemoMode ? (
                 <button
                   onClick={handleDemoPayment}

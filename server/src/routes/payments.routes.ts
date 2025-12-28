@@ -4,10 +4,11 @@ import { validateRestaurantAccess } from '../middleware/restaurantAccess';
 import { requireScopes, ApiScope } from '../middleware/rbac';
 import { BadRequest, Unauthorized } from '../middleware/errorHandler';
 import { logger } from '../utils/logger';
+import { paymentLimiter, paymentConfirmLimiter, refundLimiter } from '../middleware/rateLimiter';
 import Stripe from 'stripe';
 import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
-import { PaymentService } from '../services/payment.service';
+import { PaymentService, generateIdempotencyKey } from '../services/payment.service';
 import { validateBody } from '../middleware/validate';
 import { PaymentPayload, CashPaymentPayload } from '../../../shared/contracts/payment';
 import { TableService } from '../services/table.service';
@@ -30,6 +31,9 @@ if (!stripeSecretKey || stripeSecretKey === 'demo') {
   routeLogger.info('Stripe Payment Processing: TEST MODE');
 }
 
+// Payment timeout configuration (default: 30 seconds)
+const PAYMENT_TIMEOUT_MS = parseInt(process.env['PAYMENT_TIMEOUT_MS'] || '30000', 10);
+
 /**
  * Timeout wrapper for Stripe API calls
  *
@@ -39,7 +43,7 @@ if (!stripeSecretKey || stripeSecretKey === 'demo') {
  */
 async function withTimeout<T>(
   promise: Promise<T>,
-  timeoutMs: number = 30000,
+  timeoutMs: number = PAYMENT_TIMEOUT_MS,
   operation: string = 'Stripe API call'
 ): Promise<T> {
   return Promise.race([
@@ -55,6 +59,7 @@ async function withTimeout<T>(
 
 // POST /api/v1/payments/create-payment-intent - Create payment intent for client-side confirmation
 router.post('/create-payment-intent',
+  paymentLimiter,
   optionalAuth,
   validateBody(PaymentPayload),
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
@@ -190,7 +195,7 @@ router.post('/create-payment-intent',
       }, {
         idempotencyKey: serverIdempotencyKey,
       }),
-      30000,
+      PAYMENT_TIMEOUT_MS,
       'Create payment intent'
     );
 
@@ -225,6 +230,7 @@ router.post('/create-payment-intent',
 
 // POST /api/v1/payments/confirm - Confirm payment after client-side completion
 router.post('/confirm',
+  paymentConfirmLimiter,
   optionalAuth,
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
@@ -262,8 +268,8 @@ router.post('/confirm',
         req.user?.id
       );
 
-      // Update audit log
-      const idempotencyKey = `${order_id.slice(-12)}-confirm`;
+      // Update audit log using consistent idempotency key format
+      const idempotencyKey = generateIdempotencyKey('confirm', restaurantId, order_id);
       await PaymentService.updatePaymentAuditStatus(
         idempotencyKey,
         'success',
@@ -281,7 +287,7 @@ router.post('/confirm',
     // Retrieve payment intent to verify status
     const paymentIntent = await withTimeout(
       stripe.paymentIntents.retrieve(payment_intent_id),
-      30000,
+      PAYMENT_TIMEOUT_MS,
       'Retrieve payment intent'
     );
 
@@ -363,6 +369,7 @@ router.post('/confirm',
 
 // POST /api/v1/payments/cash - Process cash payment
 router.post('/cash',
+  paymentLimiter,
   authenticate,
   validateRestaurantAccess,
   requireScopes(ApiScope.PAYMENTS_PROCESS),
@@ -420,8 +427,8 @@ router.post('/cash',
       change
     });
 
-    // Generate idempotency key for two-phase audit logging
-    const cashIdempotencyKey = `cash-${order_id}-${Date.now()}`;
+    // Generate idempotency key for two-phase audit logging using consistent format
+    const cashIdempotencyKey = generateIdempotencyKey('cash', restaurantId, order_id);
 
     // COMPLIANCE: Phase 1 - Log payment 'initiated' BEFORE processing
     await PaymentService.logPaymentAttempt({
@@ -553,7 +560,7 @@ router.get('/:paymentId',
 
     const paymentIntent = await withTimeout(
       stripe.paymentIntents.retrieve(paymentId),
-      30000,
+      PAYMENT_TIMEOUT_MS,
       'Get payment details'
     );
 
@@ -588,6 +595,7 @@ router.get('/:paymentId',
 
 // POST /api/v1/payments/:paymentId/refund - Refund payment
 router.post('/:paymentId/refund',
+  refundLimiter,
   authenticate,
   validateRestaurantAccess,
   requireScopes(ApiScope.PAYMENTS_REFUND),
@@ -618,7 +626,7 @@ router.post('/:paymentId/refund',
     // Get payment intent first
     const paymentIntent = await withTimeout(
       stripe.paymentIntents.retrieve(paymentId),
-      30000,
+      PAYMENT_TIMEOUT_MS,
       'Get payment for refund'
     );
 
@@ -641,7 +649,7 @@ router.post('/:paymentId/refund',
 
     const refund = await withTimeout(
       stripe.refunds.create(refundRequest),
-      30000,
+      PAYMENT_TIMEOUT_MS,
       'Refund payment'
     );
 
@@ -653,7 +661,7 @@ router.post('/:paymentId/refund',
       restaurantId: req.restaurantId!,
       paymentMethod: 'card',
       userAgent: req.headers['user-agent'] as string,
-      idempotencyKey: `refund-${paymentId}-${Date.now()}`,
+      idempotencyKey: generateIdempotencyKey('refund', req.restaurantId!, paymentId),
       metadata: {
         refundId: refund.id,
         refundReason: reason,

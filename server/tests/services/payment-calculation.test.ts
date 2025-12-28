@@ -88,7 +88,8 @@ describe('PaymentService - Payment Calculations', () => {
       expect(result.tax).toBeCloseTo(0.825, 3);
       expect(result.orderTotal).toBeCloseTo(10.825, 3);
       expect(result.amount).toBe(1083); // Math.round(10.825 * 100)
-      expect(result.idempotencyKey).toMatch(/^[a-f0-9-]+-\d+$/);
+      // New format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
+      expect(result.idempotencyKey).toMatch(/^pay_.+_.+_\d+$/);
     });
 
     it('should calculate total for multiple items', async () => {
@@ -599,12 +600,14 @@ describe('PaymentService - Payment Calculations', () => {
 
       const result = await PaymentService.validateRefundRequest(
         paymentId,
+        mockRestaurantId,
         undefined, // Full refund
         originalAmount
       );
 
       expect(result.amount).toBe(2550); // Converted to cents
-      expect(result.idempotencyKey).toMatch(/^ref-.+-\d+$/);
+      // New format: refund_{restaurantSuffix}_{paymentSuffix}_{timestamp}
+      expect(result.idempotencyKey).toMatch(/^refund_.+_.+_\d+$/);
       expect(result.idempotencyKey).toContain(paymentId.slice(-12));
     });
 
@@ -615,41 +618,49 @@ describe('PaymentService - Payment Calculations', () => {
 
       const result = await PaymentService.validateRefundRequest(
         paymentId,
+        mockRestaurantId,
         refundAmount,
         originalAmount
       );
 
       expect(result.amount).toBe(1000); // $10.00 in cents
-      expect(result.idempotencyKey).toMatch(/^ref-.+-\d+$/);
+      // New format: refund_{restaurantSuffix}_{paymentSuffix}_{timestamp}
+      expect(result.idempotencyKey).toMatch(/^refund_.+_.+_\d+$/);
     });
 
     it('should reject refund without payment ID', async () => {
       await expect(
-        PaymentService.validateRefundRequest('', 10.00, 50.00)
+        PaymentService.validateRefundRequest('', mockRestaurantId, 10.00, 50.00)
       ).rejects.toThrow('Payment ID is required for refund');
+    });
+
+    it('should reject refund without restaurant ID', async () => {
+      await expect(
+        PaymentService.validateRefundRequest('payment-123', '', 10.00, 50.00)
+      ).rejects.toThrow('Restaurant ID is required for refund');
     });
 
     it('should reject refund amount of zero', async () => {
       await expect(
-        PaymentService.validateRefundRequest('payment-123', 0, 50.00)
+        PaymentService.validateRefundRequest('payment-123', mockRestaurantId, 0, 50.00)
       ).rejects.toThrow('Refund amount must be positive');
     });
 
     it('should reject negative refund amount', async () => {
       await expect(
-        PaymentService.validateRefundRequest('payment-123', -10.00, 50.00)
+        PaymentService.validateRefundRequest('payment-123', mockRestaurantId, -10.00, 50.00)
       ).rejects.toThrow('Refund amount must be positive');
     });
 
     it('should reject refund exceeding original amount', async () => {
       await expect(
-        PaymentService.validateRefundRequest('payment-123', 60.00, 50.00)
+        PaymentService.validateRefundRequest('payment-123', mockRestaurantId, 60.00, 50.00)
       ).rejects.toThrow('Refund amount cannot exceed original payment');
     });
 
     it('should reject refund when amount cannot be determined', async () => {
       await expect(
-        PaymentService.validateRefundRequest('payment-123')
+        PaymentService.validateRefundRequest('payment-123', mockRestaurantId)
       ).rejects.toThrow('Unable to determine refund amount');
     });
 
@@ -659,11 +670,27 @@ describe('PaymentService - Payment Calculations', () => {
 
       const result = await PaymentService.validateRefundRequest(
         paymentId,
+        mockRestaurantId,
         refundAmount,
         50.00
       );
 
       expect(result.amount).toBe(1235); // Math.round(12.345 * 100)
+    });
+
+    it('should include restaurant ID suffix for tenant isolation', async () => {
+      const paymentId = 'pi_stripe_payment_123';
+      const originalAmount = 25.50;
+
+      const result = await PaymentService.validateRefundRequest(
+        paymentId,
+        mockRestaurantId,
+        undefined,
+        originalAmount
+      );
+
+      // Should include last 8 chars of restaurant ID
+      expect(result.idempotencyKey).toContain(mockRestaurantId.slice(-8));
     });
   });
 

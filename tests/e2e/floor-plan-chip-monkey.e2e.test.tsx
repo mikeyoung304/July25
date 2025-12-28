@@ -1,9 +1,11 @@
 import { test, expect } from '@playwright/test'
 
+const BASE_URL = process.env.BASE_URL || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173';
+
 test.describe('Chip Monkey Floor Plan Feature', () => {
   test.beforeEach(async ({ page }) => {
     // Navigate to the floor plan editor
-    await page.goto('http://localhost:5173/admin')
+    await page.goto(`${BASE_URL}/admin`)
     
     // Click on Floor Plan Layout option
     await page.click('text=Floor Plan Layout')

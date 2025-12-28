@@ -20,7 +20,7 @@ export function ConnectionStatusBar() {
       case 'connected':
         return {
           icon: Wifi,
-          text: 'Connected',
+          text: 'Live',
           className: 'bg-green-500 text-white',
           pulse: false
         }
@@ -54,18 +54,20 @@ export function ConnectionStatusBar() {
     window.location.reload()
   }
 
-  // Only show if there's an issue
-  if (connectionState === 'connected' && isOnline) {
-    return null
-  }
-
+  // Always show status - important for KDS operators to see real-time connection
+  // Green indicator for connected, red for problems - never hidden
   return (
-    <div className={cn(
-      'fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg',
-      'transition-all duration-300 text-sm font-medium',
-      className,
-      pulse && 'animate-pulse'
-    )}>
+    <div
+      className={cn(
+        'fixed top-4 right-4 z-50 flex items-center gap-2 px-3 py-2 rounded-lg shadow-lg',
+        'transition-all duration-300 text-sm font-medium',
+        className,
+        pulse && 'animate-pulse'
+      )}
+      role="status"
+      aria-live="polite"
+      aria-label={`WebSocket connection status: ${text}`}
+    >
       <Icon className={cn(
         'w-4 h-4',
         connectionState === 'connecting' && 'animate-spin'

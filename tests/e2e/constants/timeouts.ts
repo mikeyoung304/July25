@@ -119,8 +119,11 @@ export const PRODUCTION_TIMEOUTS = {
  * Test environment configuration
  */
 export const TEST_CONFIG = {
-  /** Production deployment URL */
-  PRODUCTION_URL: 'https://july25-client.vercel.app',
+  /** Base URL for E2E tests - uses environment variables with localhost fallback */
+  BASE_URL: process.env.BASE_URL || process.env.PLAYWRIGHT_BASE_URL || 'http://localhost:5173',
+
+  /** Production deployment URL (for production-only tests) */
+  PRODUCTION_URL: process.env.PRODUCTION_URL || 'https://july25-client.vercel.app',
 
   /** Default demo credentials */
   DEMO_EMAIL: 'server@restaurant.com',

@@ -28,6 +28,39 @@ export interface PaymentAuditLogEntry {
   metadata?: Record<string, any>;
 }
 
+/**
+ * Idempotency key types for different payment operations
+ * Used to ensure consistent format across all payment flows
+ */
+export type IdempotencyKeyType = 'pay' | 'cash' | 'refund' | 'confirm';
+
+/**
+ * Generate a consistent idempotency key for payment operations
+ *
+ * Format: `{type}_{restaurantId_suffix}_{orderId_suffix}_{timestamp}`
+ * - type: pay, cash, refund, or confirm
+ * - restaurantId_suffix: last 8 chars of restaurant ID (tenant isolation)
+ * - orderId_suffix: last 12 chars of order/payment ID
+ * - timestamp: Unix timestamp in milliseconds
+ *
+ * Total max length: ~35 chars (well under Stripe's 255 char limit)
+ *
+ * @example
+ * generateIdempotencyKey('pay', 'rest-uuid-1111', 'order-uuid-abcd')
+ * // Returns: 'pay_11111111_order-abcd_1735344000000'
+ */
+export function generateIdempotencyKey(
+  type: IdempotencyKeyType,
+  restaurantId: string,
+  orderId: string,
+  timestamp?: number
+): string {
+  const ts = timestamp ?? Date.now();
+  const restaurantSuffix = restaurantId.slice(-8);
+  const orderSuffix = orderId.slice(-12);
+  return `${type}_${restaurantSuffix}_${orderSuffix}_${ts}`;
+}
+
 export class PaymentService {
   private static readonly MINIMUM_ORDER_AMOUNT = 0.01;
 
@@ -133,9 +166,9 @@ export class PaymentService {
       throw BadRequest(`Order total must be at least $${this.MINIMUM_ORDER_AMOUNT}`);
     }
 
-    // Generate server-side idempotency key (max 255 chars per Stripe)
-    // Format: last 12 chars of order ID + timestamp = 26 chars total
-    const idempotencyKey = `${order.id.slice(-12)}-${Date.now()}`;
+    // Generate server-side idempotency key using consistent format
+    // Format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
+    const idempotencyKey = generateIdempotencyKey('pay', restaurantId, order.id);
 
     logger.info('Payment validation complete', {
       orderId: order.id,
@@ -157,6 +190,12 @@ export class PaymentService {
   /**
    * Validate payment request against order
    * Ensures client cannot manipulate payment amounts
+   *
+   * Security validations:
+   * 1. Order must exist and belong to the restaurant (tenant isolation)
+   * 2. Order status must be valid for payment (new, pending, or confirmed)
+   * 3. Order must not already be paid
+   * 4. Payment amount must match server-calculated total
    */
   static async validatePaymentRequest(
     orderId: string,
@@ -164,10 +203,38 @@ export class PaymentService {
     clientAmount?: number,
     clientIdempotencyKey?: string
   ): Promise<PaymentValidationResult> {
-    // Get order from database
+    // Get order from database (includes tenant isolation via restaurant_id)
     const order = await OrdersService.getOrder(restaurantId, orderId);
     if (!order) {
-      throw BadRequest('Order not found');
+      throw BadRequest('Order not found or does not belong to this restaurant');
+    }
+
+    // Validate order status is appropriate for payment
+    // Only new, pending, or confirmed orders can be paid
+    const orderStatus = (order as any).status;
+    const validPaymentStatuses = ['new', 'pending', 'confirmed'];
+    if (!validPaymentStatuses.includes(orderStatus)) {
+      logger.warn('Payment attempted on order with invalid status', {
+        orderId,
+        restaurantId,
+        orderStatus,
+        validStatuses: validPaymentStatuses
+      });
+      throw BadRequest(
+        `Order cannot be paid - current status is "${orderStatus}". ` +
+        `Payment is only allowed for orders with status: ${validPaymentStatuses.join(', ')}.`
+      );
+    }
+
+    // Validate order is not already paid
+    const paymentStatus = (order as any).payment_status;
+    if (paymentStatus === 'paid') {
+      logger.warn('Payment attempted on already-paid order', {
+        orderId,
+        restaurantId,
+        paymentStatus
+      });
+      throw BadRequest('Order has already been paid');
     }
 
     // Calculate server-side total
@@ -360,11 +427,16 @@ export class PaymentService {
    */
   static async validateRefundRequest(
     paymentId: string,
+    restaurantId: string,
     requestedAmount?: number,
     originalAmount?: number
   ): Promise<{ amount: number; idempotencyKey: string }> {
     if (!paymentId) {
       throw BadRequest('Payment ID is required for refund');
+    }
+
+    if (!restaurantId) {
+      throw BadRequest('Restaurant ID is required for refund');
     }
 
     let refundAmount: number;
@@ -373,11 +445,11 @@ export class PaymentService {
       if (requestedAmount <= 0) {
         throw BadRequest('Refund amount must be positive');
       }
-      
+
       if (originalAmount && requestedAmount > originalAmount) {
         throw BadRequest('Refund amount cannot exceed original payment');
       }
-      
+
       refundAmount = Math.round(requestedAmount * 100);
     } else if (originalAmount) {
       // Full refund
@@ -386,9 +458,9 @@ export class PaymentService {
       throw BadRequest('Unable to determine refund amount');
     }
 
-    // Generate refund idempotency key (max 255 chars per Stripe)
-    // Format: "ref-" + last 12 chars of payment ID + timestamp = 30 chars total
-    const idempotencyKey = `ref-${paymentId.slice(-12)}-${Date.now()}`;
+    // Generate refund idempotency key using consistent format
+    // Format: refund_{restaurantSuffix}_{paymentSuffix}_{timestamp}
+    const idempotencyKey = generateIdempotencyKey('refund', restaurantId, paymentId);
 
     return {
       amount: refundAmount,

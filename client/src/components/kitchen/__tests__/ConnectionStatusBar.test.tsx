@@ -24,14 +24,36 @@ describe('ConnectionStatusBar', () => {
   })
 
   describe('Connected state', () => {
-    it('returns null when connected and online (no status bar shown)', () => {
+    it('displays green Live indicator when connected and online', () => {
       mockUseConnectionStatus.mockReturnValue(createMockReturn({
         connectionState: 'connected',
         isOnline: true
       }))
 
-      const { container } = render(<ConnectionStatusBar />)
-      expect(container.firstChild).toBeNull()
+      render(<ConnectionStatusBar />)
+      expect(screen.getByText('Live')).toBeInTheDocument()
+    })
+
+    it('applies green background for connected state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected',
+        isOnline: true
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Live').closest('div')
+      expect(statusBar).toHaveClass('bg-green-500')
+    })
+
+    it('does not apply pulse animation for connected state', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected',
+        isOnline: true
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByText('Live').closest('div')
+      expect(statusBar).not.toHaveClass('animate-pulse')
     })
   })
 
@@ -186,9 +208,10 @@ describe('ConnectionStatusBar', () => {
         lastConnected: new Date()
       }))
 
-      const { container } = render(<ConnectionStatusBar />)
-      // Component returns null when connected
-      expect(container.firstChild).toBeNull()
+      render(<ConnectionStatusBar />)
+      // Shows "Live" indicator but not the "Last:" timestamp when connected
+      expect(screen.getByText('Live')).toBeInTheDocument()
+      expect(screen.queryByText(/Last:/)).not.toBeInTheDocument()
     })
   })
 
@@ -253,6 +276,39 @@ describe('ConnectionStatusBar', () => {
       render(<ConnectionStatusBar />)
       // Text is directly in the DOM, accessible by default
       expect(screen.getByText('Connection Error')).toBeInTheDocument()
+    })
+
+    it('has role="status" for live region announcements', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected',
+        isOnline: true
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByRole('status')
+      expect(statusBar).toBeInTheDocument()
+    })
+
+    it('has aria-live="polite" for non-intrusive updates', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected',
+        isOnline: true
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByRole('status')
+      expect(statusBar).toHaveAttribute('aria-live', 'polite')
+    })
+
+    it('has descriptive aria-label for connection status', () => {
+      mockUseConnectionStatus.mockReturnValue(createMockReturn({
+        connectionState: 'connected',
+        isOnline: true
+      }))
+
+      render(<ConnectionStatusBar />)
+      const statusBar = screen.getByRole('status')
+      expect(statusBar).toHaveAttribute('aria-label', 'WebSocket connection status: Live')
     })
   })
 })

@@ -549,7 +549,7 @@ const KioskCheckoutPageContent: React.FC<KioskCheckoutPageProps> = ({ onBack, vo
                     value={form.values.customerPhone}
                     onChange={form.handleChange('customerPhone')}
                     onBlur={form.handleBlur('customerPhone')}
-                    placeholder="(555) 123-4567"
+                    placeholder="+1 555 123 4567"
                     className={`block w-full px-4 py-4 text-lg border-2 rounded-xl ${
                       form.errors.customerPhone ? 'border-red-300 focus:border-red-500' : 'border-gray-300 focus:border-teal-500'
                     } focus:ring-4 focus:ring-teal-100 transition-all`}

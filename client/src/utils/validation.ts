@@ -20,10 +20,12 @@ export const validators = {
     return emailRegex.test(value) ? null : message;
   },
 
-  phone: (value: string, message = 'Please enter a valid 10-digit phone number') => {
+  phone: (value: string, message = 'Please enter a valid phone number (7-15 digits)') => {
     if (!value) return null; // Let required validator handle empty values
-    const phoneRegex = /^\d{10}$/;
-    const cleanedValue = value.replace(/\D/g, ''); // Remove non-digits
+    // Remove all non-digits except leading + for country code
+    const cleanedValue = value.replace(/^(\+?)/, '$1').replace(/[^\d]/g, '');
+    // International phone numbers: 7-15 digits (E.164 standard)
+    const phoneRegex = /^\d{7,15}$/;
     return phoneRegex.test(cleanedValue) ? null : message;
   },
 

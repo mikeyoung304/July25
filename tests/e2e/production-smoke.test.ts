@@ -1,6 +1,6 @@
 import { test, expect } from '@playwright/test';
 
-const PRODUCTION_URL = 'https://july25-client.vercel.app';
+const PRODUCTION_URL = process.env.PRODUCTION_URL || process.env.BASE_URL || 'https://july25-client.vercel.app';
 
 test.describe('Production Smoke Tests', () => {
   test.beforeEach(async ({ page }) => {

@@ -58,7 +58,7 @@ describe('PaymentService - Idempotency', () => {
   });
 
   describe('idempotency key generation', () => {
-    it('should generate key in format: {order_id_last12}-{timestamp}', async () => {
+    it('should generate key in format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}', async () => {
       // Mock tax rate fetch
       const mockFrom = vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
@@ -91,10 +91,11 @@ describe('PaymentService - Idempotency', () => {
 
       const result = await PaymentService.calculateOrderTotal(order);
 
-      // Should include last 12 chars of order ID + timestamp
-      const expectedPrefix = mockOrderId.slice(-12);
-      expect(result.idempotencyKey).toContain(expectedPrefix);
-      expect(result.idempotencyKey).toContain(String(fixedTime));
+      // Should match format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
+      // Restaurant suffix: last 8 chars, Order suffix: last 12 chars
+      const expectedRestaurantSuffix = mockRestaurantId.slice(-8);
+      const expectedOrderSuffix = mockOrderId.slice(-12);
+      expect(result.idempotencyKey).toBe(`pay_${expectedRestaurantSuffix}_${expectedOrderSuffix}_${fixedTime}`);
     });
 
     it('should generate key under 45 characters (Stripe max)', async () => {
@@ -171,23 +172,25 @@ describe('PaymentService - Idempotency', () => {
   });
 
   describe('refund idempotency key', () => {
-    it('should generate refund key with "ref-" prefix', async () => {
+    it('should generate refund key with "refund_" prefix', async () => {
       const paymentId = 'pay_1234567890abcdef';
 
       const result = await PaymentService.validateRefundRequest(
         paymentId,
+        mockRestaurantId,
         25.50, // requested amount
         50.00  // original amount
       );
 
-      expect(result.idempotencyKey).toMatch(/^ref-/);
+      expect(result.idempotencyKey).toMatch(/^refund_/);
     });
 
-    it('should include payment ID in refund key', async () => {
+    it('should include payment ID suffix in refund key', async () => {
       const paymentId = 'pay_1234567890abcdef';
 
       const result = await PaymentService.validateRefundRequest(
         paymentId,
+        mockRestaurantId,
         25.50,
         50.00
       );
@@ -201,11 +204,26 @@ describe('PaymentService - Idempotency', () => {
 
       const result = await PaymentService.validateRefundRequest(
         longPaymentId,
+        mockRestaurantId,
         25.50,
         50.00
       );
 
       expect(result.idempotencyKey.length).toBeLessThanOrEqual(45);
+    });
+
+    it('should include restaurant ID suffix for tenant isolation', async () => {
+      const paymentId = 'pay_1234567890abcdef';
+
+      const result = await PaymentService.validateRefundRequest(
+        paymentId,
+        mockRestaurantId,
+        25.50,
+        50.00
+      );
+
+      // Should include last 8 chars of restaurant ID
+      expect(result.idempotencyKey).toContain(mockRestaurantId.slice(-8));
     });
   });
 
@@ -349,15 +367,187 @@ describe('PaymentService - Idempotency', () => {
     });
   });
 
+  describe('order status validation for payment', () => {
+    it('should reject payment for cancelled orders', async () => {
+      const { OrdersService } = await import('../../src/services/orders.service');
+
+      (OrdersService.getOrder as any).mockResolvedValue({
+        id: mockOrderId,
+        restaurant_id: mockRestaurantId,
+        status: 'cancelled', // Invalid status for payment
+        payment_status: 'pending',
+        items: [
+          {
+            id: 'item-1',
+            name: 'Burger',
+            price: 10.00,
+            quantity: 1,
+            modifiers: []
+          }
+        ]
+      });
+
+      await expect(
+        PaymentService.validatePaymentRequest(
+          mockOrderId,
+          mockRestaurantId,
+          10.83
+        )
+      ).rejects.toThrow(/Order cannot be paid.*cancelled/);
+    });
+
+    it('should reject payment for completed orders', async () => {
+      const { OrdersService } = await import('../../src/services/orders.service');
+
+      (OrdersService.getOrder as any).mockResolvedValue({
+        id: mockOrderId,
+        restaurant_id: mockRestaurantId,
+        status: 'completed', // Invalid status for payment
+        payment_status: 'pending',
+        items: [
+          {
+            id: 'item-1',
+            name: 'Burger',
+            price: 10.00,
+            quantity: 1,
+            modifiers: []
+          }
+        ]
+      });
+
+      await expect(
+        PaymentService.validatePaymentRequest(
+          mockOrderId,
+          mockRestaurantId,
+          10.83
+        )
+      ).rejects.toThrow(/Order cannot be paid.*completed/);
+    });
+
+    it('should reject payment for already paid orders', async () => {
+      const { OrdersService } = await import('../../src/services/orders.service');
+
+      (OrdersService.getOrder as any).mockResolvedValue({
+        id: mockOrderId,
+        restaurant_id: mockRestaurantId,
+        status: 'pending',
+        payment_status: 'paid', // Already paid
+        items: [
+          {
+            id: 'item-1',
+            name: 'Burger',
+            price: 10.00,
+            quantity: 1,
+            modifiers: []
+          }
+        ]
+      });
+
+      await expect(
+        PaymentService.validatePaymentRequest(
+          mockOrderId,
+          mockRestaurantId,
+          10.83
+        )
+      ).rejects.toThrow(/Order has already been paid/);
+    });
+
+    it('should allow payment for new orders', async () => {
+      const { OrdersService } = await import('../../src/services/orders.service');
+
+      (OrdersService.getOrder as any).mockResolvedValue({
+        id: mockOrderId,
+        restaurant_id: mockRestaurantId,
+        status: 'new', // Valid status for payment
+        payment_status: 'pending',
+        items: [
+          {
+            id: 'item-1',
+            name: 'Burger',
+            price: 10.00,
+            quantity: 1,
+            modifiers: []
+          }
+        ]
+      });
+
+      // Mock tax rate fetch
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: { tax_rate: 0.0825 },
+              error: null
+            })
+          })
+        })
+      });
+      (supabase.from as any) = mockFrom;
+
+      const result = await PaymentService.validatePaymentRequest(
+        mockOrderId,
+        mockRestaurantId,
+        10.83
+      );
+
+      expect(result).toBeDefined();
+      expect(result.amount).toBeDefined();
+    });
+
+    it('should allow payment for confirmed orders', async () => {
+      const { OrdersService } = await import('../../src/services/orders.service');
+
+      (OrdersService.getOrder as any).mockResolvedValue({
+        id: mockOrderId,
+        restaurant_id: mockRestaurantId,
+        status: 'confirmed', // Valid status for payment
+        payment_status: 'pending',
+        items: [
+          {
+            id: 'item-1',
+            name: 'Burger',
+            price: 10.00,
+            quantity: 1,
+            modifiers: []
+          }
+        ]
+      });
+
+      // Mock tax rate fetch
+      const mockFrom = vi.fn().mockReturnValue({
+        select: vi.fn().mockReturnValue({
+          eq: vi.fn().mockReturnValue({
+            single: vi.fn().mockResolvedValue({
+              data: { tax_rate: 0.0825 },
+              error: null
+            })
+          })
+        })
+      });
+      (supabase.from as any) = mockFrom;
+
+      const result = await PaymentService.validatePaymentRequest(
+        mockOrderId,
+        mockRestaurantId,
+        10.83
+      );
+
+      expect(result).toBeDefined();
+      expect(result.amount).toBeDefined();
+    });
+  });
+
   describe('payment validation with idempotency', () => {
     it('should warn when client provides idempotency key', async () => {
       const { OrdersService } = await import('../../src/services/orders.service');
       const { logger } = await import('../../src/utils/logger');
 
-      // Mock order retrieval
+      // Mock order retrieval with valid status for payment
       (OrdersService.getOrder as any).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
+        status: 'pending', // Valid status for payment
+        payment_status: 'pending', // Not yet paid
         items: [
           {
             id: 'item-1',
@@ -404,6 +594,8 @@ describe('PaymentService - Idempotency', () => {
       (OrdersService.getOrder as any).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
+        status: 'pending', // Valid status for payment
+        payment_status: 'pending', // Not yet paid
         items: [
           {
             id: 'item-1',
@@ -436,7 +628,8 @@ describe('PaymentService - Idempotency', () => {
 
       // Server should generate its own key, not use client's
       expect(result.idempotencyKey).not.toBe('client-provided-key');
-      expect(result.idempotencyKey).toMatch(/^[a-f0-9-]+-\d+$/);
+      // New format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
+      expect(result.idempotencyKey).toMatch(/^pay_[a-f0-9-]+_[a-f0-9-]+_\d+$/);
     });
   });
 
@@ -447,6 +640,8 @@ describe('PaymentService - Idempotency', () => {
       (OrdersService.getOrder as any).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
+        status: 'pending', // Valid status for payment
+        payment_status: 'pending', // Not yet paid
         items: [
           {
             id: 'item-1',
@@ -486,6 +681,8 @@ describe('PaymentService - Idempotency', () => {
       (OrdersService.getOrder as any).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
+        status: 'pending', // Valid status for payment
+        payment_status: 'pending', // Not yet paid
         items: [
           {
             id: 'item-1',
