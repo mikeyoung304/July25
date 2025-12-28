@@ -36,11 +36,12 @@ vi.mock('../../src/utils/logger', () => {
   };
 });
 
-// Mock OrdersService
+// Mock OrdersService and getRestaurantTaxRate
 vi.mock('../../src/services/orders.service', () => ({
   OrdersService: {
     getOrder: vi.fn()
-  }
+  },
+  getRestaurantTaxRate: vi.fn().mockResolvedValue(0.0825) // Default 8.25% tax
 }));
 
 describe('PaymentService - Idempotency', () => {
@@ -91,14 +92,15 @@ describe('PaymentService - Idempotency', () => {
 
       const result = await PaymentService.calculateOrderTotal(order);
 
-      // Should match format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
-      // Restaurant suffix: last 8 chars, Order suffix: last 12 chars
+      // Should match format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}_{nonce}
+      // Restaurant suffix: last 8 chars, Order suffix: last 12 chars, Nonce: 16 hex chars
       const expectedRestaurantSuffix = mockRestaurantId.slice(-8);
       const expectedOrderSuffix = mockOrderId.slice(-12);
-      expect(result.idempotencyKey).toBe(`pay_${expectedRestaurantSuffix}_${expectedOrderSuffix}_${fixedTime}`);
+      const keyPattern = new RegExp(`^pay_${expectedRestaurantSuffix}_${expectedOrderSuffix}_${fixedTime}_[0-9a-f]{16}$`);
+      expect(result.idempotencyKey).toMatch(keyPattern);
     });
 
-    it('should generate key under 45 characters (Stripe max)', async () => {
+    it('should generate key under 255 characters (Stripe max)', async () => {
       const mockFrom = vi.fn().mockReturnValue({
         select: vi.fn().mockReturnValue({
           eq: vi.fn().mockReturnValue({
@@ -130,8 +132,12 @@ describe('PaymentService - Idempotency', () => {
 
       const result = await PaymentService.calculateOrderTotal(order);
 
-      // Max 45 chars per Stripe requirements
-      expect(result.idempotencyKey.length).toBeLessThanOrEqual(45);
+      // Max 255 chars per Stripe requirements (idempotency keys)
+      // Our format: pay_{8}_{12}_{13}_{16} = ~56 chars
+      expect(result.idempotencyKey.length).toBeLessThanOrEqual(255);
+      // Verify reasonable length (format: pay_xxxxxxxx_xxxxxxxxxxxx_timestamp_nonce)
+      expect(result.idempotencyKey.length).toBeGreaterThan(40);
+      expect(result.idempotencyKey.length).toBeLessThan(100);
     });
 
     it('should generate unique keys for different timestamps', async () => {
@@ -199,7 +205,7 @@ describe('PaymentService - Idempotency', () => {
       expect(result.idempotencyKey).toContain(paymentId.slice(-12));
     });
 
-    it('should generate refund key under 45 characters', async () => {
+    it('should generate refund key under 255 characters (Stripe max)', async () => {
       const longPaymentId = 'pay_aaaabbbbccccddddeeeeffffgggg';
 
       const result = await PaymentService.validateRefundRequest(
@@ -209,7 +215,11 @@ describe('PaymentService - Idempotency', () => {
         50.00
       );
 
-      expect(result.idempotencyKey.length).toBeLessThanOrEqual(45);
+      // Max 255 chars per Stripe requirements
+      expect(result.idempotencyKey.length).toBeLessThanOrEqual(255);
+      // Verify reasonable length
+      expect(result.idempotencyKey.length).toBeGreaterThan(30);
+      expect(result.idempotencyKey.length).toBeLessThan(100);
     });
 
     it('should include restaurant ID suffix for tenant isolation', async () => {
@@ -628,8 +638,8 @@ describe('PaymentService - Idempotency', () => {
 
       // Server should generate its own key, not use client's
       expect(result.idempotencyKey).not.toBe('client-provided-key');
-      // New format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
-      expect(result.idempotencyKey).toMatch(/^pay_[a-f0-9-]+_[a-f0-9-]+_\d+$/);
+      // New format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}_{nonce}
+      expect(result.idempotencyKey).toMatch(/^pay_[a-f0-9-]+_[a-f0-9-]+_\d+_[a-f0-9]+$/);
     });
   });
 

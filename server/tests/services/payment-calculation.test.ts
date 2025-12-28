@@ -30,12 +30,21 @@ vi.mock('../../src/utils/logger', () => {
     info: vi.fn(),
     error: vi.fn(),
     warn: vi.fn(),
+    debug: vi.fn(),
     child: vi.fn().mockReturnThis()
   };
   return {
     logger: mockLogger
   };
 });
+
+// Mock getRestaurantTaxRate from OrdersService
+vi.mock('../../src/services/orders.service', () => ({
+  OrdersService: {
+    getOrder: vi.fn()
+  },
+  getRestaurantTaxRate: vi.fn().mockResolvedValue(0.0825) // Default 8.25% tax rate
+}));
 
 describe('PaymentService - Payment Calculations', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';

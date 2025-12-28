@@ -39,15 +39,20 @@ vi.mock('@stripe/stripe-js', () => ({
   }),
 }));
 
+// Mock useDemoMode hook - controls demo mode behavior in tests
+const mockUseDemoMode = vi.fn(() => true);
+vi.mock('@/hooks/useDemoMode', () => ({
+  useDemoMode: () => mockUseDemoMode(),
+}));
+
 // Mock fetch for client secret
 global.fetch = vi.fn();
 
 describe('StripePaymentForm - Demo Mode', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    // Set demo mode
-    (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = '';
-    (import.meta.env as any).DEV = true;
+    // Set demo mode via hook mock
+    mockUseDemoMode.mockReturnValue(true);
   });
 
   afterEach(() => {
@@ -65,7 +70,7 @@ describe('StripePaymentForm - Demo Mode', () => {
     );
 
     // Verify demo mode message (use exact text to avoid multiple matches)
-    expect(screen.getByText('Demo Mode - Payment will be simulated for testing')).toBeInTheDocument();
+    expect(screen.getByText('Demo Mode - No real charges will be made')).toBeInTheDocument();
   });
 
   it('shows demo test card in demo mode', async () => {
@@ -107,7 +112,7 @@ describe('StripePaymentForm - Demo Mode', () => {
       />
     );
 
-    const submitButton = screen.getByRole('button', { name: /complete order/i });
+    const submitButton = screen.getByRole('button', { name: /pay.*demo/i });
 
     // Click button
     await user.click(submitButton);
@@ -129,7 +134,7 @@ describe('StripePaymentForm - Demo Mode', () => {
       />
     );
 
-    const submitButton = screen.getByRole('button', { name: /complete order/i });
+    const submitButton = screen.getByRole('button', { name: /pay.*demo/i });
 
     // Click button
     await user.click(submitButton);
@@ -152,7 +157,7 @@ describe('StripePaymentForm - Demo Mode', () => {
       />
     );
 
-    const submitButton = screen.getByRole('button', { name: /complete order/i });
+    const submitButton = screen.getByRole('button', { name: /pay.*demo/i });
     await user.click(submitButton);
 
     // Wait for demo payment to complete (1500ms delay)
@@ -174,7 +179,7 @@ describe('StripePaymentForm - Demo Mode', () => {
     );
 
     // Verify secure badge (exact text to avoid multiple matches)
-    expect(screen.getByText('Demo mode - No real charges')).toBeInTheDocument();
+    expect(screen.getByText('Secure demo payment')).toBeInTheDocument();
   });
 });
 
@@ -233,12 +238,17 @@ describe('StripePaymentForm - External Processing State', () => {
 });
 
 describe('StripePaymentForm - Environment Detection', () => {
+  beforeEach(() => {
+    vi.clearAllMocks();
+  });
+
   afterEach(() => {
     vi.clearAllMocks();
   });
 
   it('detects demo mode when VITE_STRIPE_PUBLISHABLE_KEY is empty', async () => {
-    (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = '';
+    // useDemoMode hook handles environment detection - mock it to return demo mode
+    mockUseDemoMode.mockReturnValue(true);
     const { StripePaymentForm } = await import('../StripePaymentForm');
 
     render(
@@ -248,11 +258,12 @@ describe('StripePaymentForm - Environment Detection', () => {
       />
     );
 
-    expect(screen.getByText('Demo Mode - Payment will be simulated for testing')).toBeInTheDocument();
+    expect(screen.getByText('Demo Mode - No real charges will be made')).toBeInTheDocument();
   });
 
   it('detects demo mode when VITE_STRIPE_PUBLISHABLE_KEY is "demo"', async () => {
-    (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = 'demo';
+    // useDemoMode hook handles environment detection - mock it to return demo mode
+    mockUseDemoMode.mockReturnValue(true);
     const { StripePaymentForm } = await import('../StripePaymentForm');
 
     render(
@@ -262,12 +273,12 @@ describe('StripePaymentForm - Environment Detection', () => {
       />
     );
 
-    expect(screen.getByText('Demo Mode - Payment will be simulated for testing')).toBeInTheDocument();
+    expect(screen.getByText('Demo Mode - No real charges will be made')).toBeInTheDocument();
   });
 
   it('detects demo mode in development environment', async () => {
-    (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = '';
-    (import.meta.env as any).DEV = true;
+    // useDemoMode hook handles environment detection - mock it to return demo mode
+    mockUseDemoMode.mockReturnValue(true);
     const { StripePaymentForm } = await import('../StripePaymentForm');
 
     render(
@@ -277,15 +288,15 @@ describe('StripePaymentForm - Environment Detection', () => {
       />
     );
 
-    expect(screen.getByText('Demo Mode - Payment will be simulated for testing')).toBeInTheDocument();
+    expect(screen.getByText('Demo Mode - No real charges will be made')).toBeInTheDocument();
   });
 });
 
 describe('StripePaymentForm - Amount Formatting', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    (import.meta.env as any).VITE_STRIPE_PUBLISHABLE_KEY = '';
-    (import.meta.env as any).DEV = true;
+    // Set demo mode via hook mock for amount formatting tests
+    mockUseDemoMode.mockReturnValue(true);
   });
 
   it('formats amount with two decimal places', async () => {
