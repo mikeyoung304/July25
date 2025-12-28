@@ -10,7 +10,7 @@ import { randomUUID } from 'crypto';
 import { OrdersService } from '../services/orders.service';
 import { PaymentService, generateIdempotencyKey } from '../services/payment.service';
 import { validateBody } from '../middleware/validate';
-import { PaymentPayload, CashPaymentPayload } from '../../../shared/contracts/payment';
+import { PaymentPayload, CashPaymentPayload, PaymentConfirmPayload } from '../../../shared/contracts/payment';
 import { TableService } from '../services/table.service';
 
 const router = Router();
@@ -232,6 +232,7 @@ router.post('/create-payment-intent',
 router.post('/confirm',
   paymentConfirmLimiter,
   optionalAuth,
+  validateBody(PaymentConfirmPayload),
   async (req: AuthenticatedRequest, res, next): Promise<any> => {
   try {
     const { payment_intent_id, order_id } = req.body;
@@ -390,6 +391,21 @@ router.post('/cash',
     const order = await OrdersService.getOrder(restaurantId, order_id);
     if (!order) {
       throw BadRequest('Order not found');
+    }
+
+    // DOUBLE-PAYMENT PREVENTION: Check if order is already paid
+    // This prevents two staff members from simultaneously processing cash payment for the same order
+    const paymentStatus = (order as any).payment_status;
+    if (paymentStatus === 'paid') {
+      routeLogger.warn('Order already paid - preventing double payment', {
+        order_id,
+        restaurantId
+      });
+      return res.status(409).json({
+        success: false,
+        error: 'Order already paid',
+        message: 'This order has already been paid.'
+      });
     }
 
     // Get order total

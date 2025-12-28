@@ -12,6 +12,7 @@ import { checkoutValidationRules } from '@/config/checkoutValidation';
 import { PaymentErrorBoundary } from '@/components/errors/PaymentErrorBoundary';
 import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
 import { logger } from '@/services/logger';
+import { useDemoMode } from '@/hooks/useDemoMode';
 
 // Configurable estimated preparation time (can be overridden via environment variable)
 const ESTIMATED_PREP_TIME = import.meta.env.VITE_ESTIMATED_PREP_TIME || '15-20 minutes';
@@ -31,11 +32,9 @@ const CheckoutPageContent: React.FC = () => {
   // NOTE: Customer orders do NOT require authentication
   // Anonymous customers can place orders using just contact info (email, phone)
   // This ensures staff users accessing customer pages are treated as anonymous customers
-  
+
   // Check if we're in demo mode (for payment processing)
-  const isDemoMode = !import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY ||
-                     import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY === 'demo' ||
-                     import.meta.env.DEV;
+  const isDemoMode = useDemoMode();
 
   // Use form validation hook with shared validation rules
   const form = useFormValidation({
@@ -242,13 +241,6 @@ const CheckoutPageContent: React.FC = () => {
     } finally {
       setIsProcessing(false);
     }
-  };
-
-  const _formatPhoneNumber = (value: string) => {
-    const cleaned = value.replace(/\D/g, '');
-    if (cleaned.length <= 3) return cleaned;
-    if (cleaned.length <= 6) return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3)}`;
-    return `(${cleaned.slice(0, 3)}) ${cleaned.slice(3, 6)}-${cleaned.slice(6, 10)}`;
   };
 
   if (cart.items.length === 0) {

@@ -1,8 +1,9 @@
+import { randomBytes } from 'crypto';
 import { logger } from '../utils/logger';
-import { OrdersService, type Order } from './orders.service';
+import { OrdersService, getRestaurantTaxRate } from './orders.service';
+import type { Order } from '@rebuild/shared';
 import { BadRequest } from '../middleware/errorHandler';
 import { supabase } from '../config/database';
-import { DEFAULT_TAX_RATE, TAX_RATE_SOURCE } from '@rebuild/shared/constants/business';
 
 export interface PaymentValidationResult {
   amount: number;
@@ -58,55 +59,12 @@ export function generateIdempotencyKey(
   const ts = timestamp ?? Date.now();
   const restaurantSuffix = restaurantId.slice(-8);
   const orderSuffix = orderId.slice(-12);
-  return `${type}_${restaurantSuffix}_${orderSuffix}_${ts}`;
+  const nonce = randomBytes(8).toString('hex');
+  return `${type}_${restaurantSuffix}_${orderSuffix}_${ts}_${nonce}`;
 }
 
 export class PaymentService {
   private static readonly MINIMUM_ORDER_AMOUNT = 0.01;
-
-  /**
-   * Get restaurant tax rate
-   * Per ADR-007: Tax rates are now configured per-restaurant
-   * MUST match OrdersService.getRestaurantTaxRate() to ensure consistency
-   */
-  private static async getRestaurantTaxRate(restaurantId: string): Promise<number> {
-    try {
-      const { data, error } = await supabase
-        .from('restaurants')
-        .select('tax_rate')
-        .eq('id', restaurantId)
-        .single();
-
-      if (error) {
-        logger.error('Failed to fetch restaurant tax rate', { error, restaurantId });
-        logger.warn('Using fallback tax rate from shared constants', {
-          restaurantId,
-          fallback: DEFAULT_TAX_RATE,
-          source: TAX_RATE_SOURCE.FALLBACK
-        });
-        return DEFAULT_TAX_RATE;
-      }
-
-      if (!data || data.tax_rate === null || data.tax_rate === undefined) {
-        logger.warn('Restaurant tax rate not found, using default', {
-          restaurantId,
-          fallback: DEFAULT_TAX_RATE,
-          source: TAX_RATE_SOURCE.FALLBACK
-        });
-        return DEFAULT_TAX_RATE;
-      }
-
-      return Number(data.tax_rate);
-    } catch (error) {
-      logger.error('Exception fetching restaurant tax rate', { error, restaurantId });
-      logger.warn('Using fallback tax rate due to exception', {
-        restaurantId,
-        fallback: DEFAULT_TAX_RATE,
-        source: TAX_RATE_SOURCE.FALLBACK
-      });
-      return DEFAULT_TAX_RATE;
-    }
-  }
 
   /**
    * Calculate order total from items
@@ -118,7 +76,7 @@ export class PaymentService {
     }
 
     // Get restaurant ID from order
-    const restaurantId = (order as any).restaurant_id || (order as any).restaurantId;
+    const restaurantId = order.restaurant_id;
     if (!restaurantId) {
       throw BadRequest('Order missing restaurant_id');
     }
@@ -156,8 +114,8 @@ export class PaymentService {
     }
 
     // Get restaurant-specific tax rate (ADR-007: Per-Restaurant Configuration)
-    // CRITICAL: This MUST match OrdersService tax calculation for consistency
-    const taxRate = await this.getRestaurantTaxRate(restaurantId);
+    // CRITICAL: Uses OrdersService.getRestaurantTaxRate for consistency
+    const taxRate = await getRestaurantTaxRate(restaurantId);
     const tax = subtotal * taxRate;
     const total = subtotal + tax;
 
@@ -204,14 +162,16 @@ export class PaymentService {
     clientIdempotencyKey?: string
   ): Promise<PaymentValidationResult> {
     // Get order from database (includes tenant isolation via restaurant_id)
-    const order = await OrdersService.getOrder(restaurantId, orderId);
-    if (!order) {
+    // Note: OrdersService.getOrder returns snake_case data from DB, cast to SharedOrder
+    const orderData = await OrdersService.getOrder(restaurantId, orderId);
+    if (!orderData) {
       throw BadRequest('Order not found or does not belong to this restaurant');
     }
+    const order = orderData as unknown as Order;
 
     // Validate order status is appropriate for payment
     // Only new, pending, or confirmed orders can be paid
-    const orderStatus = (order as any).status;
+    const orderStatus = order.status;
     const validPaymentStatuses = ['new', 'pending', 'confirmed'];
     if (!validPaymentStatuses.includes(orderStatus)) {
       logger.warn('Payment attempted on order with invalid status', {
@@ -227,7 +187,7 @@ export class PaymentService {
     }
 
     // Validate order is not already paid
-    const paymentStatus = (order as any).payment_status;
+    const paymentStatus = order.payment_status;
     if (paymentStatus === 'paid') {
       logger.warn('Payment attempted on already-paid order', {
         orderId,
@@ -357,7 +317,15 @@ export class PaymentService {
     errorDetail?: string
   ): Promise<void> {
     try {
-      const updateData: any = {
+      interface PaymentAuditUpdateData {
+        status: 'success' | 'failed';
+        updated_at: string;
+        payment_id?: string;
+        error_code?: string;
+        error_detail?: string;
+      }
+
+      const updateData: PaymentAuditUpdateData = {
         status,
         updated_at: new Date().toISOString()
       };
@@ -406,17 +374,18 @@ export class PaymentService {
         paymentId,
         rowsUpdated: count
       });
-    } catch (error) {
+    } catch (error: unknown) {
       // Re-throw if already our error
       if (error instanceof Error && error.message.includes('Payment audit system failure')) {
         throw error;
       }
 
       // Log and throw for unexpected errors
+      const errorMessage = error instanceof Error ? error.message : String(error);
       logger.error('CRITICAL: Exception updating payment audit status', {
         idempotencyKey,
         status,
-        error
+        error: errorMessage
       });
       throw new Error('Payment audit system failure - unexpected error. Please contact support.');
     }

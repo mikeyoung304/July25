@@ -19,3 +19,11 @@ export const CashPaymentPayload = z.object({
 });
 
 export type CashPaymentPayloadT = z.infer<typeof CashPaymentPayload>;
+
+// Payment confirmation validation schema
+export const PaymentConfirmPayload = z.object({
+  payment_intent_id: z.string().min(1),
+  order_id: z.string().uuid()
+});
+
+export type PaymentConfirmPayloadT = z.infer<typeof PaymentConfirmPayload>;

@@ -5,6 +5,36 @@ import type { Order, OrderStatus } from '@rebuild/shared';
 import { getErrorMessage } from '@rebuild/shared';
 import { EmailService } from './email.service';
 
+// =============================================================================
+// External Service Initialization (Module Scope - TODO-230)
+// =============================================================================
+// Initialize Twilio and SendGrid clients once at module load to avoid blocking
+// the event loop with dynamic require() calls on every order status transition.
+// Types are defined inline since packages may not be installed.
+
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let twilioClient: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let sendgridClient: any = null;
+// eslint-disable-next-line @typescript-eslint/no-explicit-any
+let stripeClient: any = null;
+
+if (process.env['TWILIO_ACCOUNT_SID'] && process.env['TWILIO_AUTH_TOKEN']) {
+  twilioClient = require('twilio')(
+    process.env['TWILIO_ACCOUNT_SID'],
+    process.env['TWILIO_AUTH_TOKEN']
+  );
+}
+
+if (process.env['SENDGRID_API_KEY']) {
+  sendgridClient = require('@sendgrid/mail');
+  sendgridClient.setApiKey(process.env['SENDGRID_API_KEY']);
+}
+
+if (process.env['STRIPE_SECRET_KEY']) {
+  stripeClient = require('stripe')(process.env['STRIPE_SECRET_KEY']);
+}
+
 /**
  * Order State Machine
  * Enforces valid state transitions and provides hooks for side effects
@@ -129,18 +159,19 @@ export class OrderStateMachine {
   ): Promise<void> {
     const hooks = this.TRANSITION_HOOKS.get(pattern) || [];
 
-    for (const hook of hooks) {
+    await Promise.all(hooks.map(async (hook) => {
       try {
         await hook(transition, order);
-      } catch (error: any) {
+      } catch (error: unknown) {
+        const errorMsg = error instanceof Error ? error.message : String(error);
         logger.error('Hook execution failed', {
           pattern,
           transition,
-          error: error.message
+          error: errorMsg
         });
         // Continue with other hooks even if one fails
       }
-    }
+    }));
   }
 
   /**
@@ -412,13 +443,9 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
     });
 
     // SMS via Twilio (inline, no service class per P1.3)
-    if (order.customer_phone && process.env['TWILIO_ACCOUNT_SID']) {
+    if (order.customer_phone && twilioClient) {
       try {
-        const twilio = require('twilio')(
-          process.env['TWILIO_ACCOUNT_SID'],
-          process.env['TWILIO_AUTH_TOKEN']
-        );
-        await twilio.messages.create({
+        await twilioClient.messages.create({
           from: process.env['TWILIO_PHONE_NUMBER'],
           to: order.customer_phone,
           body: `Your order #${order.order_number} is ready for pickup!`
@@ -439,11 +466,9 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
     }
 
     // Email via SendGrid (inline, no service class per P1.3)
-    if (order.customer_email && process.env['SENDGRID_API_KEY']) {
+    if (order.customer_email && sendgridClient) {
       try {
-        const sgMail = require('@sendgrid/mail');
-        sgMail.setApiKey(process.env['SENDGRID_API_KEY']);
-        await sgMail.send({
+        await sendgridClient.send({
           to: order.customer_email,
           from: process.env['SENDGRID_FROM_EMAIL'] || 'orders@restaurant.com',
           subject: `Order #${order.order_number} is ready!`,
@@ -502,10 +527,9 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
     }
 
     // Process Stripe refund (inline, no service class per P1.4)
-    if (process.env['STRIPE_SECRET_KEY']) {
+    if (stripeClient) {
       try {
-        const stripe = require('stripe')(process.env['STRIPE_SECRET_KEY']);
-        const refund = await stripe.refunds.create({
+        const refund = await stripeClient.refunds.create({
           payment_intent: paymentIntentId,
           reason: 'requested_by_customer'
         }, {

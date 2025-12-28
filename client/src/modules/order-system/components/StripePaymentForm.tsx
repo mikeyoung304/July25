@@ -1,6 +1,7 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { CreditCard, Lock } from 'lucide-react';
 import { DemoModeBanner } from '@/components/ui/DemoModeBanner';
+import { useDemoMode } from '@/hooks/useDemoMode';
 import {
   Elements,
   PaymentElement,
@@ -25,12 +26,6 @@ const stripePublishableKey = import.meta.env.VITE_STRIPE_PUBLISHABLE_KEY;
 const stripePromise: Promise<Stripe | null> = stripePublishableKey && stripePublishableKey !== 'demo'
   ? loadStripe(stripePublishableKey)
   : Promise.resolve(null);
-
-// Check demo mode
-const isDemoMode = !stripePublishableKey ||
-                   stripePublishableKey === 'demo' ||
-                   import.meta.env.DEV ||
-                   import.meta.env.VITE_ENVIRONMENT === 'development';
 
 // Check if using Stripe test mode (test keys start with pk_test_)
 const isStripeTestMode = stripePublishableKey?.startsWith('pk_test_') ?? false;
@@ -218,6 +213,7 @@ export const StripePaymentForm: React.FC<StripePaymentFormProps> = ({
   isProcessing = false,
   orderId,
 }) => {
+  const isDemoMode = useDemoMode();
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
