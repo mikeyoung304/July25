@@ -15,6 +15,15 @@ Comprehensive documentation for preventing recurring issues in the Restaurant OS
 
 ---
 
+### Problem: Vitest mocks fail with cryptic errors (Cannot read property, module not mocked)
+**Read:** `CL-TEST-004-QUICK-REFERENCE.md` (5 minutes)
+
+**Full Strategy:** `CL-TEST-004-VITEST-MOCKING-PREVENTION.md` (40-50 minutes)
+
+**Implementation Plan:** `CL-TEST-004-IMPLEMENTATION-CHECKLIST.md` (2-3 days)
+
+---
+
 ### Problem: Input validation or security vulnerabilities
 **Read:** `QUICK-REF-INPUT-VALIDATION.md` (5 minutes)
 
@@ -89,6 +98,35 @@ Comprehensive documentation for preventing recurring issues in the Restaurant OS
 - Developer documentation & onboarding
 - Environment variable naming conventions
 - Monitoring & alerting
+
+---
+
+### Vitest Mocking Patterns (CL-TEST-004)
+
+| Document | Purpose | Time | When to Read |
+|----------|---------|------|--------------|
+| CL-TEST-004-VITEST-MOCKING-PREVENTION.md | Complete prevention strategy with patterns, anti-patterns, and scenarios | 40-50 min | Understanding mocking best practices |
+| CL-TEST-004-QUICK-REFERENCE.md | 5-minute red/green flags and fixes for code review | 5 min | During test code review (bookmark!) |
+| CL-TEST-004-IMPLEMENTATION-CHECKLIST.md | 5-phase implementation plan with audit, utilities, fixes | 2-3 days | Standardizing mocks across codebase |
+
+**Status:** Ready to use and implement
+**Based On:** Payment test failures from mock clearing, module initialization timing, expectation drift
+**Impact:** Prevents cryptic test failures (Cannot read property, module not mocked)
+**Effort:** 2-3 days implementation + ongoing team training
+
+**Key Issues Prevented:**
+- `vi.clearAllMocks()` clearing factory functions
+- Module-level `require()` initializing before vi.mock intercepts
+- Test expectations drifting from implementation format
+- Loose test assertions that don't validate actual behavior
+- Inconsistent mock setup across test files
+
+**Key Patterns:**
+- Correct use of `vi.resetAllMocks()` vs `vi.clearAllMocks()`
+- Module initialization order (mocks before imports)
+- Factory functions with `vi.fn().mockImplementation()`
+- Format validation in assertions (regex + objectContaining)
+- Test utility helpers and expected-formats constants
 
 ---
 

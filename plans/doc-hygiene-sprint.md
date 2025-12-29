@@ -1,7 +1,7 @@
 # Documentation Hygiene Sprint - rebuild-6.0
 
 **Priority:** P1 - Execute after P0 security fixes
-**Total Time:** ~6 hours
+**Total Time:** ~4 hours (reduced - many items already complete)
 **North Star:** Each unit of work should make future work easier
 
 ---
@@ -9,14 +9,20 @@
 ## Problem Statement
 
 Documentation entropy is violating compound engineering principles:
-- CLAUDE.md is minimal (136 lines vs recommended 400+)
-- No documentation INDEX (developers grep blindly)
-- 41 solutions in docs/solutions/ but not linked from CLAUDE.md
-- Security audit findings not documented as prevention strategies
-- No RISK_REGISTER.md (risks scattered across audit output)
-- Compound engineering loop not enforced in workflows
+- No documentation INDEX.md (707 docs with no entry point)
+- 16 ADRs exist at `docs/explanation/architecture-decisions/` but not linked from CLAUDE.md
+- 10 audit output files orphaned from docs flow
+- 48 solutions exist but ADRs not cross-referenced
+- Compound engineering forcing functions not documented
 
-**Impact:** Future developers spend 5x longer finding answers than necessary.
+**Impact:** Future sessions spend extra time navigating instead of working.
+
+### Already Complete (Good State)
+- CLAUDE.md has Quick Links section (well populated)
+- CLAUDE.md has Prevention Patterns section
+- 48 solutions in docs/solutions/ (well organized with README index)
+- 11 security solutions already documented from audit
+- Archive structure working well (494 docs properly archived)
 
 ---
 
@@ -26,25 +32,25 @@ Documentation entropy is violating compound engineering principles:
 
 | Metric | Value |
 |--------|-------|
-| Time to find auth patterns | ~10 min (grep + read) |
-| Time to find security risks | ~15 min (read audit_output/) |
-| CLAUDE.md guidance coverage | ~40% of common tasks |
-| Prevention strategies linked | 0 |
-| Compound loop enforcement | None |
+| Time to find ADRs | ~5 min (no direct link) |
+| Time to find audit results | ~3 min (orphaned folder) |
+| docs/INDEX.md exists | No |
+| ADRs linked from CLAUDE.md | 0 |
+| Audit integrated into docs | No |
 
 ### After Sprint (Target)
 
 | Metric | Value | Improvement |
 |--------|-------|-------------|
-| Time to find auth patterns | ~1 min | **10x faster** |
-| Time to find security risks | ~1 min | **15x faster** |
-| CLAUDE.md guidance coverage | 80% | **2x coverage** |
-| Prevention strategies linked | Top 10 | Discoverable |
-| Compound loop enforcement | Automated triggers | Consistent |
+| Time to find ADRs | ~10 sec | **30x faster** |
+| Time to find audit results | ~10 sec | **18x faster** |
+| docs/INDEX.md exists | Yes | Entry point |
+| ADRs linked from CLAUDE.md | 5 key ones | Discoverable |
+| Audit integrated into docs | Yes | Archived properly |
 
 ---
 
-## Phase 1: Quick Wins (30 minutes)
+## Phase 1: Create Documentation Index (30 minutes)
 
 ### 1.1 Create docs/INDEX.md
 
@@ -59,348 +65,147 @@ Documentation entropy is violating compound engineering principles:
 
 | Topic | Document | Description |
 |-------|----------|-------------|
-| Project overview | [CLAUDE.md](/CLAUDE.md) | Commands, patterns, architecture |
-| Architecture | [docs/adrs/](/docs/adrs/) | Architectural decision records |
-| Testing | [.github/TEST_DEBUGGING.md](/.github/TEST_DEBUGGING.md) | Test strategy and debugging |
+| Project overview | [CLAUDE.md](/CLAUDE.md) | Start here - commands, patterns, architecture |
+| Database | [DATABASE.md](/docs/DATABASE.md) | Schema, migrations, multi-tenancy |
+| Deployment | [DEPLOYMENT.md](/docs/DEPLOYMENT.md) | Render deployment guide |
+| Security | [SECURITY.md](/docs/SECURITY.md) | Security practices |
+| Testing | [TESTING_CHECKLIST.md](/docs/TESTING_CHECKLIST.md) | Test strategy |
 
 ## Architectural Decisions (ADRs)
 
+Located in: `docs/explanation/architecture-decisions/`
+
 | ADR | Decision |
 |-----|----------|
-| [ADR-001](/docs/adrs/001-snake-case-convention.md) | Snake case everywhere |
-| [ADR-006](/docs/adrs/006-dual-auth-pattern.md) | Dual authentication |
-| [ADR-010](/docs/adrs/010-remote-first-database.md) | Remote-first database |
-| [ADR-015](/docs/adrs/015-order-state-machine.md) | Order state machine |
+| [ADR-001](./explanation/architecture-decisions/ADR-001-snake-case-convention.md) | Snake case convention |
+| [ADR-002](./explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md) | Multi-tenancy architecture |
+| [ADR-006](./explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md) | Dual authentication pattern |
+| [ADR-010](./explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md) | Remote database source of truth |
+| [ADR-016](./explanation/architecture-decisions/ADR-016-module-system-commonjs.md) | CommonJS module system |
 
-## Security
+## Solutions Knowledge Base
+
+| Category | Count | Quick Link |
+|----------|-------|------------|
+| Security Issues | 11 | [Browse](/docs/solutions/security-issues/) |
+| Test Failures | 8 | [Browse](/docs/solutions/test-failures/) |
+| Process Issues | 7 | [Browse](/docs/solutions/process-issues/) |
+| Performance Issues | 4 | [Browse](/docs/solutions/performance-issues/) |
+| Full Index | 48 | [README](/docs/solutions/README.md) |
+
+## Security Audit (2025-12)
 
 | Document | Purpose |
 |----------|---------|
-| [SECURITY.md](/SECURITY.md) | Security policies and contacts |
-| [Risk Register](/docs/RISK_REGISTER.md) | Known risks and mitigations |
-| [Audit Summary](/audit_output/01_EXEC_SUMMARY.md) | 2025-12 hostile audit |
-
-## Prevention Strategies (Top 10)
-
-| Pattern | When to Use | Document |
-|---------|-------------|----------|
-| Multi-tenant isolation | All database queries | [tenant-isolation](/docs/solutions/patterns/tenant-isolation.md) |
-| Dual auth handling | Auth middleware changes | [dual-auth-pattern](/docs/solutions/auth-issues/) |
-| Order state transitions | Order status changes | [order-state-machine](/docs/solutions/patterns/) |
-| Payment idempotency | Stripe API calls | [payment-patterns](/docs/solutions/payment-issues/) |
-| Memory constraints | Server-side caching | [memory-management](/docs/solutions/performance-issues/) |
+| [Executive Summary](/audit_output/01_EXEC_SUMMARY.md) | Top risks, score, verdict |
+| [Risk Register](/audit_output/02_RISK_REGISTER.md) | All 58 findings by priority |
+| [Remediation Plan](/plans/security-remediation-v2.md) | Implementation plan |
 
 ## Operations
 
 | Guide | Purpose |
 |-------|---------|
-| [Deployment](/docs/DEPLOYMENT.md) | Deploy to Render |
-| [Incident Response](/docs/INCIDENT_RESPONSE.md) | Handle production issues |
+| [Runbooks](/docs/RUNBOOKS.md) | Operational procedures |
+| [Production Diagnostics](/docs/PRODUCTION_DIAGNOSTICS.md) | Debugging production |
+| [Deployment Best Practices](/docs/DEPLOYMENT_BEST_PRACTICES.md) | Deploy checklist |
 ```
 
-### 1.2 Update CLAUDE.md with Solution Links
+### 1.2 Add ADR Quick Links to CLAUDE.md
 
-**Add after "## Solution Documentation" section:**
-
-```markdown
-### Quick Links (Most Used)
-
-| Problem | Solution |
-|---------|----------|
-| Auth token issues | `docs/solutions/auth-issues/dual-auth-pattern.md` |
-| Memory leaks | `docs/solutions/performance-issues/memory-management.md` |
-| Build failures | `docs/solutions/build-errors/` |
-| Test failures | `docs/solutions/test-failures/` |
-| Multi-tenant bugs | `docs/solutions/patterns/tenant-isolation.md` |
-```
-
-### 1.3 Update CLAUDE.md Current Status
-
-**Add after "## Architecture" section:**
+**Add new section after "## Solution Documentation":**
 
 ```markdown
-## Current Status (2025-12)
+### ADR Quick Links
 
-- **Security audit:** Complete (see `audit_output/`)
-- **Security score:** 55/100 → targeting 75/100
-- **P0 issues:** 9 (launch blockers)
-- **Active plan:** `plans/security-remediation-v2.md`
-- **Next milestone:** Complete Phase 0 security fixes
+| Decision | ADR |
+|----------|-----|
+| Snake case everywhere | `docs/explanation/architecture-decisions/ADR-001-snake-case-convention.md` |
+| Multi-tenant isolation | `docs/explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md` |
+| Dual auth pattern | `docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md` |
+| Remote DB truth | `docs/explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md` |
+| CommonJS required | `docs/explanation/architecture-decisions/ADR-016-module-system-commonjs.md` |
 ```
 
 ---
 
-## Phase 2: Risk Documentation (1 hour)
+## Phase 2: Archive Audit Output (30 minutes)
 
-### 2.1 Create docs/RISK_REGISTER.md
+### 2.1 Move Audit Files to Docs Archive
 
-**File:** `docs/RISK_REGISTER.md`
-
-Extract and consolidate from `audit_output/02_RISK_REGISTER.md`:
-
-```markdown
-# Risk Register
-
-Last updated: 2025-12-28
-
-## Active Risks
-
-### P0 - Launch Blockers
-
-| ID | Risk | Mitigation | Status |
-|----|------|------------|--------|
-| SEC-001 | Demo user bypass allows full auth bypass | Remove bypass in production | Open |
-| SEC-002 | localStorage token exposure to XSS | Migrate to HTTPOnly cookies | Open |
-| SEC-003 | Weak station secret fallback | Require env var, crash on missing | Open |
-| SEC-004 | Missing refund idempotency | Add idempotency key to Stripe calls | Open |
-
-### P1 - High Priority
-
-| ID | Risk | Mitigation | Status |
-|----|------|------------|--------|
-| SEC-005 | No CSRF protection | Add CSRF middleware | Open |
-| SEC-006 | PIN timing attack | Constant-time comparison | Open |
-| SEC-007 | Webhook replay vulnerability | Verify timestamps | Open |
-| SEC-008 | PIN rate limit race condition | Atomic database counter | Open |
-
-## Resolved Risks
-
-| ID | Risk | Resolution | Date |
-|----|------|------------|------|
-| (none yet) | | | |
-
-## Risk Assessment Criteria
-
-- **P0**: Block launch, fix immediately
-- **P1**: Fix before production traffic
-- **P2**: Fix before scale
-- **P3**: Nice to have
-```
-
-### 2.2 Add Risk Sections to Key Docs
-
-**SECURITY.md - Add:**
-```markdown
-## Known Security Risks
-
-See [Risk Register](/docs/RISK_REGISTER.md) for current security risks.
-
-Last audit: 2025-12-28 (Hostile Enterprise Audit)
-Audit results: `audit_output/`
-```
-
----
-
-## Phase 3: Solution Consolidation (2 hours)
-
-### 3.1 Create Security Solutions from Audit
-
-Create prevention strategies from audit findings:
-
-**File:** `docs/solutions/security-issues/demo-bypass-prevention.md`
-```markdown
-# Demo User Bypass Prevention
-
-## Problem
-Demo user bypass in `restaurantAccess.ts` allows forged `demo:*` JWTs to skip all permission checks.
-
-## Solution
-Gate behind DEMO_MODE environment variable:
-```typescript
-if (sub.startsWith('demo:')) {
-  if (process.env.DEMO_MODE !== 'enabled') {
-    logger.warn('Demo bypass attempted outside demo mode', { sub });
-    return false;
-  }
-  return true;
-}
-```
-
-## Prevention
-- Never use string prefix matching for auth bypass
-- Always gate demo features behind explicit env vars
-- Log all bypass attempts
-
-## References
-- `audit_output/02_RISK_REGISTER.md` - SEC-001
-- `plans/security-remediation-v2.md` - Task 0.1
-```
-
-**Create similar files for:**
-- `httponly-cookie-auth.md` - Token storage pattern
-- `csrf-protection.md` - CSRF middleware pattern
-- `timing-safe-comparison.md` - PIN verification pattern
-- `atomic-rate-limiting.md` - Database-backed rate limits
-- `idempotency-key-pattern.md` - Stripe payment patterns
-
-### 3.2 Update docs/solutions/README.md
-
-Add new categories and link audit-derived solutions:
-
-```markdown
-## Security Issues (NEW)
-- demo-bypass-prevention.md - Gate demo features
-- httponly-cookie-auth.md - Cookie-based auth
-- csrf-protection.md - CSRF middleware
-- timing-safe-comparison.md - Constant-time ops
-- atomic-rate-limiting.md - DB-backed limits
-- idempotency-key-pattern.md - Stripe patterns
-```
-
-### 3.3 Archive Audit Output (Optional)
-
-If audit output is large, create summary and archive:
+The audit output is valuable reference material that should live in docs:
 
 ```bash
-# Keep executive summary accessible
-cp audit_output/01_EXEC_SUMMARY.md docs/AUDIT_SUMMARY_2025-12.md
+mkdir -p docs/archive/2025-12/security-audit
+mv audit_output/*.md docs/archive/2025-12/security-audit/
+rmdir audit_output
+```
 
-# Archive full output
-mkdir -p docs/archive/2025-12-hostile-audit
-mv audit_output/* docs/archive/2025-12-hostile-audit/
+### 2.2 Update References
+
+After moving, update paths in:
+- docs/INDEX.md (change `/audit_output/` to `/docs/archive/2025-12/security-audit/`)
+- CLAUDE.md audit reference
+- plans/security-remediation-v2.md if it references audit_output/
+
+---
+
+## Phase 3: Add Compound Engineering Forcing Functions (1 hour)
+
+### 3.1 Already Complete (No Action Needed)
+
+Security solutions from audit already exist in `docs/solutions/security-issues/`:
+- demo-bypass-prevention.md
+- httponly-cookie-auth.md
+- csrf-protection.md
+- timing-safe-comparison.md
+- atomic-rate-limiting.md
+- idempotency-key-pattern.md
+- Plus 5 more (11 total)
+
+### 3.2 Add Compound Engineering Protocol to CLAUDE.md
+
+**Add new section:**
+
+```markdown
+## Compound Engineering Protocol
+
+### After Every Non-Trivial Fix
+
+1. **Immediate:** Run `/workflows:compound` if debugging took >15 min
+2. **Check:** Does CLAUDE.md Quick Links need update?
+3. **Check:** Does this need an ADR?
+
+### Signs You Must Compound
+
+- [ ] Debugging took >15 minutes
+- [ ] Solution wasn't obvious
+- [ ] You'd want to find this later
+- [ ] It affects security or payments
+- [ ] You created a workaround
+
+### Review Triggers (Proactive)
+
+After writing:
+- Auth/security code -> invoke `security-sentinel`
+- Database queries -> invoke `performance-oracle`
+- State management -> invoke `architecture-strategist`
+- Any significant change -> invoke `code-simplicity-reviewer`
 ```
 
 ---
 
-## Phase 4: CLAUDE.md Enhancement (1.5 hours)
+## Phase 4: Verification (30 minutes)
 
-### 4.1 Add Compound Engineering Section
+### 4.1 Already Complete in CLAUDE.md
 
-```markdown
-## Compound Engineering
+These sections already exist and are well-populated:
+- Prevention Patterns (Security, Multi-Tenancy, Payments)
+- Debugging Quick Reference
+- Solution Documentation with Quick Links
 
-### The Learning Loop
+### 4.2 Solution Template Already Exists
 
-Every non-trivial fix **MUST** compound:
-1. Fix the problem
-2. Document in `docs/solutions/{category}/`
-3. If recurring, add to CLAUDE.md Quick Links
-4. If architectural, create or update ADR
-
-**Signs you should compound:**
-- Debugging took >15 min
-- Solution wasn't obvious
-- You'd want to find this later
-- It affects security or payments
-
-### Mandatory Reviews
-
-After writing significant code:
-
-| Code Type | Invoke Agent |
-|-----------|--------------|
-| Auth/security | `security-sentinel` |
-| Database queries | `performance-oracle` |
-| State management | `architecture-strategist` |
-| Any significant change | `code-simplicity-reviewer` |
-```
-
-### 4.2 Add Prevention Patterns Section
-
-```markdown
-## Prevention Patterns
-
-### Security (CRITICAL)
-
-| Pattern | Rule | Violation Example |
-|---------|------|-------------------|
-| No fallback secrets | `const x = process.env.X` (crash if missing) | `process.env.X \|\| 'default'` |
-| HTTPOnly cookies | Sensitive tokens in cookies | `localStorage.setItem('token')` |
-| CSRF protection | All POST/PUT/DELETE need CSRF | Missing X-CSRF-Token header |
-| Timing-safe auth | Always compare against hash | Early return on user not found |
-
-### Multi-Tenancy (CRITICAL)
-
-| Pattern | Rule | Violation Example |
-|---------|------|-------------------|
-| Explicit tenant filter | Every query includes restaurant_id | `SELECT * FROM orders` |
-| RLS enforcement | All tables have RLS policies | New table without RLS |
-| Context validation | Middleware validates restaurant_id | Direct database access |
-
-### Payments (CRITICAL)
-
-| Pattern | Rule | Violation Example |
-|---------|------|-------------------|
-| Server-side totals | Never trust client amounts | Using client-sent total |
-| Idempotency keys | All Stripe calls have keys | Missing idempotency on refund |
-| Two-phase logging | Log before AND after | Only logging success |
-```
-
-### 4.3 Add Debugging Quick Reference
-
-```markdown
-## Debugging Quick Reference
-
-### Auth Issues
-1. Check localStorage for `token` / `demo_token`
-2. Check cookie for `auth_token` (won't show in console if HTTPOnly)
-3. Check Supabase session: `supabase.auth.getSession()`
-4. Check server logs for auth middleware
-
-### Payment Issues
-1. Check Stripe Dashboard for payment intent status
-2. Check server logs for idempotency key
-3. Check `payment_intents` table for local record
-4. Verify webhook received: check `stripe_events` table
-
-### State Issues
-1. Check current order status in database
-2. Verify transition is valid (see Order Status Flow)
-3. Check for race conditions in concurrent updates
-```
-
----
-
-## Phase 5: Workflow Integration (1 hour)
-
-### 5.1 Create .claude/hooks/post-fix-compound.md
-
-**File:** `.claude/hooks/post-fix-compound.md`
-```markdown
-# Post-Fix Compound Hook
-
-After fixing any issue that took >15 minutes:
-
-1. Create solution doc: `docs/solutions/{category}/{issue-name}.md`
-2. If security-related: Update `docs/RISK_REGISTER.md`
-3. If pattern-worthy: Add to CLAUDE.md Prevention Patterns
-4. If architectural: Create or update ADR
-
-Template: `docs/solutions/TEMPLATE.md`
-```
-
-### 5.2 Create Solution Template
-
-**File:** `docs/solutions/TEMPLATE.md`
-```markdown
-# [Problem Name]
-
-## Problem
-[What was the issue?]
-
-## Symptoms
-- [How did it manifest?]
-- [What errors were seen?]
-
-## Root Cause
-[Why did it happen?]
-
-## Solution
-[How to fix it]
-
-```typescript
-// Code example
-```
-
-## Prevention
-- [How to prevent in future]
-- [What patterns to follow]
-
-## References
-- [Related files]
-- [Related issues/PRs]
-- [Related ADRs]
-```
+`docs/solutions/TEMPLATE.md` already exists with proper structure.
 
 ---
 
@@ -409,26 +214,30 @@ Template: `docs/solutions/TEMPLATE.md`
 After completing all phases:
 
 - [ ] `docs/INDEX.md` exists and all links work
-- [ ] `docs/RISK_REGISTER.md` exists with current risks
-- [ ] CLAUDE.md has Quick Links section
-- [ ] CLAUDE.md has Current Status section
-- [ ] CLAUDE.md has Prevention Patterns section
-- [ ] 6+ new security solutions in `docs/solutions/security-issues/`
-- [ ] `docs/solutions/README.md` updated with new files
-- [ ] `docs/solutions/TEMPLATE.md` exists
-- [ ] All internal links validated
+- [ ] CLAUDE.md has ADR Quick Links section
+- [ ] CLAUDE.md has Compound Engineering Protocol section
+- [ ] `audit_output/` moved to `docs/archive/2025-12/security-audit/`
+- [ ] All references to audit_output/ updated
+- [ ] No broken internal links
 
 ---
 
-## Success Metrics
+## Summary of Work
 
-| Metric | Before | After | Validation |
-|--------|--------|-------|------------|
-| CLAUDE.md size | 136 lines | 300+ lines | `wc -l CLAUDE.md` |
-| Prevention patterns documented | 0 | 15+ | Count in CLAUDE.md |
-| Security solutions | 0 | 6+ | `ls docs/solutions/security-issues/` |
-| Risk register entries | 0 | 8+ | Count in RISK_REGISTER.md |
-| INDEX.md exists | No | Yes | File check |
+| Phase | Time | Work |
+|-------|------|------|
+| 1 | 30 min | Create docs/INDEX.md, add ADR links to CLAUDE.md |
+| 2 | 30 min | Archive audit output to docs/archive/ |
+| 3 | 1 hr | Add Compound Engineering Protocol to CLAUDE.md |
+| 4 | 30 min | Verification |
+| **Total** | **2.5 hr** | |
+
+### Already Complete (No Work Needed)
+- 48 solutions in docs/solutions/ (well organized)
+- 11 security solutions from audit
+- Prevention Patterns in CLAUDE.md
+- Debugging Quick Reference in CLAUDE.md
+- Solution Template exists
 
 ---
 
@@ -446,10 +255,11 @@ When ready to implement:
 
 - **Prerequisite:** P0 security fixes should be planned (done: `plans/security-remediation-v2.md`)
 - **No blockers:** This can run in parallel with security fixes
-- **Follow-up:** After security fixes complete, update RISK_REGISTER.md statuses
+- **Follow-up:** After security fixes complete, update risk statuses in audit archive
 
 ---
 
 *Plan created: 2025-12-28*
+*Updated: 2025-12-29 (reduced scope after discovering good existing state)*
 *Aligned with: Compound Engineering North Star*
 *Reference: MAIS doc-hygiene-sprint.md patterns*
