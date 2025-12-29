@@ -1,5 +1,7 @@
 # Vitest Mocking Quick Reference
 
+**Last Updated:** 2025-12-29
+
 **For code reviews and test debugging** - 5 minute read
 
 Bookmark this when reviewing tests with mocks.
@@ -81,7 +83,7 @@ expect(idempotencyKey).toMatch(/^[a-z0-9]+-\d+$/);  // Matches new code
 | `vi.clearAllMocks()` in beforeEach | `vi.clearAllMocks()` | Change to `vi.resetAllMocks()` |
 | Imports before mocks | Import then vi.mock() | Move vi.mock() to top |
 | Module-level require() | `const stripe = require('stripe')(key)` | Use lazy getter or ES6 import |
-| No re-import after resetModules | vi.resetModules(); (no re-import) | Add `const mod = await import(...)`  |
+| No re-import after resetModules | vi.resetModules(); (no re-import) | Add `const mod = await import(...)` |
 | Loose expectations | `expect.anything()` | Use `expect.objectContaining()` |
 | Expects old format | Test checks UUID but code generates timestamp | Update regex to match current code |
 

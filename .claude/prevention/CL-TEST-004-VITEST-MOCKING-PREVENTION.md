@@ -359,8 +359,8 @@ it('should include idempotency key in audit log', async () => {
 
 ### Red Flags - Avoid These
 
-| ❌ Wrong Pattern | ✅ Correct Pattern | Why |
-|-----------------|-------------------|-----|
+| Wrong Pattern | Correct Pattern | Why |
+|---------------|-----------------|-----|
 | `vi.clearAllMocks()` in beforeEach | `vi.resetAllMocks()` | Preserves factory functions |
 | Module-level `require('external')` | `import` or lazy getter | Allows vi.mock to intercept |
 | Loose expectations: `expect.anything()` | `expect.objectContaining()` + validate | Actually tests the implementation |
