@@ -24,7 +24,7 @@ Key decisions are documented in CLAUDE.md:
 |----------|---------|
 | [SECURITY.md](/SECURITY.md) | Security policies and contacts |
 | [Risk Register](/docs/RISK_REGISTER.md) | Known risks and mitigations |
-| [Audit Summary](/audit_output/01_EXEC_SUMMARY.md) | 2025-12 hostile audit |
+| [Audit Summary](/docs/archive/2025-12/security-audit/01_EXEC_SUMMARY.md) | 2025-12 hostile audit |
 
 ## Prevention Strategies (Top 10)
 

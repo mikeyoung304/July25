@@ -97,6 +97,6 @@ res.status(200).json({ message: 'Logged out' });
 
 ## References
 
-- `audit_output/02_RISK_REGISTER.md` - P0-002
+- `docs/archive/2025-12/security-audit/02_RISK_REGISTER.md` - P0-002
 - `plans/security-remediation-v2.md` - Task 0.2
 - `client/src/contexts/AuthContext.tsx:237-241`

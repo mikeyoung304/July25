@@ -102,5 +102,5 @@ fetch('/api/orders', {
 
 ## References
 
-- `audit_output/02_RISK_REGISTER.md` - P2-002
+- `docs/archive/2025-12/security-audit/02_RISK_REGISTER.md` - P2-002
 - OWASP CSRF Prevention Cheat Sheet

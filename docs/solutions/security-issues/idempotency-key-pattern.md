@@ -136,7 +136,7 @@ async function createRefundWithIdempotency(
 
 ## References
 
-- `audit_output/02_RISK_REGISTER.md` - P0-003, P0-009
+- `docs/archive/2025-12/security-audit/02_RISK_REGISTER.md` - P0-003, P0-009
 - `plans/security-remediation-v2.md` - Task 0.3
 - `server/src/routes/payments.routes.ts:656-670`
 - Stripe Idempotency Documentation

@@ -66,6 +66,6 @@ if (sub.startsWith('demo:')) {
 
 ## References
 
-- `audit_output/02_RISK_REGISTER.md` - P0-001
+- `docs/archive/2025-12/security-audit/02_RISK_REGISTER.md` - P0-001
 - `plans/security-remediation-v2.md` - Task 0.1
 - `server/src/middleware/restaurantAccess.ts:43-50`

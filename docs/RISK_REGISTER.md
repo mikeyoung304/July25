@@ -56,7 +56,7 @@
 ## Source
 
 Risks extracted from hostile enterprise audit conducted 2025-12-28.
-Full audit: `audit_output/02_RISK_REGISTER.md`
+Full audit: `docs/archive/2025-12/security-audit/02_RISK_REGISTER.md`
 
 ---
 

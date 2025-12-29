@@ -15,7 +15,7 @@ rebuild-6.0/
 
 ## Current Status (2025-12)
 
-- **Security audit:** Complete (see `audit_output/`)
+- **Security audit:** Complete (see `docs/archive/2025-12/security-audit/`)
 - **Security score:** 55/100 → targeting 75/100
 - **P0 issues:** 9 (launch blockers)
 - **Active plan:** `plans/security-remediation-v2.md`
@@ -145,6 +145,17 @@ Search with: `grep -r "symptom" docs/solutions/`
 | Test failures | `docs/solutions/test-failures/` |
 | Schema drift | `docs/solutions/database-issues/migration-bifurcation-schema-drift.md` |
 
+### ADR Quick Links
+
+| Decision | ADR |
+|----------|-----|
+| Snake case everywhere | `docs/explanation/architecture-decisions/ADR-001-snake-case-convention.md` |
+| Multi-tenant isolation | `docs/explanation/architecture-decisions/ADR-002-multi-tenancy-architecture.md` |
+| Dual auth pattern | `docs/explanation/architecture-decisions/ADR-006-dual-authentication-pattern.md` |
+| Fail-fast philosophy | `docs/explanation/architecture-decisions/ADR-009-error-handling-philosophy.md` |
+| Remote DB truth | `docs/explanation/architecture-decisions/ADR-010-remote-database-source-of-truth.md` |
+| CommonJS required | `docs/explanation/architecture-decisions/ADR-016-module-system-commonjs.md` |
+
 ## Compound Engineering
 
 ### The Learning Loop
@@ -217,6 +228,30 @@ After writing significant code:
 1. Check current order status in database
 2. Verify transition is valid (see Order Status Flow)
 3. Check for race conditions in concurrent updates
+
+## Compound Engineering Protocol
+
+### After Every Non-Trivial Fix
+
+1. **Immediate**: Run `/workflows:compound` if debugging took >15 min
+2. **Check**: Does CLAUDE.md Quick Links need update?
+3. **Check**: Does this need an ADR?
+
+### Signs You Must Compound
+
+- [ ] Debugging took >15 minutes
+- [ ] Solution wasn't obvious
+- [ ] You'd want to find this later
+- [ ] It affects security or payments
+- [ ] You created a workaround
+
+### Review Triggers (Proactive)
+
+After writing:
+- Auth/security code → invoke `security-sentinel`
+- Database queries → invoke `performance-oracle`
+- State management → invoke `architecture-strategist`
+- Any significant change → invoke `code-simplicity-reviewer`
 
 ## Known Considerations
 

@@ -14,7 +14,7 @@ After a hostile security audit (score: 55/100), documentation was scattered acro
 
 ## Symptoms
 
-- Security audit findings buried in `audit_output/` with no prevention patterns
+- Security audit findings buried in `docs/archive/2025-12/security-audit/` with no prevention patterns
 - CLAUDE.md lacked quick reference for common issues
 - No central documentation index
 - Solutions directory existed but wasn't discoverable
@@ -117,4 +117,4 @@ SECURITY.md                                      (risk reference)
 - Commits: `9411cee8`, `e16aaa3e`
 - Branch: `docs/hygiene-sprint`
 - Plan: `plans/doc-hygiene-sprint.md`
-- Audit: `audit_output/02_RISK_REGISTER.md`
+- Audit: `docs/archive/2025-12/security-audit/02_RISK_REGISTER.md`

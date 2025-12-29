@@ -99,6 +99,6 @@ async function validatePIN(userId: string, pin: string): Promise<User | null> {
 
 ## References
 
-- `audit_output/02_RISK_REGISTER.md` - P1-001
+- `docs/archive/2025-12/security-audit/02_RISK_REGISTER.md` - P1-001
 - `server/src/services/auth/pinAuth.ts:205-216`
 - OWASP Authentication Cheat Sheet
