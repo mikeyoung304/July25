@@ -28,7 +28,7 @@ import { aiRoutes } from './routes/ai.routes';
 import { realtimeRoutes } from './routes/realtime.routes';
 import { metricsMiddleware, register } from './middleware/metrics';
 import { authenticate, requireRole } from './middleware/auth';
-// CSRF middleware removed - not needed for REST API (see plan: security-vuln-and-next-priorities.md)
+import { csrfProtection } from './middleware/csrf';
 import { applySecurity } from './middleware/security';
 import { sanitizeRequest } from './middleware/requestSanitizer';
 import { slugResolver } from './middleware/slugResolver';
@@ -185,6 +185,15 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 
 // Request sanitization (after body parsing, before other middleware)
 app.use(sanitizeRequest);
+
+// CSRF protection - exempt webhook endpoints
+app.use((req, res, next) => {
+  // Exempt Stripe webhooks from CSRF (they use signature verification instead)
+  if (req.path === '/api/v1/payments/webhook') {
+    return next();
+  }
+  return csrfProtection(req, res, next);
+});
 
 // Slug resolver middleware (resolves restaurant slugs to UUIDs in headers)
 app.use(slugResolver);

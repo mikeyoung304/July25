@@ -32,13 +32,25 @@ export async function authenticate(
 ): Promise<void> {
   try {
     const config = getConfig(); // Get fresh config (important for tests)
-    const authHeader = req.headers.authorization;
 
-    if (!authHeader || !authHeader.startsWith('Bearer ')) {
-      throw Unauthorized('No token provided');
+    // Try HTTPOnly cookie first (more secure), fall back to Authorization header
+    let token: string | undefined;
+
+    // Check HTTPOnly cookie (set by login endpoints)
+    const cookieToken = req.cookies?.['auth_token'];
+    if (cookieToken) {
+      token = cookieToken;
+    } else {
+      // Fall back to Authorization header (backward compatibility, WebSocket, etc.)
+      const authHeader = req.headers.authorization;
+      if (authHeader && authHeader.startsWith('Bearer ')) {
+        token = authHeader.substring(7);
+      }
     }
 
-    const token = authHeader.substring(7);
+    if (!token) {
+      throw Unauthorized('No token provided');
+    }
 
     // STRICT_AUTH mode - enabled by default, must explicitly disable
     const strictAuth = process.env['STRICT_AUTH'] !== 'false';

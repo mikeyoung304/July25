@@ -18,6 +18,16 @@ import type { JsonValue } from '@/../../shared/types/api.types'
 // This will be set by the RestaurantContext provider
 let currentRestaurantId: string | null = null
 
+/**
+ * Get CSRF token from cookie
+ * Returns null if not found (first request before login sets cookie)
+ */
+function getCsrfToken(): string | null {
+  if (typeof document === 'undefined') return null
+  const match = document.cookie.match(/csrf_token=([^;]+)/)
+  return match ? match[1] : null
+}
+
 export function setCurrentRestaurantId(restaurantId: string | null) {
   const previousId = currentRestaurantId
   currentRestaurantId = restaurantId
@@ -139,7 +149,16 @@ export class HttpClient extends SecureAPIClient {
       }
     }
 
-    // 2. Add x-restaurant-id header (per Luis's spec)
+    // 2. Add CSRF token for state-changing requests
+    const method = (requestOptions.method || 'GET').toUpperCase()
+    if (!['GET', 'HEAD', 'OPTIONS'].includes(method)) {
+      const csrfToken = getCsrfToken()
+      if (csrfToken) {
+        headers.set('X-CSRF-Token', csrfToken)
+      }
+    }
+
+    // 3. Add x-restaurant-id header (per Luis's spec)
     if (!skipRestaurantId) {
       // Use centralized restaurant ID getter (handles fallback to default)
       const restaurantId = getCurrentRestaurantId() || getRestaurantId()
@@ -160,10 +179,10 @@ export class HttpClient extends SecureAPIClient {
       }
     }
 
-    // 3. Use request body as-is (server handles transformations)
+    // 4. Use request body as-is (server handles transformations)
     const body = requestOptions.body
 
-    // 4. Pass query params as-is
+    // 5. Pass query params as-is
     let url = endpoint
     if (params && Object.keys(params).length > 0) {
       const searchParams = new URLSearchParams()
@@ -185,7 +204,7 @@ export class HttpClient extends SecureAPIClient {
         body
       })
 
-      // 5. Return response as-is (already in camelCase from server)
+      // 6. Return response as-is (already in camelCase from server)
       return response as T
     } catch (error) {
       // Handle API errors according to Luis's spec (status code-based)

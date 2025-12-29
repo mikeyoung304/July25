@@ -71,7 +71,7 @@ export class SecureAPIClient {
         ...fetchOptions,
         headers,
         signal: controller.signal,
-        credentials: 'same-origin', // Include cookies for same-origin requests
+        credentials: 'include', // Include cookies for all requests (required for cross-origin auth)
       })
       
       clearTimeout(timeoutId)

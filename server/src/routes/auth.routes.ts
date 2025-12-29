@@ -12,6 +12,34 @@ import {
   authRateLimiters,
   resetFailedAttempts
 } from '../middleware/authRateLimiter';
+import { setCsrfCookie, clearCsrfCookie } from '../middleware/csrf';
+
+const AUTH_TOKEN_EXPIRY_HOURS = 8;
+
+/**
+ * Set HTTPOnly auth cookie
+ */
+function setAuthCookie(res: Response, token: string): void {
+  res.cookie('auth_token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: AUTH_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000,  // Match JWT expiry
+    path: '/'
+  });
+}
+
+/**
+ * Clear auth cookie on logout
+ */
+function clearAuthCookie(res: Response): void {
+  res.clearCookie('auth_token', {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    path: '/'
+  });
+}
 
 const router = Router();
 
@@ -114,7 +142,13 @@ router.post('/login',
     // Reset rate limiting on successful auth
     resetFailedAttempts(req);
 
-    // Return session data with custom JWT that includes scopes
+    // Set HTTPOnly auth cookie (JS cannot read)
+    setAuthCookie(res, customToken);
+
+    // Set CSRF cookie (JS CAN read for X-CSRF-Token header)
+    setCsrfCookie(res);
+
+    // Return user only - NOT the token (token is in HTTPOnly cookie)
     res.json({
       user: {
         id: authData.user.id,
@@ -122,10 +156,10 @@ router.post('/login',
         role: userRole.role,
         scopes
       },
+      // Keep session info for backward compatibility during migration
       session: {
-        access_token: customToken,  // ✅ Use custom JWT with scopes instead of Supabase's token
         refresh_token: authData.session?.refresh_token,
-        expires_in: 8 * 60 * 60  // 8 hours in seconds
+        expires_in: AUTH_TOKEN_EXPIRY_HOURS * 60 * 60  // 8 hours in seconds
       },
       restaurantId
     });
@@ -197,6 +231,13 @@ router.post('/pin-login',
       scopes_count: scopes.length
     });
 
+    // Set HTTPOnly auth cookie
+    setAuthCookie(res, token);
+
+    // Set CSRF cookie
+    setCsrfCookie(res);
+
+    // Return user only - NOT the token (token is in HTTPOnly cookie)
     res.json({
       user: {
         id: result.userId,
@@ -204,7 +245,6 @@ router.post('/pin-login',
         role: result.role,
         scopes
       },
-      token,
       expiresIn: 12 * 60 * 60,
       restaurantId
     });
@@ -292,6 +332,10 @@ router.post('/logout', authenticate, async (req: AuthenticatedRequest, res: Resp
       user_id: userId,
       restaurant_id: restaurantId
     });
+
+    // Clear auth and CSRF cookies
+    clearAuthCookie(res);
+    clearCsrfCookie(res);
 
     res.json({
       success: true,
