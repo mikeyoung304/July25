@@ -1,6 +1,6 @@
 # Solutions Knowledge Base
 
-**Last Updated:** 2025-12-24
+**Last Updated:** 2025-12-28
 
 This directory contains codified solutions to problems encountered during development. Each solution documents:
 - Problem symptoms and root cause
@@ -91,16 +91,23 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | [Parallel Agent Todo Audit Crash](./process-issues/parallel-agent-todo-audit-crash.md) | Handling parallel agent crashes during todo audit |
 | [Parallel Agent Todo Resolution](./process-issues/parallel-agent-todo-resolution.md) | Parallel agent strategy for todo resolution |
 | [Parallel Subagent Debt Scanning](./process-issues/parallel-subagent-debt-scanning.md) | Subagent-based technical debt scanning |
+| [Documentation Hygiene Sprint](./process-issues/documentation-hygiene-sprint-compound-engineering.md) | 5-phase sprint aligning docs with compound engineering |
 
 ### Security Issues
 
 | Solution | Description |
 |----------|-------------|
 | [API Error Info Disclosure Remediation](./security-issues/api-error-info-disclosure-remediation.md) | Error response leaking internal details |
+| [Atomic Rate Limiting](./security-issues/atomic-rate-limiting.md) | Database-backed atomic rate limiting pattern |
+| [CSRF Protection](./security-issues/csrf-protection.md) | CSRF token protection for state-changing endpoints |
+| [Demo Bypass Prevention](./security-issues/demo-bypass-prevention.md) | Gate demo features behind explicit env vars |
 | [Header Fallback Cross-Tenant Vulnerability](./security-issues/header-fallback-cross-tenant-vulnerability.md) | X-Restaurant-ID fallback allowing cross-tenant access |
+| [HTTPOnly Cookie Auth](./security-issues/httponly-cookie-auth.md) | Cookie-based auth to prevent XSS token theft |
+| [Idempotency Key Pattern](./security-issues/idempotency-key-pattern.md) | Stripe idempotency for payment operations |
 | [Multi-Tenant Isolation RLS Cache](./security-issues/multi-tenant-isolation-rls-cache.md) | Multi-tenant isolation via RLS and cache key patterns |
 | [P0-P1 Backlog WebSocket Auth UUID Validation](./security-issues/p0-p1-backlog-websocket-auth-uuid-validation.md) | WebSocket authentication and UUID validation fixes |
 | [Rate Limiter TOCTOU Race Condition](./security-issues/rate-limiter-toctou-race-condition.md) | Time-of-check to time-of-use race condition in rate limiter |
+| [Timing-Safe Comparison](./security-issues/timing-safe-comparison.md) | Constant-time auth comparison to prevent timing attacks |
 
 ### Test Failures
 
@@ -135,25 +142,25 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | Auth Issues | 2 | Authentication patterns, STRICT_AUTH drift |
 | Build Errors | 3 | Compilation, deployment, Vercel issues |
 | Code Quality | 1 | Logging and code standards |
-| Code Quality Issues | 2 | Multi-layer code hardening, menu embedding |
+| Code Quality Issues | 2 | Multi-layer code hardening |
 | Cross References | 1 | Session and resolution cross-references |
 | Database Issues | 3 | Schema drift, migration bifurcation, constraints |
 | Integration Issues | 1 | OpenAI API deprecation |
 | Performance Issues | 4 | Memory leaks, timers, WebRTC, Vitest |
 | Prevention | 1 | Proactive prevention patterns |
 | Process Issues | 7 | Tooling, agents, documentation |
-| Security Issues | 5 | Auth, RLS, rate limiting, cross-tenant |
+| Security Issues | 11 | Auth, RLS, rate limiting, cross-tenant, CSRF, timing |
 | Test Failures | 8 | Mock drift, canvas mock, E2E |
 | Type Issues | 1 | Type system mismatches |
 | Type Safety Issues | 1 | Schema and type assertion issues |
-| **Total** | **41** | |
+| **Total** | **48** | |
 
 ## How to Add Solutions
 
-Use the `/workflows:codify` command after solving a non-trivial problem:
+Use the `/workflows:compound` command after solving a non-trivial problem:
 
 ```bash
-/workflows:codify Brief description of what was fixed
+/workflows:compound Brief description of what was fixed
 ```
 
 This will:
@@ -196,4 +203,4 @@ How to avoid this in the future.
 ## Related
 
 - [CLAUDE.md](../../CLAUDE.md) — Project configuration and critical patterns
-- [Test Debugging](.github/TEST_DEBUGGING.md) — Test debugging reference
+- [Test Debugging](../../.github/TEST_DEBUGGING.md) — Test debugging reference

@@ -13,6 +13,14 @@ rebuild-6.0/
 └── supabase/         # Database migrations (remote-first)
 ```
 
+## Current Status (2025-12)
+
+- **Security audit:** Complete (see `audit_output/`)
+- **Security score:** 55/100 → targeting 75/100
+- **P0 issues:** 9 (launch blockers)
+- **Active plan:** `plans/security-remediation-v2.md`
+- **Next milestone:** Complete Phase 0 security fixes
+
 ## Critical Architectural Decisions
 
 ### 1. Snake Case Convention (ADR-001)
@@ -123,6 +131,92 @@ Past incidents and fixes are documented in `docs/solutions/` by category:
 - `integration-issues/` - External API issues
 
 Search with: `grep -r "symptom" docs/solutions/`
+
+### Quick Links (Most Used)
+
+| Problem | Solution |
+|---------|----------|
+| Auth token issues | `docs/solutions/auth-issues/websocket-station-auth-dual-pattern.md` |
+| STRICT_AUTH drift | `docs/solutions/auth-issues/strict-auth-environment-drift.md` |
+| Multi-tenant isolation | `docs/solutions/security-issues/multi-tenant-isolation-rls-cache.md` |
+| Demo bypass prevention | `docs/solutions/security-issues/demo-bypass-prevention.md` |
+| Memory leaks | `docs/solutions/performance-issues/interval-memory-leaks.md` |
+| Build failures | `docs/solutions/build-errors/` |
+| Test failures | `docs/solutions/test-failures/` |
+| Schema drift | `docs/solutions/database-issues/migration-bifurcation-schema-drift.md` |
+
+## Compound Engineering
+
+### The Learning Loop
+
+Every non-trivial fix **MUST** compound:
+1. Fix the problem
+2. Document in `docs/solutions/{category}/`
+3. If recurring, add to CLAUDE.md Quick Links
+4. If architectural, create or update ADR
+
+**Signs you should compound:**
+- Debugging took >15 min
+- Solution wasn't obvious
+- You'd want to find this later
+- It affects security or payments
+
+### Mandatory Reviews
+
+After writing significant code:
+
+| Code Type | Invoke Agent |
+|-----------|--------------|
+| Auth/security | `security-sentinel` |
+| Database queries | `performance-oracle` |
+| State management | `architecture-strategist` |
+| Any significant change | `code-simplicity-reviewer` |
+
+## Prevention Patterns
+
+### Security (CRITICAL)
+
+| Pattern | Rule | Violation Example |
+|---------|------|-------------------|
+| No fallback secrets | `const x = process.env.X` (crash if missing) | `process.env.X \|\| 'default'` |
+| HTTPOnly cookies | Sensitive tokens in cookies | `localStorage.setItem('token')` |
+| CSRF protection | All POST/PUT/DELETE need CSRF | Missing X-CSRF-Token header |
+| Timing-safe auth | Always compare against hash | Early return on user not found |
+
+### Multi-Tenancy (CRITICAL)
+
+| Pattern | Rule | Violation Example |
+|---------|------|-------------------|
+| Explicit tenant filter | Every query includes restaurant_id | `SELECT * FROM orders` |
+| RLS enforcement | All tables have RLS policies | New table without RLS |
+| Context validation | Middleware validates restaurant_id | Direct database access |
+
+### Payments (CRITICAL)
+
+| Pattern | Rule | Violation Example |
+|---------|------|-------------------|
+| Server-side totals | Never trust client amounts | Using client-sent total |
+| Idempotency keys | All Stripe calls have keys | Missing idempotency on refund |
+| Two-phase logging | Log before AND after | Only logging success |
+
+## Debugging Quick Reference
+
+### Auth Issues
+1. Check localStorage for `token` / `demo_token`
+2. Check cookie for `auth_token` (won't show in console if HTTPOnly)
+3. Check Supabase session: `supabase.auth.getSession()`
+4. Check server logs for auth middleware
+
+### Payment Issues
+1. Check Stripe Dashboard for payment intent status
+2. Check server logs for idempotency key
+3. Check `payment_intents` table for local record
+4. Verify webhook received: check `stripe_events` table
+
+### State Issues
+1. Check current order status in database
+2. Verify transition is valid (see Order Status Flow)
+3. Check for race conditions in concurrent updates
 
 ## Known Considerations
 

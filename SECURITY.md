@@ -1,7 +1,7 @@
 # Security Policy
 
 
-**Last Updated:** 2025-11-19
+**Last Updated:** 2025-12-28
 
 ## Supported Versions
 
@@ -28,6 +28,14 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 - **Initial Assessment**: Within 5 business days
 - **Resolution Target**: 30 days for critical, 90 days for moderate
 
+## Known Security Risks
+
+See [Risk Register](/docs/RISK_REGISTER.md) for current security risks.
+
+**Last audit:** 2025-12-28 (Hostile Enterprise Audit)
+**Audit results:** `audit_output/`
+**Current score:** 55/100 (targeting 75/100)
+
 ## Full Security Documentation
 
 For comprehensive security information including:
@@ -41,5 +49,5 @@ See: [docs/SECURITY.md](./docs/SECURITY.md)
 
 ---
 
-**Last Updated**: November 18, 2025
-**Version**: 6.0.14
+**Last Updated:** 2025-12-28
+**Version:** 6.0.14
