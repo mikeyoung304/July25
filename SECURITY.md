@@ -28,6 +28,14 @@ We take security seriously at Restaurant OS. If you discover a security vulnerab
 - **Initial Assessment**: Within 5 business days
 - **Resolution Target**: 30 days for critical, 90 days for moderate
 
+## Known Security Risks
+
+See [Risk Register](/docs/RISK_REGISTER.md) for current security risks.
+
+**Last audit:** 2025-12-28 (Hostile Enterprise Audit)
+**Audit results:** `audit_output/`
+**Current score:** 55/100 (targeting 75/100)
+
 ## Full Security Documentation
 
 For comprehensive security information including:

@@ -97,10 +97,16 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | Solution | Description |
 |----------|-------------|
 | [API Error Info Disclosure Remediation](./security-issues/api-error-info-disclosure-remediation.md) | Error response leaking internal details |
+| [Atomic Rate Limiting](./security-issues/atomic-rate-limiting.md) | Database-backed atomic rate limiting pattern |
+| [CSRF Protection](./security-issues/csrf-protection.md) | CSRF token protection for state-changing endpoints |
+| [Demo Bypass Prevention](./security-issues/demo-bypass-prevention.md) | Gate demo features behind explicit env vars |
 | [Header Fallback Cross-Tenant Vulnerability](./security-issues/header-fallback-cross-tenant-vulnerability.md) | X-Restaurant-ID fallback allowing cross-tenant access |
+| [HTTPOnly Cookie Auth](./security-issues/httponly-cookie-auth.md) | Cookie-based auth to prevent XSS token theft |
+| [Idempotency Key Pattern](./security-issues/idempotency-key-pattern.md) | Stripe idempotency for payment operations |
 | [Multi-Tenant Isolation RLS Cache](./security-issues/multi-tenant-isolation-rls-cache.md) | Multi-tenant isolation via RLS and cache key patterns |
 | [P0-P1 Backlog WebSocket Auth UUID Validation](./security-issues/p0-p1-backlog-websocket-auth-uuid-validation.md) | WebSocket authentication and UUID validation fixes |
 | [Rate Limiter TOCTOU Race Condition](./security-issues/rate-limiter-toctou-race-condition.md) | Time-of-check to time-of-use race condition in rate limiter |
+| [Timing-Safe Comparison](./security-issues/timing-safe-comparison.md) | Constant-time auth comparison to prevent timing attacks |
 
 ### Test Failures
 
@@ -142,11 +148,11 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | Performance Issues | 4 | Memory leaks, timers, WebRTC, Vitest |
 | Prevention | 1 | Proactive prevention patterns |
 | Process Issues | 7 | Tooling, agents, documentation |
-| Security Issues | 5 | Auth, RLS, rate limiting, cross-tenant |
+| Security Issues | 11 | Auth, RLS, rate limiting, cross-tenant, CSRF, timing |
 | Test Failures | 8 | Mock drift, canvas mock, E2E |
 | Type Issues | 1 | Type system mismatches |
 | Type Safety Issues | 1 | Schema and type assertion issues |
-| **Total** | **41** | |
+| **Total** | **47** | |
 
 ## How to Add Solutions
 
