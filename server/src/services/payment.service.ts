@@ -1,4 +1,3 @@
-import { randomBytes } from 'crypto';
 import { logger } from '../utils/logger';
 import { OrdersService, getRestaurantTaxRate } from './orders.service';
 import type { Order } from '@rebuild/shared';
@@ -56,11 +55,12 @@ export function generateIdempotencyKey(
   orderId: string,
   timestamp?: number
 ): string {
-  const ts = timestamp ?? Date.now();
+  // Use seconds (not ms) to allow retries within same second window
+  // Random nonce was removed - it defeated idempotency purpose (see #238)
+  const ts = timestamp ?? Math.floor(Date.now() / 1000);
   const restaurantSuffix = restaurantId.slice(-8);
   const orderSuffix = orderId.slice(-12);
-  const nonce = randomBytes(8).toString('hex');
-  return `${type}_${restaurantSuffix}_${orderSuffix}_${ts}_${nonce}`;
+  return `${type}_${restaurantSuffix}_${orderSuffix}_${ts}`;
 }
 
 export class PaymentService {
