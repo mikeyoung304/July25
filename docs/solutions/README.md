@@ -91,6 +91,7 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | [Parallel Agent Todo Audit Crash](./process-issues/parallel-agent-todo-audit-crash.md) | Handling parallel agent crashes during todo audit |
 | [Parallel Agent Todo Resolution](./process-issues/parallel-agent-todo-resolution.md) | Parallel agent strategy for todo resolution |
 | [Parallel Subagent Debt Scanning](./process-issues/parallel-subagent-debt-scanning.md) | Subagent-based technical debt scanning |
+| [Documentation Hygiene Sprint](./process-issues/documentation-hygiene-sprint-compound-engineering.md) | 5-phase sprint aligning docs with compound engineering |
 
 ### Security Issues
 
@@ -147,12 +148,12 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | Integration Issues | 1 | OpenAI API deprecation |
 | Performance Issues | 4 | Memory leaks, timers, WebRTC, Vitest |
 | Prevention | 1 | Proactive prevention patterns |
-| Process Issues | 6 | Tooling, agents, documentation |
+| Process Issues | 7 | Tooling, agents, documentation |
 | Security Issues | 11 | Auth, RLS, rate limiting, cross-tenant, CSRF, timing |
 | Test Failures | 8 | Mock drift, canvas mock, E2E |
 | Type Issues | 1 | Type system mismatches |
 | Type Safety Issues | 1 | Schema and type assertion issues |
-| **Total** | **47** | |
+| **Total** | **48** | |
 
 ## How to Add Solutions
 
