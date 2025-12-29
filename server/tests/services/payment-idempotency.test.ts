@@ -41,8 +41,11 @@ vi.mock('../../src/services/orders.service', () => ({
   OrdersService: {
     getOrder: vi.fn()
   },
-  getRestaurantTaxRate: vi.fn().mockResolvedValue(0.0825) // Default 8.25% tax
+  getRestaurantTaxRate: vi.fn()
 }));
+
+// Import the mocked function to reset it in beforeEach
+import { getRestaurantTaxRate } from '../../src/services/orders.service';
 
 describe('PaymentService - Idempotency', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';
@@ -51,6 +54,9 @@ describe('PaymentService - Idempotency', () => {
   beforeEach(() => {
     vi.clearAllMocks();
     vi.useFakeTimers();
+    // Reset the mock implementation for getRestaurantTaxRate with default 8.25% tax rate
+    // This must be done in beforeEach because vi.clearAllMocks() clears the implementation
+    vi.mocked(getRestaurantTaxRate).mockResolvedValue(0.0825);
   });
 
   afterEach(() => {
@@ -87,32 +93,23 @@ describe('PaymentService - Idempotency', () => {
         ]
       } as Order;
 
-      const fixedTime = 1700000000000;
-      vi.setSystemTime(fixedTime);
+      const fixedTimeMs = 1700000000000;
+      vi.setSystemTime(fixedTimeMs);
 
       const result = await PaymentService.calculateOrderTotal(order);
 
-      // Should match format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}_{nonce}
-      // Restaurant suffix: last 8 chars, Order suffix: last 12 chars, Nonce: 16 hex chars
+      // Should match format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
+      // Restaurant suffix: last 8 chars, Order suffix: last 12 chars
+      // Timestamp is in seconds (not ms) per implementation - allows retries within same second
+      // Note: Nonce was removed per #238 - it defeated idempotency purpose
       const expectedRestaurantSuffix = mockRestaurantId.slice(-8);
       const expectedOrderSuffix = mockOrderId.slice(-12);
-      const keyPattern = new RegExp(`^pay_${expectedRestaurantSuffix}_${expectedOrderSuffix}_${fixedTime}_[0-9a-f]{16}$`);
+      const expectedTimestamp = Math.floor(fixedTimeMs / 1000); // Convert ms to seconds
+      const keyPattern = new RegExp(`^pay_${expectedRestaurantSuffix}_${expectedOrderSuffix}_${expectedTimestamp}$`);
       expect(result.idempotencyKey).toMatch(keyPattern);
     });
 
     it('should generate key under 255 characters (Stripe max)', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
-
       // Long order ID to test truncation
       const longOrderId = 'aaaaaaaa-bbbb-cccc-dddd-eeeeeeeeeeee';
 
@@ -133,10 +130,10 @@ describe('PaymentService - Idempotency', () => {
       const result = await PaymentService.calculateOrderTotal(order);
 
       // Max 255 chars per Stripe requirements (idempotency keys)
-      // Our format: pay_{8}_{12}_{13}_{16} = ~56 chars
+      // Our format: pay_{8}_{12}_{10} = ~36 chars (nonce removed per #238)
       expect(result.idempotencyKey.length).toBeLessThanOrEqual(255);
-      // Verify reasonable length (format: pay_xxxxxxxx_xxxxxxxxxxxx_timestamp_nonce)
-      expect(result.idempotencyKey.length).toBeGreaterThan(40);
+      // Verify reasonable length (format: pay_xxxxxxxx_xxxxxxxxxxxx_timestamp)
+      expect(result.idempotencyKey.length).toBeGreaterThan(30);
       expect(result.idempotencyKey.length).toBeLessThan(100);
     });
 
@@ -638,8 +635,8 @@ describe('PaymentService - Idempotency', () => {
 
       // Server should generate its own key, not use client's
       expect(result.idempotencyKey).not.toBe('client-provided-key');
-      // New format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}_{nonce}
-      expect(result.idempotencyKey).toMatch(/^pay_[a-f0-9-]+_[a-f0-9-]+_\d+_[a-f0-9]+$/);
+      // New format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp} (nonce removed per #238)
+      expect(result.idempotencyKey).toMatch(/^pay_[a-f0-9-]+_[a-f0-9-]+_\d+$/);
     });
   });
 

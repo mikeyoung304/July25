@@ -43,8 +43,11 @@ vi.mock('../../src/services/orders.service', () => ({
   OrdersService: {
     getOrder: vi.fn()
   },
-  getRestaurantTaxRate: vi.fn().mockResolvedValue(0.0825) // Default 8.25% tax rate
+  getRestaurantTaxRate: vi.fn()
 }));
+
+// Import the mocked function to reset it in beforeEach
+import { getRestaurantTaxRate } from '../../src/services/orders.service';
 
 describe('PaymentService - Payment Calculations', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';
@@ -52,6 +55,9 @@ describe('PaymentService - Payment Calculations', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
+    // Reset the mock implementation for getRestaurantTaxRate with default 8.25% tax rate
+    // This must be done in beforeEach because vi.clearAllMocks() clears the implementation
+    vi.mocked(getRestaurantTaxRate).mockResolvedValue(0.0825);
   });
 
   afterEach(() => {
@@ -188,18 +194,8 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should use restaurant-specific tax rate', async () => {
-      // Mock higher tax rate (e.g., 10%)
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.10 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      // Mock higher tax rate (e.g., 10%) via getRestaurantTaxRate
+      vi.mocked(getRestaurantTaxRate).mockResolvedValue(0.10);
 
       const order: Order = {
         id: mockOrderId,
