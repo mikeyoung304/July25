@@ -1,5 +1,5 @@
 import { Router } from 'express';
-import { webhookAuth, captureRawBody } from '../middleware/webhookSignature';
+import { webhookAuthWithTimestamp, captureRawBody } from '../middleware/webhookSignature';
 import { logger } from '../utils/logger';
 
 const router = Router();
@@ -9,9 +9,9 @@ router.use(captureRawBody);
 
 /**
  * Payment webhook endpoint
- * Requires valid HMAC signature in x-webhook-signature header
+ * Requires valid HMAC signature and timestamp verification (replay attack protection)
  */
-router.post('/payments', webhookAuth, async (req, res) => {
+router.post('/payments', webhookAuthWithTimestamp, async (req, res) => {
   try {
     const { event, data } = req.body;
 
@@ -58,9 +58,9 @@ router.post('/payments', webhookAuth, async (req, res) => {
 
 /**
  * Order status webhook endpoint
- * Requires valid HMAC signature
+ * Requires valid HMAC signature and timestamp verification (replay attack protection)
  */
-router.post('/orders', webhookAuth, async (req, res) => {
+router.post('/orders', webhookAuthWithTimestamp, async (req, res) => {
   try {
     const { orderId, status, timestamp } = req.body;
 
@@ -90,9 +90,9 @@ router.post('/orders', webhookAuth, async (req, res) => {
 
 /**
  * Inventory update webhook endpoint
- * Requires valid HMAC signature
+ * Requires valid HMAC signature and timestamp verification (replay attack protection)
  */
-router.post('/inventory', webhookAuth, async (req, res) => {
+router.post('/inventory', webhookAuthWithTimestamp, async (req, res) => {
   try {
     const { items, timestamp } = req.body;
 

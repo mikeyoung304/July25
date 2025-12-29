@@ -25,6 +25,10 @@ const LOCKOUT_DURATION_MINUTES = 15;
 const PIN_LENGTH_MIN = 4;
 const PIN_LENGTH_MAX = 6;
 
+// Pre-computed dummy hash for timing-safe comparison when user not found
+// This ensures consistent timing whether or not a PIN record exists
+const DUMMY_PIN_HASH = bcrypt.hashSync('dummy-pin-never-matches' + (PIN_PEPPER_RAW || 'dev-only-pepper'), 10);
+
 interface PinValidationResult {
   isValid: boolean;
   userId?: string | undefined;
@@ -194,6 +198,10 @@ export async function validatePin(
       .eq('restaurant_id', restaurantId);
     
     if (pinError || !pinRecords || pinRecords.length === 0) {
+      // SECURITY: Perform dummy bcrypt comparison to ensure consistent timing
+      // This prevents timing attacks that could reveal whether any PINs exist
+      bcrypt.compareSync(pin + PIN_PEPPER, DUMMY_PIN_HASH);
+
       pinLogger.warn('No PIN records found for restaurant', { restaurantId });
       return {
         isValid: false,
@@ -323,6 +331,7 @@ export async function validatePin(
     }
     
     // No matching PIN found
+    // SECURITY: Dummy comparison already performed in the loop, so timing is consistent
     return {
       isValid: false,
       error: 'Invalid PIN'
