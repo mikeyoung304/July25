@@ -1,9 +1,9 @@
 # Restaurant OS Documentation
 
 
-**Last Updated:** 2025-11-01
+**Last Updated:** 2025-12-28
 
-**Version:** 6.0.14 | **Last Updated:** October 30, 2025
+**Version:** 6.0.17 | **Last Updated:** December 28, 2025
 
 Welcome to the Restaurant OS documentation. This guide helps you navigate our comprehensive documentation system.
 
@@ -141,6 +141,8 @@ tests/
 - [Testing Checklist](./TESTING_CHECKLIST.md) - QA procedures
 - [Test Health Dashboard](../TEST_HEALTH.md) - Current test health status
 - [Troubleshooting](./how-to/troubleshooting/TROUBLESHOOTING.md) - Common issues and fixes
+- [User Flow Test Findings](./USER_FLOW_TEST_FINDINGS.md) - Comprehensive testing results (Dec 2025)
+- [Work Plan: Test Fixes](./WORK_PLAN_TEST_FIXES.md) - Test infrastructure improvement plan
 
 **Testing Guides**
 - [Testing Standards](./guides/testing/TESTING-STANDARDS.md) - Coding standards for tests

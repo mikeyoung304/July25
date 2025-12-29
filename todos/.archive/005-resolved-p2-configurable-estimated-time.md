@@ -1,5 +1,5 @@
 ---
-status: ready
+status: resolved
 priority: p2
 issue_id: "005"
 tags: [configuration, ux, restaurant-config]

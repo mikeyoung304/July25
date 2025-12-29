@@ -1,5 +1,5 @@
 ---
-status: ready
+status: resolved
 priority: p3
 issue_id: "234"
 tags: [code-quality, dry, frontend, code-review]

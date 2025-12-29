@@ -1,5 +1,5 @@
 ---
-status: ready
+status: resolved
 priority: p2
 issue_id: "228"
 tags: [security, payments, validation, code-review]

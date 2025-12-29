@@ -1,5 +1,5 @@
 ---
-status: ready
+status: resolved
 priority: p3
 issue_id: "233"
 tags: [code-quality, simplification, code-review]
