@@ -7,10 +7,18 @@ import { BadRequest } from '../../middleware/errorHandler';
 
 const stationLogger = logger.child({ module: 'station-auth' });
 
-// Configuration
-const STATION_TOKEN_SECRET = process.env['STATION_TOKEN_SECRET'] || process.env['KIOSK_JWT_SECRET'] || 'station-secret-change-in-production';
+// Configuration - SECURITY: No fallback secrets allowed (fail-fast per ADR-009)
+function getRequiredEnvVar(name: string): string {
+  const value = process.env[name];
+  if (!value) {
+    throw new Error(`FATAL: ${name} environment variable is required`);
+  }
+  return value;
+}
+
+const STATION_TOKEN_SECRET = getRequiredEnvVar('STATION_TOKEN_SECRET');
+const DEVICE_FINGERPRINT_SALT = getRequiredEnvVar('DEVICE_FINGERPRINT_SALT');
 const STATION_TOKEN_EXPIRY_HOURS = 4;
-const DEVICE_FINGERPRINT_SALT = process.env['DEVICE_FINGERPRINT_SALT'] || 'device-salt-change-in-production';
 
 export type StationType = 'kitchen' | 'expo' | 'bar' | 'prep';
 

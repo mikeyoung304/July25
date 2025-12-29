@@ -40,8 +40,13 @@ export async function authenticate(
 
     const token = authHeader.substring(7);
 
-    // STRICT_AUTH mode - no bypasses allowed
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
+    // STRICT_AUTH mode - enabled by default, must explicitly disable
+    const strictAuth = process.env['STRICT_AUTH'] !== 'false';
+    if (!strictAuth) {
+      logger.warn('STRICT_AUTH disabled - development only', {
+        source: 'auth.ts:authenticate'
+      });
+    }
 
     // Test tokens are no longer supported for security reasons
     // Use proper JWT tokens in all environments
@@ -233,7 +238,7 @@ export async function verifyWebSocketAuth(
     }
 
     // STRICT_AUTH enforcement: Reject tokens without restaurant_id (matches HTTP auth behavior)
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
+    const strictAuth = process.env['STRICT_AUTH'] !== 'false';
     if (strictAuth && !decoded.restaurant_id) {
       logger.error('⛔ WebSocket STRICT_AUTH: token missing restaurant_id rejected', {
         userId: decoded.sub,
@@ -305,7 +310,7 @@ export async function verifyWebSocketToken(
     }
 
     // STRICT_AUTH enforcement
-    const strictAuth = process.env['STRICT_AUTH'] === 'true';
+    const strictAuth = process.env['STRICT_AUTH'] !== 'false';
     if (strictAuth && !decoded.restaurant_id) {
       logger.error('⛔ WebSocket STRICT_AUTH: token missing restaurant_id rejected', {
         userId: decoded.sub

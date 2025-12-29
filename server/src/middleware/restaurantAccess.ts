@@ -42,10 +42,34 @@ export async function validateRestaurantAccess(
 
     // For demo users (identified by demo: prefix in user ID), bypass DB check
     // Demo users don't exist in user_restaurants table but are scoped to a specific restaurant in their JWT
+    // SECURITY FIX: Demo bypass must be explicitly enabled via DEMO_MODE environment variable
     const isDemoUser = req.user.id.startsWith('demo:');
-    if (isDemoUser && req.user.restaurant_id === requestedRestaurantId) {
+    const isDemoModeEnabled = process.env['DEMO_MODE'] === 'enabled';
+
+    if (isDemoUser) {
+      if (!isDemoModeEnabled) {
+        accessLogger.warn('Demo bypass attempted outside demo mode', {
+          userId: req.user.id,
+          restaurantId: requestedRestaurantId
+        });
+        throw Forbidden('Demo mode not enabled', 'DEMO_MODE_DISABLED');
+      }
+
+      if (req.user.restaurant_id !== requestedRestaurantId) {
+        accessLogger.warn('Demo user cross-tenant access attempt', {
+          userId: req.user.id,
+          userRestaurant: req.user.restaurant_id,
+          requestedRestaurant: requestedRestaurantId
+        });
+        throw Forbidden('Access denied', 'DEMO_CROSS_TENANT');
+      }
+
+      accessLogger.info('Demo access granted', {
+        userId: req.user.id,
+        restaurantId: requestedRestaurantId
+      });
       req.restaurantId = requestedRestaurantId;
-      req.restaurantRole = req.user.role || 'demo'; // Use their actual role
+      req.restaurantRole = req.user.role || 'demo';
       return next();
     }
 
