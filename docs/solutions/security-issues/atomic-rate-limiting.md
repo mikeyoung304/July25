@@ -96,15 +96,17 @@ async function slidingWindowRateLimit(
   const now = Date.now();
   const windowStart = now - windowMs;
 
-  // Remove old entries and add new one atomically
-  await redis
+  // Include zcard in the transaction to avoid TOCTOU race condition
+  const results = await redis
     .multi()
     .zremrangebyscore(key, 0, windowStart)
     .zadd(key, now, `${now}:${Math.random()}`)
+    .zcard(key)  // Get count atomically within transaction
     .expire(key, Math.ceil(windowMs / 1000))
     .exec();
 
-  const count = await redis.zcard(key);
+  // zcard result is at index 2 (after zremrangebyscore and zadd)
+  const count = results[2][1] as number;
 
   return {
     allowed: count <= limit,

@@ -31,20 +31,25 @@ if (sub.startsWith('demo:')) {
 
 ## Solution
 
-Gate behind `DEMO_MODE` environment variable and validate against whitelist:
+Gate behind `DEMO_MODE` environment variable and validate against whitelist.
+Use constant-time logic to prevent timing attacks on mode detection:
 
 ```typescript
 if (sub.startsWith('demo:')) {
-  // Only allow in explicit demo mode
-  if (process.env.DEMO_MODE !== 'enabled') {
-    logger.warn('Demo bypass attempted outside demo mode', { sub });
-    return false;
-  }
-
-  // Validate against whitelist of known demo users
+  // Check both conditions before any logging to prevent timing attacks
+  const isDemoMode = process.env.DEMO_MODE === 'enabled';
   const demoUsers = process.env.DEMO_USER_WHITELIST?.split(',') || [];
-  if (!demoUsers.includes(sub)) {
-    logger.warn('Unknown demo user attempted access', { sub });
+  const isValidUser = demoUsers.includes(sub);
+
+  // Validate both conditions - order doesn't matter for security
+  if (!isDemoMode || !isValidUser) {
+    // Log after decision to avoid timing leak
+    logger.warn('Demo access denied', {
+      sub,
+      isDemoMode,
+      isValidUser,
+      reason: !isDemoMode ? 'demo_mode_disabled' : 'user_not_whitelisted'
+    });
     return false;
   }
 

@@ -7,17 +7,16 @@
 | Topic | Document | Description |
 |-------|----------|-------------|
 | Project overview | [CLAUDE.md](/CLAUDE.md) | Commands, patterns, architecture |
-| Architecture | [docs/adrs/](/docs/adrs/) | Architectural decision records |
+| Architecture | See "Architectural Decisions" below | Key patterns and conventions |
 | Testing | [.github/TEST_DEBUGGING.md](/.github/TEST_DEBUGGING.md) | Test strategy and debugging |
 
-## Architectural Decisions (ADRs)
+## Architectural Decisions
 
-| ADR | Decision |
-|-----|----------|
-| [ADR-001](/docs/adrs/001-snake-case-convention.md) | Snake case everywhere |
-| [ADR-006](/docs/adrs/006-dual-auth-pattern.md) | Dual authentication |
-| [ADR-010](/docs/adrs/010-remote-first-database.md) | Remote-first database |
-| [ADR-015](/docs/adrs/015-order-state-machine.md) | Order state machine |
+Key decisions are documented in CLAUDE.md:
+- **ADR-001**: Snake case convention (database, API, client)
+- **ADR-006**: Dual authentication pattern (Supabase + localStorage JWT)
+- **ADR-010**: Remote-first database (Supabase as source of truth)
+- **ADR-015**: Order state machine (8 states, server-side validation)
 
 ## Security
 
@@ -46,8 +45,7 @@
 
 | Guide | Purpose |
 |-------|---------|
-| [Deployment](/docs/DEPLOYMENT.md) | Deploy to Render |
-| [Incident Response](/docs/INCIDENT_RESPONSE.md) | Handle production issues |
+| [Deployment](/docs/DEPLOYMENT_BEST_PRACTICES.md) | Deploy to Render |
 
 ## Solution Categories
 

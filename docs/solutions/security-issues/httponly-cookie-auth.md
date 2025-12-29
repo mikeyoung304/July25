@@ -64,12 +64,27 @@ fetch('/api/endpoint', {
 });
 ```
 
+### On Logout (Clear Cookies):
+
+```typescript
+// Clear auth cookie on logout
+res.clearCookie('auth_token', {
+  httpOnly: true,
+  secure: true,
+  sameSite: 'Strict',
+  path: '/',
+});
+
+res.status(200).json({ message: 'Logged out' });
+```
+
 ## Prevention
 
 1. **Never store sensitive tokens in localStorage** - Use HTTPOnly cookies
 2. **Set Secure flag** - Cookies only sent over HTTPS
 3. **Set SameSite=Strict** - Prevents CSRF attacks
 4. **Implement token rotation** - Short-lived tokens with refresh
+5. **Clear cookies on logout** - Explicitly clear with same options used to set
 
 ## Trade-offs
 

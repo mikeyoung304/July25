@@ -79,15 +79,20 @@ function generateIdempotencyKey(
 function generateIdempotencyKey(
   orderId: string,
   operation: string,
-  nonce?: string
+  nonce: string  // Required - never use timestamps!
 ): string {
+  if (!nonce) {
+    throw new Error('Nonce required for idempotency key generation');
+  }
   // Include nonce for operations that can happen multiple times
-  const input = `${orderId}:${operation}:${nonce || Date.now()}`;
+  const input = `${orderId}:${operation}:${nonce}`;
   return crypto.createHash('sha256').update(input).digest('hex');
 }
 
-// For partial refunds, use unique nonce
+// For partial refunds, use unique request ID as nonce
 const key = generateIdempotencyKey(orderId, 'partial_refund', refundRequestId);
+
+// NEVER use Date.now() - retries at different times generate different keys!
 ```
 
 ### Database-Level Idempotency (Belt and Suspenders):

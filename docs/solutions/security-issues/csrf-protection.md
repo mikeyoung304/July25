@@ -24,29 +24,45 @@ REST API was designed without CSRF protection, assuming tokens would be passed i
 
 ## Solution
 
-### Option A: CSRF Token Pattern
+### Option A: Double Submit Cookie Pattern (Recommended)
+
+Note: The `csurf` package is deprecated. Use the Double Submit Cookie pattern instead:
 
 ```typescript
 // server/src/middleware/csrf.ts
-import csrf from 'csurf';
+import crypto from 'crypto';
 
-const csrfProtection = csrf({
-  cookie: {
-    httpOnly: true,
+// Generate CSRF token
+function generateCsrfToken(): string {
+  return crypto.randomBytes(32).toString('hex');
+}
+
+// Set CSRF cookie and return token
+app.get('/api/csrf-token', (req, res) => {
+  const token = generateCsrfToken();
+  res.cookie('csrf_token', token, {
+    httpOnly: false,  // Must be readable by JavaScript
     secure: process.env.NODE_ENV === 'production',
-    sameSite: 'strict',
-  },
+    sameSite: 'Strict',
+    maxAge: 60 * 60 * 1000, // 1 hour
+  });
+  res.json({ csrfToken: token });
 });
 
-// Apply to state-changing routes
+// Validate CSRF on state-changing routes
+function csrfProtection(req: Request, res: Response, next: NextFunction) {
+  const cookieToken = req.cookies.csrf_token;
+  const headerToken = req.headers['x-csrf-token'];
+
+  if (!cookieToken || !headerToken || cookieToken !== headerToken) {
+    return res.status(403).json({ error: 'Invalid CSRF token' });
+  }
+  next();
+}
+
 app.post('/api/*', csrfProtection, handler);
 app.put('/api/*', csrfProtection, handler);
 app.delete('/api/*', csrfProtection, handler);
-
-// Provide token to client
-app.get('/api/csrf-token', csrfProtection, (req, res) => {
-  res.json({ csrfToken: req.csrfToken() });
-});
 ```
 
 ### Option B: SameSite Cookie (Simpler)

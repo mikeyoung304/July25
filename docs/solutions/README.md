@@ -1,6 +1,6 @@
 # Solutions Knowledge Base
 
-**Last Updated:** 2025-12-24
+**Last Updated:** 2025-12-28
 
 This directory contains codified solutions to problems encountered during development. Each solution documents:
 - Problem symptoms and root cause
@@ -141,13 +141,13 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | Auth Issues | 2 | Authentication patterns, STRICT_AUTH drift |
 | Build Errors | 3 | Compilation, deployment, Vercel issues |
 | Code Quality | 1 | Logging and code standards |
-| Code Quality Issues | 2 | Multi-layer code hardening, menu embedding |
+| Code Quality Issues | 2 | Multi-layer code hardening |
 | Cross References | 1 | Session and resolution cross-references |
 | Database Issues | 3 | Schema drift, migration bifurcation, constraints |
 | Integration Issues | 1 | OpenAI API deprecation |
 | Performance Issues | 4 | Memory leaks, timers, WebRTC, Vitest |
 | Prevention | 1 | Proactive prevention patterns |
-| Process Issues | 7 | Tooling, agents, documentation |
+| Process Issues | 6 | Tooling, agents, documentation |
 | Security Issues | 11 | Auth, RLS, rate limiting, cross-tenant, CSRF, timing |
 | Test Failures | 8 | Mock drift, canvas mock, E2E |
 | Type Issues | 1 | Type system mismatches |
@@ -156,10 +156,10 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 
 ## How to Add Solutions
 
-Use the `/workflows:codify` command after solving a non-trivial problem:
+Use the `/workflows:compound` command after solving a non-trivial problem:
 
 ```bash
-/workflows:codify Brief description of what was fixed
+/workflows:compound Brief description of what was fixed
 ```
 
 This will:
@@ -202,4 +202,4 @@ How to avoid this in the future.
 ## Related
 
 - [CLAUDE.md](../../CLAUDE.md) — Project configuration and critical patterns
-- [Test Debugging](.github/TEST_DEBUGGING.md) — Test debugging reference
+- [Test Debugging](../../.github/TEST_DEBUGGING.md) — Test debugging reference

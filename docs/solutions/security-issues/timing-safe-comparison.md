@@ -40,9 +40,10 @@ return null; // Timing reveals no match found
 import crypto from 'crypto';
 
 function timingSafeEqual(a: string, b: string): boolean {
-  // Pad strings to same length to prevent length timing
-  const bufA = Buffer.from(a.padEnd(64, '\0'));
-  const bufB = Buffer.from(b.padEnd(64, '\0'));
+  // Use max length to handle strings of any size
+  const maxLen = Math.max(a.length, b.length, 64);
+  const bufA = Buffer.from(a.padEnd(maxLen, '\0'));
+  const bufB = Buffer.from(b.padEnd(maxLen, '\0'));
 
   return crypto.timingSafeEqual(bufA, bufB);
 }
