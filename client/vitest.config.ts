@@ -7,6 +7,8 @@ export default defineConfig({
   resolve: {
     alias: {
       '@': resolve(__dirname, './src'),
+      // Browser config needs to resolve to TypeScript source (not in dist)
+      '@rebuild/shared/config/browser': resolve(__dirname, '../shared/config/browser.ts'),
       '@rebuild/shared': resolve(__dirname, '../shared/dist'),
       '/shared': resolve(__dirname, '../shared/src'),
       '@shared': resolve(__dirname, '../shared/src'),

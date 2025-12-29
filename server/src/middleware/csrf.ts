@@ -22,7 +22,7 @@ export function setCsrfCookie(res: Response): string {
   const token = generateCsrfToken();
   res.cookie(CSRF_COOKIE_NAME, token, {
     httpOnly: false,  // Must be readable by JavaScript to send in header
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env['NODE_ENV'] === 'production',
     sameSite: 'strict',
     maxAge: 8 * 60 * 60 * 1000,  // 8 hours (matches auth token expiry)
     path: '/'
@@ -36,7 +36,7 @@ export function setCsrfCookie(res: Response): string {
 export function clearCsrfCookie(res: Response): void {
   res.clearCookie(CSRF_COOKIE_NAME, {
     httpOnly: false,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env['NODE_ENV'] === 'production',
     sameSite: 'strict',
     path: '/'
   });

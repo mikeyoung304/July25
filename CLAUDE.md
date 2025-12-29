@@ -16,10 +16,23 @@ rebuild-6.0/
 ## Current Status (2025-12)
 
 - **Security audit:** Complete (see `docs/archive/2025-12/security-audit/`)
-- **Security score:** 55/100 → targeting 75/100
-- **P0 issues:** 9 (launch blockers)
+- **Security score:** ~70/100 (up from 55/100)
+- **P0 issues:** 0 (all resolved)
+- **P1 issues:** 2 remaining (in-memory rate limiting, PIN race condition)
 - **Active plan:** `plans/security-remediation-v2.md`
-- **Next milestone:** Complete Phase 0 security fixes
+- **Next milestone:** P1 security hardening (optional for launch)
+
+### Security Fixes Completed (2025-12-29)
+| Issue | Severity | Fix |
+|-------|----------|-----|
+| Demo User Bypass | P0 | Gated behind `DEMO_MODE` env var |
+| localStorage Token Exposure | P0 | HTTPOnly cookies for auth |
+| Weak Secret Fallbacks | P0 | Fail-fast (no defaults) |
+| Refund Idempotency | P0 | Idempotency key on all Stripe refunds |
+| STRICT_AUTH Not Mandatory | P1 | Defaults to `true` |
+| PIN Timing Attack | P1 | Timing-safe comparison |
+| Webhook Replay | P1 | Timestamp verification |
+| CSRF Protection | - | Added X-CSRF-Token validation |
 
 ## Critical Architectural Decisions
 

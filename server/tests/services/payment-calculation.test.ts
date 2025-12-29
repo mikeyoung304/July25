@@ -633,8 +633,8 @@ describe('PaymentService - Payment Calculations', () => {
       );
 
       expect(result.amount).toBe(1000); // $10.00 in cents
-      // New format: refund_{restaurantSuffix}_{paymentSuffix}_{timestamp}
-      expect(result.idempotencyKey).toMatch(/^refund_.+_.+_\d+$/);
+      // Format: refund_{restaurantSuffix}_{paymentSuffix}_{timestamp}_{nonce}
+      expect(result.idempotencyKey).toMatch(/^refund_.+_.+_\d+_[0-9a-f]+$/);
     });
 
     it('should reject refund without payment ID', async () => {

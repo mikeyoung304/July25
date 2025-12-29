@@ -653,7 +653,31 @@ router.post('/:paymentId/refund',
       });
     }
 
-    // Create refund
+    // #241: Validate tenant ownership - payment must belong to requesting restaurant
+    const paymentRestaurantId = paymentIntent.metadata?.['restaurant_id'];
+    if (paymentRestaurantId && paymentRestaurantId !== req.restaurantId) {
+      routeLogger.warn('Cross-tenant refund attempt blocked', {
+        requestRestaurantId: req.restaurantId,
+        paymentRestaurantId,
+        paymentId,
+        userId: req.user?.id
+      });
+      return res.status(403).json({
+        success: false,
+        error: 'Payment not found', // Don't reveal cross-tenant details
+      });
+    }
+
+    // Validate refund request and generate idempotency key
+    // P0-3: CRITICAL - idempotency key prevents duplicate refunds on network retry
+    const refundValidation = await PaymentService.validateRefundRequest(
+      paymentId,
+      req.restaurantId!,
+      amount,
+      paymentIntent.amount / 100 // Convert from cents for validation
+    );
+
+    // Create refund with idempotency key
     const refundRequest: Stripe.RefundCreateParams = {
       payment_intent: paymentId,
       reason: (reason as Stripe.RefundCreateParams.Reason) || 'requested_by_customer',
@@ -664,20 +688,23 @@ router.post('/:paymentId/refund',
     }
 
     const refund = await withTimeout(
-      stripe.refunds.create(refundRequest),
+      stripe.refunds.create(refundRequest, {
+        idempotencyKey: refundValidation.idempotencyKey,
+      }),
       PAYMENT_TIMEOUT_MS,
       'Refund payment'
     );
 
-    // Log refund for audit trail
+    // Log refund for audit trail (use same idempotency key for correlation)
+    const orderIdFromMetadata = paymentIntent.metadata?.['order_id'];
     await PaymentService.logPaymentAttempt({
-      orderId: paymentIntent.metadata?.['order_id'] || paymentId,
+      orderId: orderIdFromMetadata || paymentId,
       amount: refund.amount / 100,
       status: 'refunded',
       restaurantId: req.restaurantId!,
       paymentMethod: 'card',
       userAgent: req.headers['user-agent'] as string,
-      idempotencyKey: generateIdempotencyKey('refund', req.restaurantId!, paymentId),
+      idempotencyKey: refundValidation.idempotencyKey,
       metadata: {
         refundId: refund.id,
         refundReason: reason,
@@ -690,10 +717,36 @@ router.post('/:paymentId/refund',
       ...(req.ip && { ipAddress: req.ip })
     });
 
+    // #239: Update order payment status to 'refunded'
+    if (orderIdFromMetadata) {
+      try {
+        await OrdersService.updateOrderPayment(
+          req.restaurantId!,
+          orderIdFromMetadata,
+          'refunded',
+          'card',
+          refund.id
+        );
+      } catch (orderUpdateError) {
+        // Log but don't fail the refund - Stripe refund already succeeded
+        routeLogger.warn('Failed to update order status after refund', {
+          orderId: orderIdFromMetadata,
+          refundId: refund.id,
+          error: orderUpdateError instanceof Error ? orderUpdateError.message : 'Unknown error'
+        });
+      }
+    } else {
+      routeLogger.warn('Refund completed but no order_id in payment metadata', {
+        paymentId,
+        refundId: refund.id
+      });
+    }
+
     routeLogger.info('Refund processed', {
       paymentId,
       refundId: refund.id,
-      amount: refund.amount
+      amount: refund.amount,
+      idempotencyKey: refundValidation.idempotencyKey
     });
 
     res.json({
