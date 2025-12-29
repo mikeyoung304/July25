@@ -24,6 +24,50 @@ Comprehensive documentation for preventing recurring issues in the Restaurant OS
 
 ## Complete Document Index
 
+### Security Hardening Prevention
+
+| Document | Purpose | Time | When to Read |
+|----------|---------|------|--------------|
+| SECURITY-HARDENING-PREVENTION.md | Complete prevention strategy with checklist, env vars, testing, mistakes | 45-60 min | Before any auth/security code review |
+| QUICK-REF-SECURITY-HARDENING.md | 5-minute red/green flags and common mistakes for code review | 5-10 min | During code review (bookmark it!) |
+| DEPLOYMENT-SECURITY-VERIFICATION.md | Pre-deployment, deployment, post-deployment checklists | 30-45 min | Before each production release |
+
+**Status:** Ready to use
+**Impact:** Prevents regression of security hardening (CSRF, HTTPOnly cookies, timing-safe auth, webhooks, demo mode, STRICT_AUTH)
+**Coverage:**
+- CSRF protection with timing-safe token validation
+- HTTPOnly cookies for auth tokens
+- Demo mode gating behind DEMO_MODE env var
+- Required secrets (no fallbacks) for critical operations
+- STRICT_AUTH default enforcement
+- Timing-safe PIN verification with dummy hash
+- Webhook timestamp verification for replay attack prevention
+- PIN attempt counter (5 failures = 15 min lockout)
+- Multi-tenant isolation and restaurant_id validation
+- Environment variable requirements and validation
+
+---
+
+### Payment Security Prevention
+
+| Document | Purpose | Time | When to Read |
+|----------|---------|------|--------------|
+| PREVENTION-PAYMENT-SECURITY.md | Complete prevention for payment operations: idempotency, transactions, tenant validation | 45-60 min | Before any payment code review |
+| QUICK-REF-PAYMENT-SECURITY.md | 5-minute red/green flags and common mistakes for payment code review | 5-10 min | During payment PR code review (bookmark it!) |
+
+**Status:** Ready to use
+**Based On:** Issues #238, #239, #241 (fixed 2025-12-29)
+**Impact:** Prevents duplicate refunds, data inconsistency, cross-tenant payment manipulation
+**Coverage:**
+- Idempotency anti-pattern (random nonce defeats purpose)
+- Incomplete transaction pattern (external system updated without local state)
+- Missing tenant validation gap (no ownership check on resource operations)
+- Code review checklist for payment operations
+- Test cases for idempotency, transaction completeness, multi-tenant isolation
+- Combined checklist for payment PRs
+
+---
+
 ### Test Environment Isolation (CL-TEST-003)
 
 | Document | Purpose | Time | When to Read |
@@ -87,9 +131,10 @@ Comprehensive documentation for preventing recurring issues in the Restaurant OS
 ### For Developers
 
 **Start Here:**
-1. `CL-TEST-003-quick-reference.md` - Quick fixes when tests fail
-2. Relevant prevention strategy before starting feature work
-3. Apply patterns during implementation
+1. `QUICK-REF-SECURITY-HARDENING.md` - Quick reference for security checks (bookmark!)
+2. `CL-TEST-003-quick-reference.md` - Quick fixes when tests fail
+3. Relevant prevention strategy before starting feature work
+4. Apply patterns during implementation
 
 **Example Flow:**
 - Tests are failing? → Read CL-TEST-003-quick-reference.md
@@ -99,35 +144,49 @@ Comprehensive documentation for preventing recurring issues in the Restaurant OS
 ### For Code Reviewers
 
 **Use These:**
-1. Relevant quick reference checklist
-2. Full strategy for context
-3. Share with author when issues found
+1. `QUICK-REF-SECURITY-HARDENING.md` - For auth/security PRs (red/green flags)
+2. Relevant quick reference checklist
+3. Full strategy for context
+4. Share with author when issues found
 
 **Example:**
+- See auth/security issue? → Reference QUICK-REF-SECURITY-HARDENING.md patterns
 - See input validation issue? → Reference QUICK-REF-INPUT-VALIDATION.md patterns
 - Environment config problem? → Point to CL-TEST-003-quick-reference.md
 
 ### For DevOps/SRE
 
 **Focus Areas:**
-1. CL-TEST-003 - Test environment isolation in CI/CD
-2. Input validation patterns for API endpoints
-3. RLS and cache prevention checklists
+1. DEPLOYMENT-SECURITY-VERIFICATION.md - Pre/during/post deployment checklists
+2. SECURITY-HARDENING-PREVENTION.md - Environment variables and secret management
+3. CL-TEST-003 - Test environment isolation in CI/CD
 4. Monitoring strategies
 
 **Key Tasks:**
+- Implement security deployment verification (DEPLOYMENT-SECURITY-VERIFICATION)
+- Set up environment secret validation
 - Implement CI/CD pre-flight checks (CL-TEST-003)
-- Set up environment validation
-- Monitor for pattern violations
-- Train team on prevention strategies
+- Monitor for pattern violations and security regressions
+- Train team on prevention strategies and incident response
 
 ### For QA/Testing
 
 **Key Documents:**
-1. CL-TEST-003 - Environment isolation
-2. Test mock drift prevention (CL-TEST-001 in .claude/lessons/)
-3. Security code review checklist
-4. Input validation patterns
+1. SECURITY-HARDENING-PREVENTION.md Section 3 - Testing recommendations with examples
+2. CL-TEST-003 - Environment isolation
+3. Test mock drift prevention (CL-TEST-001 in .claude/lessons/)
+4. Security code review checklist
+5. Input validation patterns
+
+**Security Testing Focus:**
+- CSRF protection validation (token presence, matching, timing)
+- PIN verification consistency (timing-safe testing)
+- Demo mode gating (enabled/disabled scenarios)
+- PIN attempt counter (5 failures = lockout)
+- HTTPOnly cookie behavior
+- STRICT_AUTH enforcement
+- Webhook signature and timestamp verification
+- Restaurant_id format validation and filtering
 
 ---
 
@@ -315,6 +374,20 @@ No single layer is sufficient—must implement all five.
 **Review Cycle:** Monthly or when new issue discovered
 
 ## Recent Updates
+
+- **2025-12-29**: Added Payment Security Prevention
+  - 2-document set: comprehensive prevention guide + quick reference
+  - Three critical payment patterns: Idempotency Anti-Pattern, Incomplete Transaction, Missing Tenant Validation
+  - Covers issues #238 (random nonce defeating idempotency), #239 (refund without state update), #241 (no tenant check)
+  - Code review checklists, patterns to watch for, test cases, general rules
+  - Combined checklist for payment operation PRs
+
+- **2025-12-29**: Added Security Hardening Prevention (Post-remediation)
+  - 3-document set: full prevention guide + quick reference + deployment checklist
+  - Comprehensive coverage of CSRF, HTTPOnly cookies, timing-safe auth, webhooks
+  - Demo mode gating, STRICT_AUTH enforcement, multi-tenant isolation
+  - Environment variables, testing recommendations, common mistakes
+  - Deployment verification procedures and post-mortem templates
 
 - **2025-12-03**: Added CL-TEST-003 (Test Environment Isolation Prevention)
   - 3-document set: full strategy + quick reference + implementation checklist
