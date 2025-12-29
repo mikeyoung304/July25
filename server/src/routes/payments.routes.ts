@@ -653,7 +653,16 @@ router.post('/:paymentId/refund',
       });
     }
 
-    // Create refund
+    // Validate refund request and generate idempotency key
+    // P0-3: CRITICAL - idempotency key prevents duplicate refunds on network retry
+    const refundValidation = await PaymentService.validateRefundRequest(
+      paymentId,
+      req.restaurantId!,
+      amount,
+      paymentIntent.amount / 100 // Convert from cents for validation
+    );
+
+    // Create refund with idempotency key
     const refundRequest: Stripe.RefundCreateParams = {
       payment_intent: paymentId,
       reason: (reason as Stripe.RefundCreateParams.Reason) || 'requested_by_customer',
@@ -664,12 +673,14 @@ router.post('/:paymentId/refund',
     }
 
     const refund = await withTimeout(
-      stripe.refunds.create(refundRequest),
+      stripe.refunds.create(refundRequest, {
+        idempotencyKey: refundValidation.idempotencyKey,
+      }),
       PAYMENT_TIMEOUT_MS,
       'Refund payment'
     );
 
-    // Log refund for audit trail
+    // Log refund for audit trail (use same idempotency key for correlation)
     await PaymentService.logPaymentAttempt({
       orderId: paymentIntent.metadata?.['order_id'] || paymentId,
       amount: refund.amount / 100,
@@ -677,7 +688,7 @@ router.post('/:paymentId/refund',
       restaurantId: req.restaurantId!,
       paymentMethod: 'card',
       userAgent: req.headers['user-agent'] as string,
-      idempotencyKey: generateIdempotencyKey('refund', req.restaurantId!, paymentId),
+      idempotencyKey: refundValidation.idempotencyKey,
       metadata: {
         refundId: refund.id,
         refundReason: reason,
@@ -693,7 +704,8 @@ router.post('/:paymentId/refund',
     routeLogger.info('Refund processed', {
       paymentId,
       refundId: refund.id,
-      amount: refund.amount
+      amount: refund.amount,
+      idempotencyKey: refundValidation.idempotencyKey
     });
 
     res.json({

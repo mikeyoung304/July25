@@ -22,7 +22,7 @@ const AUTH_TOKEN_EXPIRY_HOURS = 8;
 function setAuthCookie(res: Response, token: string): void {
   res.cookie('auth_token', token, {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env['NODE_ENV'] === 'production',
     sameSite: 'strict',
     maxAge: AUTH_TOKEN_EXPIRY_HOURS * 60 * 60 * 1000,  // Match JWT expiry
     path: '/'
@@ -35,7 +35,7 @@ function setAuthCookie(res: Response, token: string): void {
 function clearAuthCookie(res: Response): void {
   res.clearCookie('auth_token', {
     httpOnly: true,
-    secure: process.env.NODE_ENV === 'production',
+    secure: process.env['NODE_ENV'] === 'production',
     sameSite: 'strict',
     path: '/'
   });
