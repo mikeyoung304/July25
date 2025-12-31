@@ -148,7 +148,9 @@ router.post('/login',
     // Set CSRF cookie (JS CAN read for X-CSRF-Token header)
     setCsrfCookie(res);
 
-    // Return user only - NOT the token (token is in HTTPOnly cookie)
+    // Return user AND token (token is ALSO in HTTPOnly cookie for same-origin)
+    // Cross-origin deployments (Vercel → Render) need the token in response body
+    // because SameSite=strict cookies are not sent with cross-origin requests
     res.json({
       user: {
         id: authData.user.id,
@@ -156,8 +158,9 @@ router.post('/login',
         role: userRole.role,
         scopes
       },
-      // Keep session info for backward compatibility during migration
+      // Include access_token for cross-origin deployments where HTTPOnly cookies fail
       session: {
+        access_token: customToken,  // JWT for cross-origin localStorage auth
         refresh_token: authData.session?.refresh_token,
         expires_in: AUTH_TOKEN_EXPIRY_HOURS * 60 * 60  // 8 hours in seconds
       },
@@ -237,7 +240,7 @@ router.post('/pin-login',
     // Set CSRF cookie
     setCsrfCookie(res);
 
-    // Return user only - NOT the token (token is in HTTPOnly cookie)
+    // Return user AND token for cross-origin deployments
     res.json({
       user: {
         id: result.userId,
@@ -245,6 +248,7 @@ router.post('/pin-login',
         role: result.role,
         scopes
       },
+      token,  // JWT for cross-origin localStorage auth
       expiresIn: 12 * 60 * 60,
       restaurantId
     });

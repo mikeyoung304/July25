@@ -443,14 +443,31 @@ export function AuthProvider({ children }: AuthProviderProps) {
 
       const expiresAt = Math.floor(Date.now() / 1000) + response.session.expires_in;
 
-      setSession({
+      const sessionData = {
         accessToken: response.session.access_token,
         refreshToken: response.session.refresh_token,
         expiresIn: response.session.expires_in,
         expiresAt
-      });
+      };
 
-      logger.info('Session refreshed successfully');
+      setSession(sessionData);
+
+      // Sync localStorage with refreshed token to prevent token drift
+      const savedSession = localStorage.getItem('auth_session');
+      if (savedSession) {
+        try {
+          const parsed = JSON.parse(savedSession);
+          localStorage.setItem('auth_session', JSON.stringify({
+            ...parsed,
+            session: sessionData
+          }));
+          logger.info('Session refreshed and localStorage synced');
+        } catch (e) {
+          logger.warn('Failed to sync localStorage after token refresh');
+        }
+      } else {
+        logger.info('Session refreshed successfully');
+      }
     } catch (error) {
       logger.error('Session refresh failed:', error);
       throw error;
