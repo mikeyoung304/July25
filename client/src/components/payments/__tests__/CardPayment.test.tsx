@@ -366,7 +366,7 @@ describe('CardPayment - Payment Flow', () => {
     // Verify API call
     await waitFor(() => {
       expect(mockPost).toHaveBeenCalledWith(
-        '/api/v1/payments/create',
+        '/api/v1/payments/create-payment-intent',
         expect.objectContaining({
           order_id: 'order-456',
           token: 'test-payment-id',
@@ -390,7 +390,7 @@ describe('CardPayment - Payment Flow', () => {
     // Verify idempotency key is included (can be card-checkout or demo-card depending on env)
     await waitFor(() => {
       expect(mockPost).toHaveBeenCalledWith(
-        '/api/v1/payments/create',
+        '/api/v1/payments/create-payment-intent',
         expect.objectContaining({
           idempotency_key: expect.stringMatching(/^(card-checkout-|demo-card-)/),
         })
@@ -449,7 +449,7 @@ describe('CardPayment - Demo Mode', () => {
     // Verify demo idempotency key
     await waitFor(() => {
       expect(mockPost).toHaveBeenCalledWith(
-        '/api/v1/payments/create',
+        '/api/v1/payments/create-payment-intent',
         expect.objectContaining({
           idempotency_key: expect.stringMatching(/^demo-card-/),
         })
