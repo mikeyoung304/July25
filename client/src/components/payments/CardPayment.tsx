@@ -62,7 +62,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       transition(PaymentEvent.CARD_PROCESSING_STARTED);
 
       // Process payment via API
-      const response = await post('/api/v1/payments/create', {
+      const response = await post('/api/v1/payments/create-payment-intent', {
         order_id: orderId,
         token: paymentId,
         idempotency_key: `card-checkout-${orderId}-${crypto.randomUUID()}`,
@@ -103,7 +103,7 @@ export const CardPayment: React.FC<CardPaymentProps> = ({
       transition(PaymentEvent.DEMO_PROCESSING_STARTED);
 
       // Process demo payment via API
-      const response = await post('/api/v1/payments/create', {
+      const response = await post('/api/v1/payments/create-payment-intent', {
         order_id: orderId,
         token: paymentId,
         idempotency_key: `demo-card-${orderId}-${crypto.randomUUID()}`,
