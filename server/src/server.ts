@@ -186,10 +186,18 @@ app.use(express.urlencoded({ extended: true, limit: '1mb' }));
 // Request sanitization (after body parsing, before other middleware)
 app.use(sanitizeRequest);
 
-// CSRF protection - exempt webhook endpoints
+// CSRF protection - exempt endpoints that don't have CSRF token yet
 app.use((req, res, next) => {
   // Exempt Stripe webhooks from CSRF (they use signature verification instead)
   if (req.path === '/api/v1/payments/webhook') {
+    return next();
+  }
+  // Exempt auth endpoints - users don't have CSRF token before authenticating
+  // CSRF token is set AFTER successful login via setCsrfCookie()
+  if (req.path.startsWith('/api/v1/auth/login') ||
+      req.path.startsWith('/api/v1/auth/pin-login') ||
+      req.path.startsWith('/api/v1/auth/station-login') ||
+      req.path.startsWith('/api/v1/auth/refresh')) {
     return next();
   }
   return csrfProtection(req, res, next);
