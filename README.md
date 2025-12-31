@@ -1,30 +1,29 @@
 # Grow App (Restaurant OS) — v6.0.14
 
 
-**Last Updated:** 2025-11-25
+**Last Updated:** 2025-12-31
 
 [![CI](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/ci.yml)
 [![Docs CI](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml/badge.svg)](https://github.com/mikeyoung304/July25/actions/workflows/docs-ci.yml)
 
-**Status:** 99% Production Ready - 99.8% Test Pass Rate - Stripe Payments Active ✅
+**Status:** Production Ready - Security Hardened - Stripe Payments Active ✅
 **Client:** React 18.3.1 · **Server:** Node 20 · **DB:** Postgres (Supabase) · **Realtime:** WebSockets
 
 **For accurate project status, see [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md)**
 **For complete version history, see [VERSION.md](./docs/VERSION.md)**
 
-## Test Health (Phase 2 Complete - Oct 27, 2025) ✅
-- **Pass Rate:** ~85%+ (365+ tests passing, up from 73%)
-- **Quarantined:** 2 tests remaining (down from 137!)
-- **Phase 2 Success:** 98.5% (restored 135 of 137 quarantined tests)
-- **Production Readiness:** Improved from 65-70% to 90%
+## Test Health (Dec 2025)
+- **Total Tests:** 664 (client + server combined)
+- **Coverage:** Core flows tested (payments, auth, orders, voice)
+- **Note:** Some tests need mock updates after security hardening
 - **Status Details:** See [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md)
 
-## Recent Progress (v6.0.14)
-- **Test Coverage:** Added 155 new tests (37 regression + 118 unit tests) for voice orders, auth, and workspace
-- **Code Quality:** 70% reduction in WebRTCVoiceClient complexity (1,312 → 396 lines)
-- **Service Extraction:** 3 new focused services (AudioStreaming, MenuIntegration, VoiceOrderProcessor)
-- **Voice Ordering:** Hybrid AI parsing with OpenAI fallback, menu API fixes
-- **Security hardening:** single JWT secret (fail-fast), strict CORS allowlist, PII-redacted logs
+## Recent Progress (Dec 2025)
+- **Security Audit:** Complete - score improved from 55/100 to ~70/100
+- **P0 Security Issues:** All resolved (HTTPOnly cookies, fail-fast secrets, CSRF protection)
+- **Cross-Origin Auth:** Fixed dual-auth pattern for Vercel→Render deployments
+- **Public Orders:** CSRF exemption for kiosk/online checkout flows
+- **Voice Ordering:** Hybrid AI parsing with OpenAI fallback
 - **Performance:** 40x improvement on batch table updates (1000ms → 25ms)
 
 ## Docs
@@ -95,14 +94,13 @@ Prod: CORS allowlist enforced; WebSocket requires valid JWT; KIOSK_JWT_SECRET mu
 Non-prod demo (optional): /api/v1/auth/demo-session enabled only with DEMO_LOGIN_ENABLED=true.
 
 ## Development Status
-**99% Production Ready** - Stripe payments active, fall menu deployed ✅
-- Stripe payment integration complete (migrated from Square)
-- Fall menu deployed and operational
+**Production Ready** - Security hardened, Stripe payments active ✅
+- Security audit complete (Dec 2025) - all P0 issues resolved
+- Stripe payment integration operational
 - Voice ordering with gpt-4o-transcribe model
-- 99.8% test pass rate (430/431 tests passing)
+- Cross-origin auth working (Vercel frontend → Render backend)
 See [SOURCE_OF_TRUTH.md](./docs/meta/SOURCE_OF_TRUTH.md) for complete status and details.
 
 ## License
 MIT
-# Test: branch protection fix - Tue Nov 18 13:54:36 EST 2025
 
