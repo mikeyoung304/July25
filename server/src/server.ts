@@ -200,6 +200,16 @@ app.use((req, res, next) => {
       req.path.startsWith('/api/v1/auth/refresh')) {
     return next();
   }
+  // Exempt public ordering flows (kiosk/online) - these users never logged in
+  // so they don't have a CSRF cookie. Security is maintained via:
+  // - X-Client-Flow header validation in orders.routes.ts
+  // - X-Restaurant-ID header requirement
+  // - Server-side order total calculation (no client-trusted amounts)
+  const clientFlow = (req.headers['x-client-flow'] as string)?.toLowerCase();
+  if ((clientFlow === 'kiosk' || clientFlow === 'online') &&
+      (req.path.startsWith('/api/v1/orders') || req.path.startsWith('/api/v1/payments'))) {
+    return next();
+  }
   return csrfProtection(req, res, next);
 });
 
