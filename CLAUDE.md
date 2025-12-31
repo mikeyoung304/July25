@@ -151,6 +151,7 @@ Search with: `grep -r "symptom" docs/solutions/`
 |---------|----------|
 | Auth token issues | `docs/solutions/auth-issues/websocket-station-auth-dual-pattern.md` |
 | Cross-origin auth failure | `docs/solutions/auth-issues/cross-origin-samesite-cookie-auth-failure.md` |
+| CSRF blocking public orders | `docs/solutions/auth-issues/csrf-public-ordering-exemption.md` |
 | STRICT_AUTH drift | `docs/solutions/auth-issues/strict-auth-environment-drift.md` |
 | Multi-tenant isolation | `docs/solutions/security-issues/multi-tenant-isolation-rls-cache.md` |
 | Demo bypass prevention | `docs/solutions/security-issues/demo-bypass-prevention.md` |
