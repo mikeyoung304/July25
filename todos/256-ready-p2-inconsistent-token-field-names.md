@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 priority: p2
 issue_id: 256
 tags: [code-review, auth, api-contract, consistency]

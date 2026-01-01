@@ -50,6 +50,8 @@ describe('OrderStateMachine', () => {
 
   afterEach(() => {
     vi.restoreAllMocks();
+    // Clear hooks to prevent state leakage between tests (TODO-249)
+    OrderStateMachine.clearHooks();
   });
 
   describe('canTransition', () => {

@@ -3,6 +3,9 @@
  * Single source of truth for all shared types across the application
  */
 
+// Auth types
+export * from './auth.types';
+
 // Order types
 export * from './order.types';
 

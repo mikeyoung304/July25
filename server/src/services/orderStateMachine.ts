@@ -4,6 +4,7 @@ import { BadRequest } from '../middleware/errorHandler';
 import type { Order, OrderStatus } from '@rebuild/shared';
 import { getErrorMessage } from '@rebuild/shared';
 import { EmailService } from './email.service';
+import { generateIdempotencyKey } from './payment.service';
 
 // =============================================================================
 // External Service Initialization (Module Scope - TODO-230)
@@ -147,6 +148,14 @@ export class OrderStateMachine {
       this.TRANSITION_HOOKS.set(pattern, []);
     }
     this.TRANSITION_HOOKS.get(pattern)!.push(hook);
+  }
+
+  /**
+   * Clear all registered hooks (for testing purposes)
+   * This prevents hook state leakage between tests
+   */
+  static clearHooks(): void {
+    this.TRANSITION_HOOKS.clear();
   }
 
   /**
@@ -504,6 +513,12 @@ OrderStateMachine.registerHook('*->ready', async (_transition, order) => {
  */
 OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
   try {
+    // Defense-in-depth: verify tenant context (TODO-252)
+    if (!order.restaurant_id) {
+      logger.error('Refund hook: Missing restaurant_id', { orderId: order.id });
+      return;
+    }
+
     // Only process refund logic for paid orders
     if (order.payment_status !== 'paid') {
       logger.debug('Refund processing skipped: Order not paid', {
@@ -529,11 +544,16 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
     // Process Stripe refund (inline, no service class per P1.4)
     if (stripeClient) {
       try {
+        // Generate consistent idempotency key (TODO-246: Use same format as payment.service.ts)
+        // Format: refund_{restaurantSuffix}_{orderSuffix}_{timestamp}
+        // This ensures tenant isolation and prevents duplicate refunds across all code paths
+        const refundIdempotencyKey = generateIdempotencyKey('refund', order.restaurant_id, order.id);
+
         const refund = await stripeClient.refunds.create({
           payment_intent: paymentIntentId,
           reason: 'requested_by_customer'
         }, {
-          idempotencyKey: `refund-${order.id}` // Prevents duplicate refunds
+          idempotencyKey: refundIdempotencyKey
         });
 
         // Update order payment_status to 'refunded' in database

@@ -1,5 +1,5 @@
 ---
-status: pending
+status: done
 priority: p2
 issue_id: 255
 tags: [code-review, auth, security, bug]

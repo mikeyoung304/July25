@@ -55,9 +55,9 @@ export function generateIdempotencyKey(
   orderId: string,
   timestamp?: number
 ): string {
-  // Use seconds (not ms) to allow retries within same second window
+  // Use milliseconds for unique partial refunds within same second (see #247)
   // Random nonce was removed - it defeated idempotency purpose (see #238)
-  const ts = timestamp ?? Math.floor(Date.now() / 1000);
+  const ts = timestamp ?? Date.now();
   const restaurantSuffix = restaurantId.slice(-8);
   const orderSuffix = orderId.slice(-12);
   return `${type}_${restaurantSuffix}_${orderSuffix}_${ts}`;

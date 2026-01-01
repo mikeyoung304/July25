@@ -103,14 +103,14 @@ router.post('/login',
     // Fetch user scopes from role_scopes table
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
+      .select('scope')
       .eq('role', userRole.role);
 
     if (scopesError) {
       logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
-    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
+    const scopes = scopesData?.map(s => s.scope) || [];
 
     // Generate custom JWT with scopes (instead of using Supabase's token)
     // This ensures scopes are embedded in the token for authorization checks
@@ -125,7 +125,7 @@ router.post('/login',
       email: authData.user.email,
       role: userRole.role,
       restaurant_id: restaurantId,
-      scope: scopes,  // ✅ CRITICAL FIX: Include scopes in JWT payload
+      scope: scopes,  // Required for RBAC authorization checks
       auth_method: 'email',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (8 * 60 * 60) // 8 hours for email login
@@ -199,14 +199,14 @@ router.post('/pin-login',
     // Fetch user scopes from role_scopes table BEFORE creating JWT
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
+      .select('scope')
       .eq('role', result.role);
 
     if (scopesError) {
       logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
-    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
+    const scopes = scopesData?.map(s => s.scope) || [];
 
     // Generate JWT token for PIN user (no fallbacks for security)
     const jwtSecret = process.env['SUPABASE_JWT_SECRET'];
@@ -220,7 +220,7 @@ router.post('/pin-login',
       email: result.userEmail,
       role: result.role,
       restaurant_id: restaurantId,
-      scope: scopes,  // ✅ CRITICAL FIX: Include scopes in JWT payload
+      scope: scopes,  // Required for RBAC authorization checks
       auth_method: 'pin',
       iat: Math.floor(Date.now() / 1000),
       exp: Math.floor(Date.now() / 1000) + (12 * 60 * 60) // 12 hours for staff
@@ -381,14 +381,14 @@ router.get('/me', authenticate, validateRestaurantAccess, async (req: Authentica
     const role = userRole?.role || req.user!.role;
     const { data: scopesData, error: scopesError } = await supabase
       .from('role_scopes')
-      .select('scope')  // ✅ Fixed: column is 'scope' not 'scope_name'
+      .select('scope')
       .eq('role', role);
 
     if (scopesError) {
       logger.warn('scope_fetch_fail', { restaurant_id: restaurantId });
     }
 
-    const scopes = scopesData?.map(s => s.scope) || [];  // ✅ Fixed: use 'scope' property
+    const scopes = scopesData?.map(s => s.scope) || [];
 
     res.json({
       user: {

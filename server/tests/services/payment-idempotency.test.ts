@@ -44,8 +44,29 @@ vi.mock('../../src/services/orders.service', () => ({
   getRestaurantTaxRate: vi.fn()
 }));
 
-// Import the mocked function to reset it in beforeEach
-import { getRestaurantTaxRate } from '../../src/services/orders.service';
+// Import the mocked modules to use with vi.mocked()
+import { OrdersService, getRestaurantTaxRate } from '../../src/services/orders.service';
+import { logger } from '../../src/utils/logger';
+
+/**
+ * Sets up Supabase mock for tax rate queries
+ * @param taxRate - Tax rate to return (default: 0.0825)
+ * @param error - Error to return (default: null)
+ */
+function setupTaxRateMock(taxRate: number | null = 0.0825, error: any = null) {
+  const mockFrom = vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: error ? null : { tax_rate: taxRate },
+          error
+        })
+      })
+    })
+  });
+  (supabase.from as any) = mockFrom;
+  return mockFrom;
+}
 
 describe('PaymentService - Idempotency', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';
@@ -53,31 +74,28 @@ describe('PaymentService - Idempotency', () => {
 
   beforeEach(() => {
     vi.clearAllMocks();
-    vi.useFakeTimers();
     // Reset the mock implementation for getRestaurantTaxRate with default 8.25% tax rate
     // This must be done in beforeEach because vi.clearAllMocks() clears the implementation
     vi.mocked(getRestaurantTaxRate).mockResolvedValue(0.0825);
   });
 
   afterEach(() => {
-    vi.useRealTimers();
     vi.restoreAllMocks();
   });
 
   describe('idempotency key generation', () => {
+    // Fake timers scoped to this describe block only - tests that use vi.setSystemTime()
+    beforeEach(() => {
+      vi.useFakeTimers();
+    });
+
+    afterEach(() => {
+      vi.useRealTimers();
+    });
+
     it('should generate key in format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}', async () => {
       // Mock tax rate fetch
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -138,17 +156,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should generate unique keys for different timestamps', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -376,9 +384,7 @@ describe('PaymentService - Idempotency', () => {
 
   describe('order status validation for payment', () => {
     it('should reject payment for cancelled orders', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'cancelled', // Invalid status for payment
@@ -404,9 +410,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should reject payment for completed orders', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'completed', // Invalid status for payment
@@ -432,9 +436,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should reject payment for already paid orders', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'pending',
@@ -460,9 +462,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should allow payment for new orders', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'new', // Valid status for payment
@@ -479,17 +479,7 @@ describe('PaymentService - Idempotency', () => {
       });
 
       // Mock tax rate fetch
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const result = await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -502,9 +492,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should allow payment for confirmed orders', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'confirmed', // Valid status for payment
@@ -521,17 +509,7 @@ describe('PaymentService - Idempotency', () => {
       });
 
       // Mock tax rate fetch
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const result = await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -546,11 +524,8 @@ describe('PaymentService - Idempotency', () => {
 
   describe('payment validation with idempotency', () => {
     it('should warn when client provides idempotency key', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-      const { logger } = await import('../../src/utils/logger');
-
       // Mock order retrieval with valid status for payment
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'pending', // Valid status for payment
@@ -567,17 +542,7 @@ describe('PaymentService - Idempotency', () => {
       });
 
       // Mock tax rate fetch
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -596,9 +561,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should always generate server-side idempotency key', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'pending', // Valid status for payment
@@ -614,17 +577,7 @@ describe('PaymentService - Idempotency', () => {
         ]
       });
 
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const result = await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -642,9 +595,7 @@ describe('PaymentService - Idempotency', () => {
 
   describe('amount validation for idempotent requests', () => {
     it('should detect amount mismatch between client and server calculation', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'pending', // Valid status for payment
@@ -660,17 +611,7 @@ describe('PaymentService - Idempotency', () => {
         ]
       });
 
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       // Client sends wrong amount (attempting manipulation)
       await expect(
@@ -683,9 +624,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should allow 1 cent rounding tolerance', async () => {
-      const { OrdersService } = await import('../../src/services/orders.service');
-
-      (OrdersService.getOrder as any).mockResolvedValue({
+      vi.mocked(OrdersService.getOrder).mockResolvedValue({
         id: mockOrderId,
         restaurant_id: mockRestaurantId,
         status: 'pending', // Valid status for payment
@@ -701,17 +640,7 @@ describe('PaymentService - Idempotency', () => {
         ]
       });
 
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       // Server calculates ~$10.825, client sends $10.82 (1 cent off due to rounding)
       const result = await PaymentService.validatePaymentRequest(

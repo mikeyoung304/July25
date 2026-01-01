@@ -49,6 +49,26 @@ vi.mock('../../src/services/orders.service', () => ({
 // Import the mocked function to reset it in beforeEach
 import { getRestaurantTaxRate } from '../../src/services/orders.service';
 
+/**
+ * Sets up Supabase mock for tax rate queries
+ * @param taxRate - Tax rate to return (default: 0.0825)
+ * @param error - Error to return (default: null)
+ */
+function setupTaxRateMock(taxRate: number | null = 0.0825, error: any = null) {
+  const mockFrom = vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: error ? null : { tax_rate: taxRate },
+          error
+        })
+      })
+    })
+  });
+  (supabase.from as any) = mockFrom;
+  return mockFrom;
+}
+
 describe('PaymentService - Payment Calculations', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';
   const mockOrderId = '22222222-2222-2222-2222-222222222222';
@@ -67,17 +87,7 @@ describe('PaymentService - Payment Calculations', () => {
   describe('calculateOrderTotal() - Normal Cases', () => {
     it('should calculate total for single item order with default tax rate', async () => {
       // Mock tax rate fetch - return default 8.25%
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -108,17 +118,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should calculate total for multiple items', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -153,17 +153,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should include modifier prices in calculation', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -223,17 +213,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should handle zero-price modifiers correctly', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -290,17 +270,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject negative item prices', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -322,17 +292,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject negative modifier prices', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -356,17 +316,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject invalid quantity (less than 1)', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -388,17 +338,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject order total below minimum ($0.01)', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -421,17 +361,7 @@ describe('PaymentService - Payment Calculations', () => {
 
     it('should fall back to default tax rate on database error', async () => {
       // Mock database error
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: null,
-              error: { message: 'Connection failed' }
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock(null, { message: 'Connection failed' });
 
       const order: Order = {
         id: mockOrderId,
@@ -454,17 +384,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should fall back to default tax rate when tax_rate is null', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: null },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock(null);
 
       const order: Order = {
         id: mockOrderId,
@@ -487,17 +407,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should handle very large order totals', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -522,21 +432,36 @@ describe('PaymentService - Payment Calculations', () => {
       expect(result.tax).toBeCloseTo(8249.92, 2);
       expect(result.amount).toBe(10824892); // Cents
     });
+
+    it('should handle maximum safe order total within JavaScript limits', async () => {
+      setupTaxRateMock();
+
+      const order: Order = {
+        id: mockOrderId,
+        restaurant_id: mockRestaurantId,
+        items: [
+          {
+            id: 'item-1',
+            name: 'Bulk Catering',
+            price: 10000.00, // $10,000 per item
+            quantity: 1000,  // 1000 items = $10,000,000 subtotal
+            modifiers: []
+          }
+        ]
+      } as Order;
+
+      const result = await PaymentService.calculateOrderTotal(order);
+
+      // Verify calculation doesn't lose precision
+      expect(Number.isSafeInteger(result.amount)).toBe(true);
+      // $10,000,000 + 8.25% tax = $10,825,000
+      expect(result.amount).toBe(1082500000); // 1,082,500,000 cents
+    });
   });
 
   describe('calculateOrderTotal() - Rounding Edge Cases', () => {
     it('should round up when cents are >= 0.5', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -562,17 +487,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should round down when cents are < 0.5', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -629,8 +544,8 @@ describe('PaymentService - Payment Calculations', () => {
       );
 
       expect(result.amount).toBe(1000); // $10.00 in cents
-      // Format: refund_{restaurantSuffix}_{paymentSuffix}_{timestamp}_{nonce}
-      expect(result.idempotencyKey).toMatch(/^refund_.+_.+_\d+_[0-9a-f]+$/);
+      // Format: refund_{restaurantSuffix}_{paymentSuffix}_{timestamp}
+      expect(result.idempotencyKey).toMatch(/^refund_.+_.+_\d+$/);
     });
 
     it('should reject refund without payment ID', async () => {
@@ -701,17 +616,7 @@ describe('PaymentService - Payment Calculations', () => {
 
   describe('Input Type Coercion', () => {
     it('should coerce string prices to numbers', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -734,17 +639,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should coerce string quantities to numbers', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
@@ -767,17 +662,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should treat NaN prices as 0', async () => {
-      const mockFrom = vi.fn().mockReturnValue({
-        select: vi.fn().mockReturnValue({
-          eq: vi.fn().mockReturnValue({
-            single: vi.fn().mockResolvedValue({
-              data: { tax_rate: 0.0825 },
-              error: null
-            })
-          })
-        })
-      });
-      (supabase.from as any) = mockFrom;
+      setupTaxRateMock();
 
       const order: Order = {
         id: mockOrderId,
