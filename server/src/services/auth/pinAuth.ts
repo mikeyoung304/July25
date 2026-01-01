@@ -286,44 +286,40 @@ export async function validatePin(
           restaurantId
         };
       } else {
-        // Increment failed attempts
-        const newAttempts = (record.attempts || 0) + 1;
-        const updates: Record<string, unknown> = {
-          attempts: newAttempts,
-          last_attempt_at: new Date().toISOString()
-        };
-
-        // Lock account if max attempts reached
-        if (newAttempts >= MAX_PIN_ATTEMPTS) {
-          const lockUntil = new Date();
-          lockUntil.setMinutes(lockUntil.getMinutes() + LOCKOUT_DURATION_MINUTES);
-          updates['locked_until'] = lockUntil.toISOString();
-
-          pinLogger.warn('Account locked due to failed PIN attempts', {
-            userId: record.user_id,
-            attempts: newAttempts,
-            lockedUntil: lockUntil
+        // SECURITY FIX: Use atomic increment to prevent race condition (P1 security issue)
+        // The previous read-modify-write pattern allowed concurrent requests to bypass lockout
+        // This RPC function performs the increment in a single atomic database operation
+        const { data: attemptResult, error: attemptError } = await supabase
+          .rpc('increment_pin_attempts', {
+            p_pin_id: record.id,
+            p_restaurant_id: restaurantId,
+            p_max_attempts: MAX_PIN_ATTEMPTS,
+            p_lockout_minutes: LOCKOUT_DURATION_MINUTES
           });
-
-          await logAuthEvent(record.user_id, restaurantId, 'pin_locked');
-        }
-
-        // Task 1: CRITICAL - Must update attempt counter for brute force protection
-        const { error: attemptError } = await supabase
-          .from('user_pins')
-          .update(updates)
-          .eq('id', record.id)
-          .eq('restaurant_id', restaurantId);
 
         if (attemptError) {
           pinLogger.error('CRITICAL: Failed to update PIN attempt counter', {
             error: attemptError,
             userId: record.user_id,
-            restaurantId,
-            attempts: newAttempts
+            restaurantId
           });
           // Cannot allow authentication to proceed without tracking attempts
           throw new Error('Authentication system unavailable');
+        }
+
+        const newAttempts = attemptResult?.[0]?.new_attempts ?? (record.attempts || 0) + 1;
+        const isLocked = attemptResult?.[0]?.is_locked ?? false;
+        const lockedUntil = attemptResult?.[0]?.locked_until;
+
+        // Log lockout if account was just locked
+        if (isLocked && newAttempts >= MAX_PIN_ATTEMPTS) {
+          pinLogger.warn('Account locked due to failed PIN attempts', {
+            userId: record.user_id,
+            attempts: newAttempts,
+            lockedUntil
+          });
+
+          await logAuthEvent(record.user_id, restaurantId, 'pin_locked');
         }
 
         await logAuthEvent(record.user_id, restaurantId, 'pin_failed');
