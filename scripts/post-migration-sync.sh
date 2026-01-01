@@ -44,11 +44,10 @@ echo ""
 # when the related model has @@ignore at model level
 echo "🔧 Patching @ignore attributes for user_pins relations..."
 
-# Fix users.user_pins relation field (portable temp file approach)
-sed 's/^  user_pins                   user_pins\[\]$/  user_pins                   user_pins[]            @ignore/' prisma/schema.prisma > prisma/schema.prisma.tmp && mv prisma/schema.prisma.tmp prisma/schema.prisma
-
-# Fix restaurants.user_pins relation field (portable temp file approach)
-sed 's/^  user_pins            user_pins\[\]$/  user_pins            user_pins[]            @ignore/' prisma/schema.prisma > prisma/schema.prisma.tmp && mv prisma/schema.prisma.tmp prisma/schema.prisma
+# Fix user_pins relation fields on any model (users, restaurants, etc.)
+# Use flexible whitespace matching since Prisma output varies
+# Pattern: any line with "user_pins" followed by whitespace and "user_pins[]" without @ignore
+sed -E 's/^(  user_pins[[:space:]]+user_pins\[\])$/\1 @ignore/' prisma/schema.prisma > prisma/schema.prisma.tmp && mv prisma/schema.prisma.tmp prisma/schema.prisma
 
 echo "✓ Schema patching complete"
 echo ""
