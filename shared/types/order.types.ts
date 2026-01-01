@@ -70,6 +70,7 @@ export interface Order {
   total: number;
   payment_status: PaymentStatus;
   payment_method?: PaymentMethod;
+  payment_intent_id?: string; // Stripe payment intent ID for refund processing
   table_number?: string;
   seat_number?: number; // NEW: For multi-seat ordering
   notes?: string;

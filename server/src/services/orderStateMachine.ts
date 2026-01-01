@@ -536,8 +536,7 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
     }
 
     // Check if we have a payment_intent_id to refund
-    // Note: payment_intent_id is a database field not yet in shared types
-    const paymentIntentId = (order as any).payment_intent_id as string | undefined;
+    const paymentIntentId = order.payment_intent_id;
     if (!paymentIntentId) {
       logger.warn('Refund skipped: No payment_intent_id on paid order', {
         orderId: order.id,

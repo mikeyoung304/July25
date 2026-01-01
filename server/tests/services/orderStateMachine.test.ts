@@ -738,5 +738,67 @@ describe('OrderStateMachine', () => {
         ).resolves.toBeUndefined();
       });
     });
+
+    describe('Refund hook - Multi-tenancy (TODO-267)', () => {
+      // These tests verify the defense-in-depth multi-tenancy check in the refund hook.
+      // The hook has TWO layers of protection:
+      // 1. Early return if restaurant_id is missing (tested here)
+      // 2. restaurant_id filter in DB update query (line 575)
+      //
+      // Testing the DB filter (layer 2) would require mocking the dynamic import
+      // of supabase inside the hook, which is architecturally complex. The early
+      // return (layer 1) provides the primary defense and is explicitly tested.
+
+      it('should log error and skip refund when order missing restaurant_id', async () => {
+        // Create a paid order with payment_intent_id but NO restaurant_id
+        const order: Order = {
+          ...createMockOrder('cancelled'),
+          restaurant_id: undefined as unknown as string, // Simulate missing restaurant_id
+          order_number: 'ORD-NO-TENANT-001',
+          payment_status: 'paid',
+          payment_method: 'card',
+          total: 45.99,
+          payment_intent_id: 'pi_test_123', // Trigger refund path
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'cancelled', order);
+
+        // Should log error about missing restaurant_id
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          'Refund hook: Missing restaurant_id',
+          expect.objectContaining({
+            orderId: order.id,
+          })
+        );
+
+        // Should NOT proceed to log refund success or warnings about payment_intent
+        // because it returns early before checking payment_status
+        expect(mockLogger.info).not.toHaveBeenCalledWith(
+          'Refund processed successfully',
+          expect.anything()
+        );
+      });
+
+      it('should skip refund early when restaurant_id is empty string', async () => {
+        // Edge case: empty string should also trigger early return
+        const order: Order = {
+          ...createMockOrder('cancelled'),
+          restaurant_id: '' as unknown as string, // Empty string is falsy
+          order_number: 'ORD-EMPTY-TENANT-001',
+          payment_status: 'paid',
+          payment_intent_id: 'pi_test_456',
+        };
+
+        await OrderStateMachine.executeTransitionHooks('preparing', 'cancelled', order);
+
+        // Should log error about missing restaurant_id
+        expect(mockLogger.error).toHaveBeenCalledWith(
+          'Refund hook: Missing restaurant_id',
+          expect.objectContaining({
+            orderId: order.id,
+          })
+        );
+      });
+    });
   });
 });
