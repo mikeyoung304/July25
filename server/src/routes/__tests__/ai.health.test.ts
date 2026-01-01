@@ -42,6 +42,7 @@ vi.mock('../../utils/logger', () => ({
 vi.mock('../../middleware/auth', () => ({
   authenticate: (_req: any, _res: any, next: any) => next(),
   requireRole: () => (_req: any, _res: any, next: any) => next(),
+  requireScope: () => (_req: any, _res: any, next: any) => next(),
   AuthenticatedRequest: {}
 }));
 

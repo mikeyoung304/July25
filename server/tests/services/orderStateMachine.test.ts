@@ -22,7 +22,7 @@ vi.mock('../../src/utils/logger', () => {
 import { logger as mockLogger } from '../../src/utils/logger';
 
 // Import OrderStateMachine AFTER mocking stripe
-import { OrderStateMachine } from '../../src/services/orderStateMachine';
+import { OrderStateMachine, registerDefaultHooks } from '../../src/services/orderStateMachine';
 
 describe('OrderStateMachine', () => {
   // Helper to create a mock order
@@ -451,6 +451,8 @@ describe('OrderStateMachine', () => {
   describe('Notification Hooks (GitHub Issue #146)', () => {
     beforeEach(() => {
       vi.clearAllMocks();
+      // Re-register default hooks since afterEach() clears them
+      registerDefaultHooks();
     });
 
     describe('Kitchen notification hook (*->confirmed)', () => {

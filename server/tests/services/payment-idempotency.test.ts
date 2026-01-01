@@ -99,11 +99,11 @@ describe('PaymentService - Idempotency', () => {
 
       // Should match format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}
       // Restaurant suffix: last 8 chars, Order suffix: last 12 chars
-      // Timestamp is in seconds (not ms) per implementation - allows retries within same second
-      // Note: Nonce was removed per #238 - it defeated idempotency purpose
+      // Timestamp is in milliseconds per implementation - allows unique keys for partial refunds
+      // within same second (see #247). Nonce was removed per #238 - it defeated idempotency purpose
       const expectedRestaurantSuffix = mockRestaurantId.slice(-8);
       const expectedOrderSuffix = mockOrderId.slice(-12);
-      const expectedTimestamp = Math.floor(fixedTimeMs / 1000); // Convert ms to seconds
+      const expectedTimestamp = fixedTimeMs; // Milliseconds per #247
       const keyPattern = new RegExp(`^pay_${expectedRestaurantSuffix}_${expectedOrderSuffix}_${expectedTimestamp}$`);
       expect(result.idempotencyKey).toMatch(keyPattern);
     });

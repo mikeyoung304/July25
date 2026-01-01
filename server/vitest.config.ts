@@ -11,7 +11,10 @@ export default defineConfig({
   },
   test: {
     environment: 'node',
-    include: ['tests/**/*.test.ts'],           // allow our contract tests
+    include: [
+      'tests/**/*.test.ts',
+      'src/**/__tests__/**/*.test.ts'  // colocated route tests
+    ],
     testTimeout: 15000,
     hookTimeout: 15000,
     exclude: ['**/node_modules/**','**/dist/**','**/tests/quarantine/**', '**/.worktrees/**', '**/.conductor/**', ...qList],

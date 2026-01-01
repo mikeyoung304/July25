@@ -338,11 +338,17 @@ export class OrderStateMachine {
 // Real notification services (SMS, email, Stripe refunds) are deferred to future work.
 
 /**
- * Hook: Kitchen notification on order confirmation (P1.2 feature)
- * Formats kitchen ticket and logs for KDS
- * WebSocket broadcast is handled separately by OrdersService
+ * Register all default notification hooks
+ * This function is called at module load and can be called again after clearHooks()
+ * to restore default hook behavior (useful for testing)
  */
-OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
+export function registerDefaultHooks(): void {
+  /**
+   * Hook: Kitchen notification on order confirmation (P1.2 feature)
+   * Formats kitchen ticket and logs for KDS
+   * WebSocket broadcast is handled separately by OrdersService
+   */
+  OrderStateMachine.registerHook('*->confirmed', async (_transition, order) => {
   try {
     // Format kitchen ticket with item details for KDS (P1.2)
     const kitchenTicket = {
@@ -602,5 +608,9 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
     });
   }
 });
+}
+
+// Register default hooks at module load
+registerDefaultHooks();
 
 export default OrderStateMachine;
