@@ -16,6 +16,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PaymentService } from '../../src/services/payment.service';
 import { supabase } from '../../src/config/database';
 import type { Order } from '../../src/services/orders.service';
+import { setupTaxRateMock } from '../../src/test-utils';
 
 // Mock Supabase
 vi.mock('../../src/config/database', () => ({
@@ -49,26 +50,6 @@ vi.mock('../../src/services/orders.service', () => ({
 // Import the mocked function to reset it in beforeEach
 import { getRestaurantTaxRate } from '../../src/services/orders.service';
 
-/**
- * Sets up Supabase mock for tax rate queries
- * @param taxRate - Tax rate to return (default: 0.0825)
- * @param error - Error to return (default: null)
- */
-function setupTaxRateMock(taxRate: number | null = 0.0825, error: any = null) {
-  const mockFrom = vi.fn().mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue({
-          data: error ? null : { tax_rate: taxRate },
-          error
-        })
-      })
-    })
-  });
-  (supabase.from as any) = mockFrom;
-  return mockFrom;
-}
-
 describe('PaymentService - Payment Calculations', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';
   const mockOrderId = '22222222-2222-2222-2222-222222222222';
@@ -87,7 +68,7 @@ describe('PaymentService - Payment Calculations', () => {
   describe('calculateOrderTotal() - Normal Cases', () => {
     it('should calculate total for single item order with default tax rate', async () => {
       // Mock tax rate fetch - return default 8.25%
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -118,7 +99,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should calculate total for multiple items', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -153,7 +134,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should include modifier prices in calculation', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -213,7 +194,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should handle zero-price modifiers correctly', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -270,7 +251,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject negative item prices', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -292,7 +273,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject negative modifier prices', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -316,7 +297,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject invalid quantity (less than 1)', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -338,7 +319,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should reject order total below minimum ($0.01)', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -361,7 +342,7 @@ describe('PaymentService - Payment Calculations', () => {
 
     it('should fall back to default tax rate on database error', async () => {
       // Mock database error
-      setupTaxRateMock(null, { message: 'Connection failed' });
+      setupTaxRateMock(supabase, null, { message: 'Connection failed' });
 
       const order: Order = {
         id: mockOrderId,
@@ -384,7 +365,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should fall back to default tax rate when tax_rate is null', async () => {
-      setupTaxRateMock(null);
+      setupTaxRateMock(supabase, null);
 
       const order: Order = {
         id: mockOrderId,
@@ -407,7 +388,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should handle very large order totals', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -434,7 +415,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should handle maximum safe order total within JavaScript limits', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -461,7 +442,7 @@ describe('PaymentService - Payment Calculations', () => {
 
   describe('calculateOrderTotal() - Rounding Edge Cases', () => {
     it('should round up when cents are >= 0.5', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -487,7 +468,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should round down when cents are < 0.5', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -616,7 +597,7 @@ describe('PaymentService - Payment Calculations', () => {
 
   describe('Input Type Coercion', () => {
     it('should coerce string prices to numbers', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -639,7 +620,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should coerce string quantities to numbers', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -662,7 +643,7 @@ describe('PaymentService - Payment Calculations', () => {
     });
 
     it('should treat NaN prices as 0', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,

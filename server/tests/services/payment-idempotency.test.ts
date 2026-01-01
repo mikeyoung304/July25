@@ -15,6 +15,7 @@ import { describe, it, expect, beforeEach, afterEach, vi } from 'vitest';
 import { PaymentService } from '../../src/services/payment.service';
 import { supabase } from '../../src/config/database';
 import type { Order } from '../../src/services/orders.service';
+import { setupTaxRateMock } from '../../src/test-utils';
 
 // Mock Supabase
 vi.mock('../../src/config/database', () => ({
@@ -48,26 +49,6 @@ vi.mock('../../src/services/orders.service', () => ({
 import { OrdersService, getRestaurantTaxRate } from '../../src/services/orders.service';
 import { logger } from '../../src/utils/logger';
 
-/**
- * Sets up Supabase mock for tax rate queries
- * @param taxRate - Tax rate to return (default: 0.0825)
- * @param error - Error to return (default: null)
- */
-function setupTaxRateMock(taxRate: number | null = 0.0825, error: any = null) {
-  const mockFrom = vi.fn().mockReturnValue({
-    select: vi.fn().mockReturnValue({
-      eq: vi.fn().mockReturnValue({
-        single: vi.fn().mockResolvedValue({
-          data: error ? null : { tax_rate: taxRate },
-          error
-        })
-      })
-    })
-  });
-  (supabase.from as any) = mockFrom;
-  return mockFrom;
-}
-
 describe('PaymentService - Idempotency', () => {
   const mockRestaurantId = '11111111-1111-1111-1111-111111111111';
   const mockOrderId = '22222222-2222-2222-2222-222222222222';
@@ -95,7 +76,7 @@ describe('PaymentService - Idempotency', () => {
 
     it('should generate key in format: pay_{restaurantSuffix}_{orderSuffix}_{timestamp}', async () => {
       // Mock tax rate fetch
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -156,7 +137,7 @@ describe('PaymentService - Idempotency', () => {
     });
 
     it('should generate unique keys for different timestamps', async () => {
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const order: Order = {
         id: mockOrderId,
@@ -479,7 +460,7 @@ describe('PaymentService - Idempotency', () => {
       });
 
       // Mock tax rate fetch
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const result = await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -509,7 +490,7 @@ describe('PaymentService - Idempotency', () => {
       });
 
       // Mock tax rate fetch
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const result = await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -542,7 +523,7 @@ describe('PaymentService - Idempotency', () => {
       });
 
       // Mock tax rate fetch
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -577,7 +558,7 @@ describe('PaymentService - Idempotency', () => {
         ]
       });
 
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       const result = await PaymentService.validatePaymentRequest(
         mockOrderId,
@@ -611,7 +592,7 @@ describe('PaymentService - Idempotency', () => {
         ]
       });
 
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       // Client sends wrong amount (attempting manipulation)
       await expect(
@@ -640,7 +621,7 @@ describe('PaymentService - Idempotency', () => {
         ]
       });
 
-      setupTaxRateMock();
+      setupTaxRateMock(supabase);
 
       // Server calculates ~$10.825, client sends $10.82 (1 cent off due to rounding)
       const result = await PaymentService.validatePaymentRequest(

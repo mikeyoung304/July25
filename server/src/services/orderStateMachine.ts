@@ -565,7 +565,8 @@ OrderStateMachine.registerHook('*->cancelled', async (_transition, order) => {
             refund_id: refund.id,
             updated_at: new Date().toISOString()
           })
-          .eq('id', order.id);
+          .eq('id', order.id)
+          .eq('restaurant_id', order.restaurant_id);
 
         logger.info('Refund processed successfully', {
           orderId: order.id,

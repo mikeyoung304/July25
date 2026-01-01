@@ -158,3 +158,28 @@ export const cleanupTestEnv = () => {
   vi.clearAllMocks();
   vi.resetAllMocks();
 };
+
+/**
+ * Sets up Supabase mock for tax rate queries
+ * @param supabase - The mocked Supabase client
+ * @param taxRate - Tax rate to return (default: 0.0825)
+ * @param error - Error to return (default: null)
+ */
+export function setupTaxRateMock(
+  supabase: any,
+  taxRate: number | null = 0.0825,
+  error: any = null
+) {
+  const mockFrom = vi.fn().mockReturnValue({
+    select: vi.fn().mockReturnValue({
+      eq: vi.fn().mockReturnValue({
+        single: vi.fn().mockResolvedValue({
+          data: error ? null : { tax_rate: taxRate },
+          error
+        })
+      })
+    })
+  });
+  (supabase.from as any) = mockFrom;
+  return mockFrom;
+}
