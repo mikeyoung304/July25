@@ -156,6 +156,7 @@ Search with: `grep -r "symptom" docs/solutions/`
 | Multi-tenant isolation | `docs/solutions/security-issues/multi-tenant-isolation-rls-cache.md` |
 | Demo bypass prevention | `docs/solutions/security-issues/demo-bypass-prevention.md` |
 | Memory leaks | `docs/solutions/performance-issues/interval-memory-leaks.md` |
+| Vite ESM/CJS interop | `docs/solutions/build-errors/VITE_ESM_CJS_QUICK_REF.md` |
 | Build failures | `docs/solutions/build-errors/` |
 | Test failures | `docs/solutions/test-failures/` |
 | Schema drift | `docs/solutions/database-issues/migration-bifurcation-schema-drift.md` |

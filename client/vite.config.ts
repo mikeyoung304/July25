@@ -180,6 +180,7 @@ export default defineConfig(async ({ mode }): Promise<UserConfig> => {
         // NOTE: 'react/jsx-dev-runtime' removed - causes production build errors
         'react-router-dom',
         '@supabase/supabase-js',
+        '@rebuild/shared', // Main package - must be pre-bundled for CJS→ESM conversion
         '@rebuild/shared/constants/business',
         '@rebuild/shared/config',
       ],

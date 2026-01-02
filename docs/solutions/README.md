@@ -33,6 +33,9 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | [Pre-Commit xargs False Positive](./build-errors/pre-commit-xargs-false-positive.md) | BSD xargs empty input causing false positive failures |
 | [TypeScript Mismatched Braces Vercel](./build-errors/typescript-mismatched-braces-vercel.md) | TypeScript compilation failures on Vercel deployment |
 | [Vercel Production Flag Cascade](./build-errors/vercel-production-flag-cascade.md) | Production flag cascade causing devDeps unavailable ($900 incident) |
+| [Vite ESM/CJS Interop Prevention](./build-errors/vite-esm-cjs-interop-prevention.md) | Prevention strategies for CommonJS/ESM module incompatibility |
+| [Vite ESM/CJS CI/CD Checklist](./build-errors/vite-esm-cjs-ci-checklist.md) | CI/CD validation checks to catch module system issues early |
+| [Vite ESM/CJS Test Cases](./build-errors/vite-esm-cjs-test-cases.md) | Automated test cases for module resolution and build configuration |
 
 ### Code Quality
 
@@ -140,7 +143,7 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 |----------|-------|-------------|
 | Accessibility Issues | 1 | KDS and UI accessibility improvements |
 | Auth Issues | 2 | Authentication patterns, STRICT_AUTH drift |
-| Build Errors | 3 | Compilation, deployment, Vercel issues |
+| Build Errors | 6 | Compilation, deployment, Vercel, Vite ESM/CJS interop |
 | Code Quality | 1 | Logging and code standards |
 | Code Quality Issues | 2 | Multi-layer code hardening |
 | Cross References | 1 | Session and resolution cross-references |
@@ -153,7 +156,7 @@ Following the **Compounding Engineering** philosophy: each problem solved makes 
 | Test Failures | 8 | Mock drift, canvas mock, E2E |
 | Type Issues | 1 | Type system mismatches |
 | Type Safety Issues | 1 | Schema and type assertion issues |
-| **Total** | **48** | |
+| **Total** | **51** | |
 
 ## How to Add Solutions
 
