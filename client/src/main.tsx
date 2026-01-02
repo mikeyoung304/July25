@@ -1,6 +1,7 @@
 import { StrictMode } from 'react'
 import { logger } from '@/services/logger'
 import { createRoot } from 'react-dom/client'
+import { Analytics } from '@vercel/analytics/react'
 import { LocalStorageManager } from '@/services/monitoring/localStorage-manager'
 import './index.css'
 import App from './App.tsx'
@@ -31,6 +32,7 @@ if (rootElement) {
   root.render(
     <StrictMode>
       <App />
+      <Analytics />
     </StrictMode>,
   );
   

@@ -28,6 +28,7 @@
     "@stripe/stripe-js": "^8.6.0",
     "@supabase/supabase-js": "^2.50.5",
     "@types/react-window": "^1.8.8",
+    "@vercel/analytics": "^1.6.1",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "framer-motion": "^12.23.0",
